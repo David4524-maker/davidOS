@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>davidOS Web Edition</title>
+  <style>
+    :root {
+      --accent-color: #0078d4;
+      --bg-wallpaper: linear-gradient(135deg, #1e1e24, #2a085c, #0f4c81);
+      --theme-bg: rgba(20, 20, 25, 0.9);
+      --window-bg: #1c1c24;
+      --filter-mode: none;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; font-family: 'Segoe UI', sans-serif; }
+    body, html { width: 100%; height: 100%; overflow: hidden; filter: var(--filter-mode); }
+
+    /* --- BOOT SCREEN --- */
+    #boot-screen {
+      position: fixed; inset: 0; background: #000; z-index: 99999;
+      display: flex; flex-direction: column; justify-content: center; align-items: center; color: white;
+    }
+    .boot-door { font-size: 80px; margin-bottom: 30px; animation: pulse 1.5s infinite; }
+    .boot-loader-track { width: 220px; height: 4px; background: #333; border-radius: 2px; overflow: hidden; }
+    .boot-loader-bar { width: 40%; height: 100%; background: var(--accent-color); animation: bootMove 1.2s infinite ease-in-out; }
+    @keyframes bootMove { 0% { transform: translateX(-100%); } 100% { transform: translateX(250%); } }
+    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+
+    /* --- LOGIN SCREEN --- */
+    #login-screen {
+      position: fixed; inset: 0; background: rgba(10, 10, 15, 0.95); z-index: 9999; backdrop-filter: blur(20px);
+      display: flex; flex-direction: column; justify-content: space-between; align-items: center; padding: 40px; color: white;
+    }
+    .login-box { display: flex; flex-direction: column; align-items: center; gap: 15px; margin: auto; }
+    .login-avatar { width: 100px; height: 100px; border-radius: 50%; background: var(--accent-color); display: flex; align-items: center; justify-content: center; font-size: 45px; }
+    .login-input { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 10px 15px; color: white; outline: none; text-align: center; font-size: 15px; }
+    .login-btn { background: var(--accent-color); border: none; padding: 10px 25px; border-radius: 6px; color: white; cursor: pointer; font-weight: bold; }
+    .login-footer { display: flex; gap: 15px; background: rgba(255,255,255,0.05); padding: 10px 20px; border-radius: 30px; font-size: 13px; align-items: center; flex-wrap: wrap; }
+
+    /* --- DESKTOP & TASKBAR --- */
+    #desktop { width: 100vw; height: 100vh; background: var(--bg-wallpaper); position: relative; overflow: hidden; }
+    .desktop-icons { display: grid; grid-template-rows: repeat(auto-fill, 90px); grid-auto-flow: column; gap: 10px; padding: 15px; height: calc(100vh - 48px); width: max-content; }
+    .icon { width: 80px; height: 85px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border-radius: 6px; cursor: pointer; color: white; text-align: center; font-size: 11px; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
+    .icon:hover { background: rgba(255,255,255,0.15); }
+    .icon-img { font-size: 32px; }
+
+    #taskbar { position: absolute; bottom: 0; width: 100%; height: 48px; background: var(--theme-bg); backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: space-between; padding: 0 10px; z-index: 8000; }
+    .taskbar-left { display: flex; align-items: center; gap: 8px; }
+    .start-btn { width: 36px; height: 36px; border-radius: 6px; background: rgba(255,255,255,0.05); border: none; color: white; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .start-btn:hover { background: var(--accent-color); }
+    .taskbar-search { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); border-radius: 18px; padding: 6px 14px; color: white; outline: none; font-size: 13px; width: 200px; }
+    .taskbar-search:focus { border-color: var(--accent-color); background: rgba(255,255,255,0.15); }
+    .taskbar-right { display: flex; align-items: center; gap: 12px; color: white; font-size: 13px; }
+    .tray-overflow { position: relative; cursor: pointer; padding: 4px; }
+    .tray-menu { display: none; position: absolute; bottom: 45px; right: 0; background: var(--window-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; gap: 10px; grid-template-columns: repeat(3, 1fr); }
+    .tray-menu.active { display: grid; }
+
+    /* --- MENUS POPUP --- */
+    #start-menu { display: none; position: absolute; bottom: 55px; left: 10px; width: 420px; height: 500px; background: var(--theme-bg); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 20px; z-index: 8001; color: white; flex-direction: column; gap: 15px; }
+    #start-menu.active { display: flex; }
+    .start-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; overflow-y: auto; flex: 1; align-content: start; }
+
+    #emoji-menu { display: none; position: absolute; bottom: 55px; left: 50px; width: 340px; height: 380px; background: var(--theme-bg); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 15px; z-index: 8001; color: white; flex-direction: column; gap: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+    #emoji-menu.active { display: flex; }
+    .emoji-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; overflow-y: auto; flex: 1; font-size: 22px; text-align: center; }
+    .emoji-item { cursor: pointer; border-radius: 6px; padding: 5px; transition: background 0.15s, transform 0.15s; display: flex; align-items: center; justify-content: center; }
+    .emoji-item:hover { background: rgba(255,255,255,0.2); transform: scale(1.2); }
+    #toast-msg { position: fixed; bottom: 60px; right: 20px; background: var(--accent-color); color: white; padding: 8px 16px; border-radius: 20px; font-size: 13px; z-index: 99999; display: none; box-shadow: 0 4px 10px rgba(0,0,0,0.4); }
+
+    /* --- WINDOW MANAGER --- */
+    .window { position: absolute; min-width: 360px; min-height: 250px; width: 680px; height: 450px; background: var(--window-bg); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; box-shadow: 0 15px 35px rgba(0,0,0,0.6); display: flex; flex-direction: column; overflow: hidden; z-index: 100; }
+    .window.maximized { top: 0 !important; left: 0 !important; width: 100vw !important; height: calc(100vh - 48px) !important; border-radius: 0; }
+    .window-header { height: 38px; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: space-between; padding: 0 12px; cursor: move; color: white; font-size: 13px; font-weight: 600; }
+    .window-controls { display: flex; gap: 8px; }
+    .win-btn { width: 12px; height: 12px; border-radius: 50%; border: none; cursor: pointer; }
+    .win-close { background: #ff5f56; } .win-min { background: #ffbd2e; } .win-max { background: #27c93f; }
+    .window-body { flex: 1; overflow: auto; color: white; padding: 10px; background: #121216; display: flex; flex-direction: column; }
+
+    /* --- APP UI STYLES --- */
+    .store-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
+    .store-card { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .store-card button { background: var(--accent-color); border: none; color: white; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+    .terminal-out { font-family: 'Courier New', monospace; white-space: pre-wrap; font-size: 13px; color: #00ff00; flex: 1; overflow-y: auto; }
+    .terminal-input-line { display: flex; align-items: center; gap: 5px; font-family: monospace; color: #00ff00; }
+    .terminal-input { background: transparent; border: none; color: #00ff00; outline: none; flex: 1; font-family: monospace; }
+    .app-toolbar { display: flex; gap: 8px; padding-bottom: 8px; border-bottom: 1px solid #333; margin-bottom: 8px; align-items: center; flex-wrap: wrap; }
+    .app-btn { background: var(--accent-color); border: none; color: white; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+    .chat-msg { margin-bottom: 8px; padding: 8px; border-radius: 6px; background: rgba(255,255,255,0.05); }
+  </style>
+</head>
+<body>
+
+  <!-- BOOT SCREEN -->
+  <div id="boot-screen">
+    <div class="boot-door">🚪</div>
+    <div class="boot-loader-track"><div class="boot-loader-bar"></div></div>
+  </div>
+
+  <!-- LOGIN SCREEN -->
+  <div id="login-screen" style="display: none;">
+    <div class="login-box">
+      <div class="login-avatar">👤</div>
+      <input type="text" id="login-username" class="login-input" value="Usuario David" oninput="updateAccountName(this.value)">
+      <input type="password" class="login-input" placeholder="Contraseña">
+      <button class="login-btn" onclick="unlockDesktop()">Iniciar Sesión</button>
+    </div>
+    <div class="login-footer">
+      <label>📶 Wi-Fi: <select id="login-wifi" class="login-input" style="padding:2px 5px;"><option>DavidNet_5G</option><option>Sin Red</option></select></label>
+      <label>🌐 Idioma: <select class="login-input" style="padding:2px 5px;"><option>Español</option><option>English</option></select></label>
+      <label>👑 Edición: 
+        <select id="login-edition" class="login-input" style="padding:2px 5px;">
+          <option>Starter</option><option>Home</option><option>Professional</option><option selected>Ultimate</option><option>Pro</option>
+        </select>
+      </label>
+    </div>
+  </div>
+
+  <!-- MAIN DESKTOP -->
+  <div id="desktop">
+    <div class="desktop-icons" id="desktop-grid"></div>
+
+    <!-- START MENU -->
+    <div id="start-menu">
+      <div style="font-weight: bold; border-bottom: 1px solid #333; padding-bottom: 8px; display:flex; justify-content:space-between; align-items:center;">
+        <span id="start-menu-title">Aplicaciones de davidOS</span>
+        <span style="font-size:11px; opacity:0.6;" id="app-count-badge"></span>
+      </div>
+      <div class="start-grid" id="start-grid"></div>
+    </div>
+
+    <!-- EMOJI MENU -->
+    <div id="emoji-menu">
+      <div style="font-weight: bold; border-bottom: 1px solid #333; padding-bottom: 8px; display:flex; justify-content:space-between; align-items:center;">
+        <span>Panel de Emojis 😀</span>
+        <span style="font-size:11px; opacity:0.7;">Toca uno para copiar</span>
+      </div>
+      <div class="emoji-grid" id="emoji-grid"></div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast-msg">Emoji copiado al portapapeles!</div>
+
+    <!-- WINDOWS CONTAINER -->
+    <div id="windows-container"></div>
+
+    <!-- TASKBAR -->
+    <div id="taskbar">
+      <div class="taskbar-left">
+        <button class="start-btn" onclick="toggleStartMenu()" title="Menú Inicio">🚪</button>
+        <button class="start-btn" onclick="toggleEmojiMenu()" title="Panel de Emojis">😀</button>
+        <input type="text" class="taskbar-search" placeholder="🔍 Buscar app en davidOS..." oninput="filterApps(this.value)" onfocus="if(this.value.trim() !== '') filterApps(this.value)" onkeypress="handleSearchKey(event)">
+      </div>
+      <div class="taskbar-right">
+        <div class="tray-overflow" onclick="toggleTray()">▲
+          <div class="tray-menu" id="tray-menu"><span>🛡️</span><span>🔊</span><span>🔋</span></div>
+        </div>
+        <span id="wifi-display">📶</span>
+        <span id="clock-display">00:00</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- EMOJI LIST ---
+    const emojiList = [
+      "😀","😃","😄","😁","😆","😅","😂","🤣","😊","😇","🙂","🙃","😉","😌","😍","🥰","😘","😗","😙","😚",
+      "😋","😛","😝","😜","🤪","🤨","🧐","🤓","😎","🤩","🥳","😏","😒","😞","😔","😟","😕","🙁","☹️","😣",
+      "😖","😫","😩","🥺","😢","😭","😤","😠","😡","🤬","🤯","😳","🥵","🥶","😱","😨","😰","😥","😓","🤗",
+      "🤔","🤭","🤫","🤥","😶","😐","😑","😬","🙄","😯","😦","😧","😮","😲","🥱","😴","🤤","😪","😵","🤐",
+      "🥴","🤢","🤮","🤧","😷","🤒","🤕","🤑","🤠","😈","👿","👹","👺","🤡","💩","👻","💀","☠️","👽","👾",
+      "🤖","🎃","😺","😸","😹","😻","😼","😽","🙀","😿","😾","👍","👎","👊","✊","🤛","🤜","🤞","✌️","🤟",
+      "🤘","👌","🤏","👈","👉","👆","👇","☝️","✋","🤚","🖐","🖖","👋","🤙","💪","🖕","✍️","🙏","🦶","🦵",
+      "🧠","👤","👥","🗣️","👶","👧","🧒","👦","👩","🧑","👨","👵","👴","💃","🕺","🏃‍♀️","🏃‍♂️","🐕","🐈","🐎",
+      "🦄","🐖","🐘","🐭","🐰","🦊","🐻","🐼","🐸","🐲","🐍","🐙","🦑","🦐","crab","🐬","🐳","🦈","🐊","🐅",
+      "🚗","🏎️","🚓","🚑","🚒","🚲","🛵","🏍️","✈️","🛳️","⛵","⚓","🚀","🛸","🎮","🕹️","⚽","🏀","🏈","⚾",
+      "🍕","🍔","🍟","🌭","🍿","🥓","🍳","🧇","🥞","🍞","🥐","🧀","🌮","🌯","🥩","🍱","🍣","🍡","🍦","🍧",
+      "🎂","🍰","🍫","🍬","🍭","🍮","☕","🍵","🍶","🍾","🍷","🍸","🍹","🍺","🍻","🥂","🥃","🥤","🥑","🍆",
+      "🌙","⭐","🌟","✨","⚡","💥","🔥","🌈","☀️","⛅","🌧️","❄️","🎈","🎉","🎊","🎁","🏆","🥇","💎","🎵",
+      "🎶","🎨","🎭","🎬","🎤","🎧","🎷","🎸","🎹","🎺","🎻","🥁","📱","💻","🖥️","⌨️","🖱️","💾","🎥","📺",
+      "📷","🔍","💡","flashlight","⏰","⏳","📦","✏️","📝","📁","📂","📌","📍","✂️","🔒","🔓","🔑","🔨","⚙️","💣",
+      "🛡️","💊","💉","🛒","🛍️","🚩","🏳️","🖤","❤️","🧡","💛","💚","💙","💜","🤎","🤍","💯","💬","💭","💤"
+    ];
+
+    // --- VIRTUAL UNIX FILE SYSTEM ---
+    let vfs = {
+      "/": ["home", "bin", "documents"],
+      "/home": ["david"],
+      "/home/david": ["bienvenida.txt", "codigo.ez"],
+      "/documents": ["nota.txt"]
+    };
+    let fileContents = {
+      "/home/david/bienvenida.txt": "¡Bienvenido a davidOS! Sistema completamente funcional.",
+      "/home/david/codigo.ez": "print('Hola desde EZScript')"
+    };
+    let currentPath = "/home/david";
+    let activeUser = "Usuario David";
+
+    // --- APP DATABASE ---
+    let apps = [
+      { id: 'powerpoint', name: 'PowerPoint', icon: '📅' },
+      { id: 'notepad', name: 'Bloc de Notas', icon: '📄' },
+      { id: 'word', name: 'Word', icon: '📝' },
+      { id: 'excel', name: 'Excel', icon: '📊' },
+      { id: 'youtube', name: 'YouTube', icon: '▶️' },
+      { id: 'gemini', name: 'Gemini AI', icon: '✨' },
+      { id: 'ezpack', name: 'EZPack AI', icon: '📦' },
+      { id: 'paint', name: 'Paint', icon: '🎨' },
+      { id: 'camera', name: 'Cámara', icon: '📷' },
+      { id: 'store', name: 'David Store', icon: '🛍️' },
+      { id: 'osc', name: 'OSC Browser', icon: '🌐' },
+      { id: 'chrome', name: 'Google Chrome', icon: '🌍' },
+      { id: 'explorer', name: 'Explorador', icon: '📁' },
+      { id: 'settings', name: 'Ajustes', icon: '⚙️' },
+      { id: 'run', name: 'Ejecutar', icon: '🏃' },
+      { id: 'control', name: 'Panel Control', icon: '🎛️' },
+      { id: 'outlook', name: 'Outlook', icon: '✉️' },
+      { id: 'emojis', name: 'Emojis', icon: '😀' },
+      { id: 'cmd', name: 'CMD', icon: '⬛' },
+      { id: 'terminal', name: 'davidconsole', icon: '💻' },
+      { id: 'obs', name: 'OBS Studio', icon: '📹' },
+      { id: 'secure', name: 'David Secure', icon: '🛡️' },
+      { id: 'media', name: 'Reproductor', icon: '🎵' }
+    ];
+
+    let storeCatalog = [
+      { id: 'minecraft', name: 'Minecraft Classic', icon: '🧱', type: 'frame', url: 'https://classic.minecraft.net/' },
+      { id: 'chatgpt', name: 'ChatGPT', icon: '🤖', type: 'frame', url: 'https://chatgpt.com/' },
+      { id: 'firefox', name: 'Firefox', icon: '🦊', type: 'frame', url: 'https://www.wikipedia.org' },
+      { id: 'opera', name: 'Opera', icon: '🔴', type: 'frame', url: 'https://www.bing.com' },
+      { id: 'gimp', name: 'GIMP', icon: '🖌️', type: 'frame', url: 'https://www.photopea.com' }
+    ];
+
+    let zIndexCounter = 100;
+
+    // --- POWERPOINT STATE ---
+    let pptSlides = [
+      { title: "Presentación davidOS", body: "• Creado en davidOS Ultimate\n• Edición interactiva en tiempo real\n• Soporte para diapositivas ilimitadas" },
+      { title: "Características de PowerPoint", body: "Puedes agregar, editar y eliminar diapositivas.\nHaz clic en 'Presentar' para verla a pantalla completa." }
+    ];
+    let activePptIndex = 0;
+
+    // --- SYSTEM INIT ---
+    function initSystem() {
+      setTimeout(() => {
+        document.getElementById('boot-screen').style.display = 'none';
+        document.getElementById('login-screen').style.display = 'flex';
+      }, 3000);
+
+      setInterval(updateClock, 1000);
+      renderIcons();
+      renderEmojiPicker();
+    }
+
+    if (document.readyState === 'complete' || document.readyState === 'interactive') { initSystem(); } 
+    else { window.addEventListener('load', initSystem); }
+
+    function updateClock() {
+      const d = new Date();
+      document.getElementById('clock-display').innerText = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function unlockDesktop() { document.getElementById('login-screen').style.display = 'none'; }
+    function toggleStartMenu() {
+      document.getElementById('emoji-menu').classList.remove('active');
+      const startMenu = document.getElementById('start-menu');
+      if (!startMenu.classList.contains('active')) {
+        const searchInput = document.querySelector('.taskbar-search');
+        if (searchInput.value.trim() !== '') {
+          filterApps(searchInput.value);
+        } else {
+          filterApps('');
+        }
+      }
+      startMenu.classList.toggle('active');
+    }
+    function toggleEmojiMenu() {
+      document.getElementById('start-menu').classList.remove('active');
+      document.getElementById('emoji-menu').classList.toggle('active');
+    }
+    function toggleTray() { document.getElementById('tray-menu').classList.toggle('active'); }
+    function updateAccountName(val) { activeUser = val || "Usuario David"; }
+
+    function renderEmojiPicker() {
+      const grid = document.getElementById('emoji-grid');
+      if (!grid) return;
+      grid.innerHTML = emojiList.map(e => `
+        <div class="emoji-item" onclick="copyEmoji('${e}')">${e}</div>
+      `).join('');
+    }
+
+    function copyEmoji(emoji) {
+      navigator.clipboard.writeText(emoji).then(() => {
+        showToast(`Copiado: ${emoji}`);
+      }).catch(() => {
+        showToast(`Emoji: ${emoji}`);
+      });
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast-msg');
+      toast.innerText = msg;
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 2000);
+    }
+
+    function renderIcons() {
+      const dGrid = document.getElementById('desktop-grid');
+      dGrid.innerHTML = '';
+
+      apps.forEach(app => {
+        const iconHtml = `<div class="icon-img">${app.icon}</div><div>${app.name}</div>`;
+        const dIcon = document.createElement('div');
+        dIcon.className = 'icon';
+        dIcon.onclick = () => {
+          if(app.id === 'emojis') toggleEmojiMenu();
+          else openApp(app.id);
+        };
+        dIcon.innerHTML = iconHtml;
+        dGrid.appendChild(dIcon);
+      });
+
+      filterApps('');
+    }
+
+    // --- TASKBAR APP SEARCH CONTROLLER ---
+    function filterApps(query) {
+      const startMenu = document.getElementById('start-menu');
+      const emojiMenu = document.getElementById('emoji-menu');
+      const title = document.getElementById('start-menu-title');
+      const badge = document.getElementById('app-count-badge');
+      const q = query.toLowerCase().trim();
+
+      if (q !== '') {
+        startMenu.classList.add('active');
+        emojiMenu.classList.remove('active');
+        if(title) title.innerText = `Resultados para "${query}"`;
+      } else {
+        if(title) title.innerText = "Aplicaciones de davidOS";
+      }
+
+      const filtered = apps.filter(a => a.name.toLowerCase().includes(q));
+      if(badge) badge.innerText = `${filtered.length} app(s)`;
+
+      const grid = document.getElementById('start-grid');
+      grid.innerHTML = '';
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; color: #888; padding: 40px 10px;">🔍 No se encontró ninguna app llamada "<b>${query}</b>"</div>`;
+        return;
+      }
+
+      filtered.forEach(app => {
+        const item = document.createElement('div');
+        item.className = 'icon';
+        item.onclick = () => {
+          if(app.id === 'emojis') toggleEmojiMenu();
+          else openApp(app.id);
+          startMenu.classList.remove('active');
+          document.querySelector('.taskbar-search').value = '';
+          filterApps('');
+        };
+        item.innerHTML = `<div class="icon-img">${app.icon}</div><div>${app.name}</div>`;
+        grid.appendChild(item);
+      });
+    }
+
+    function handleSearchKey(e) {
+      if (e.key === 'Enter') {
+        const query = e.target.value.toLowerCase().trim();
+        const found = apps.find(a => a.name.toLowerCase().includes(query));
+        if (found) {
+          if (found.id === 'emojis') toggleEmojiMenu();
+          else openApp(found.id);
+          document.getElementById('start-menu').classList.remove('active');
+          e.target.value = '';
+          filterApps('');
+        }
+      }
+    }
+
+    // --- WINDOW MANAGER ---
+    function openApp(appId) {
+      const existing = document.getElementById(`win-${appId}`);
+      if (existing) { existing.style.display = 'flex'; existing.style.zIndex = ++zIndexCounter; return; }
+
+      const app = apps.find(a => a.id === appId);
+      if (!app) return;
+
+      const win = document.createElement('div');
+      win.id = `win-${appId}`;
+      win.className = 'window';
+      win.style.top = '60px'; win.style.left = '100px';
+      win.style.zIndex = ++zIndexCounter;
+
+      win.innerHTML = `
+        <div class="window-header" onmousedown="dragWindow(event, '${win.id}')">
+          <span>${app.icon} ${app.name}</span>
+          <div class="window-controls">
+            <button class="win-btn win-min" onclick="minimizeWin('${win.id}')"></button>
+            <button class="win-btn win-max" onclick="maximizeWin('${win.id}')"></button>
+            <button class="win-btn win-close" onclick="closeWin('${win.id}')"></button>
+          </div>
+        </div>
+        <div class="window-body" id="body-${appId}">${getAppContent(appId)}</div>
+      `;
+
+      document.getElementById('windows-container').appendChild(win);
+      if (appId === 'paint') initPaintCanvas();
+      if (appId === 'camera') initCamera();
+      if (appId === 'powerpoint') initPptApp();
+    }
+
+    function closeWin(id) { document.getElementById(id).remove(); }
+    function minimizeWin(id) { document.getElementById(id).style.display = 'none'; }
+    function maximizeWin(id) { document.getElementById(id).classList.toggle('maximized'); }
+
+    function dragWindow(e, id) {
+      const win = document.getElementById(id);
+      let shiftX = e.clientX - win.getBoundingClientRect().left;
+      let shiftY = e.clientY - win.getBoundingClientRect().top;
+      win.style.zIndex = ++zIndexCounter;
+
+      function moveAt(pageX, pageY) {
+        win.style.left = pageX - shiftX + 'px';
+        win.style.top = pageY - shiftY + 'px';
+      }
+      function onMouseMove(event) { moveAt(event.pageX, event.pageY); }
+      document.addEventListener('mousemove', onMouseMove);
+      document.onmouseup = function() { document.removeEventListener('mousemove', onMouseMove); };
+    }
+
+    // --- REAL APPS IMPLEMENTATION ---
+    function getAppContent(id) {
+      switch(id) {
+        case 'powerpoint':
+          return `
+            <div style="display:flex; flex-direction:column; height:100%;">
+              <div class="app-toolbar">
+                <button class="app-btn" onclick="addPptSlide()">+ Nueva Diapositiva</button>
+                <button class="app-btn" style="background:#ff5f56;" onclick="deletePptSlide()">🗑️ Eliminar</button>
+                <button class="app-btn" style="background:#27c93f; color:black; font-weight:bold;" onclick="startSlideshow()">▶️ Presentar</button>
+                <button class="app-btn" onclick="downloadPpt()">💾 Exportar Presentación</button>
+              </div>
+              <div style="display:flex; flex:1; gap:10px; overflow:hidden;">
+                <div id="ppt-thumbnails" style="width:150px; background:rgba(0,0,0,0.3); border-right:1px solid #333; padding:8px; overflow-y:auto; display:flex; flex-direction:column; gap:8px;"></div>
+                <div style="flex:1; background:#18181c; border:1px solid #333; border-radius:6px; padding:15px; display:flex; flex-direction:column; gap:12px;">
+                  <input type="text" id="ppt-title" placeholder="Título..." oninput="updateCurrentSlide()" style="background:rgba(255,255,255,0.05); border:1px solid #444; color:white; font-size:20px; font-weight:bold; padding:8px; border-radius:4px; outline:none;">
+                  <textarea id="ppt-body" placeholder="Escribe tu texto..." oninput="updateCurrentSlide()" style="flex:1; background:rgba(255,255,255,0.05); border:1px solid #444; color:white; font-size:14px; padding:10px; border-radius:4px; outline:none; resize:none; font-family:sans-serif;"></textarea>
+                </div>
+              </div>
+            </div>`;
+
+        case 'notepad':
+          return `
+            <div class="app-toolbar">
+              <button class="app-btn" onclick="downloadText('nota.txt', document.getElementById('notepad-txt').value)">💾 Guardar TXT</button>
+              <button class="app-btn" onclick="document.getElementById('notepad-txt').value=''">Limpiar</button>
+            </div>
+            <textarea id="notepad-txt" style="flex:1; background:#18181c; color:#fff; border:none; outline:none; font-family:monospace; padding:10px; resize:none;" placeholder="Escribe tus notas aquí..."></textarea>`;
+
+        case 'word':
+          return `
+            <div class="app-toolbar">
+              <button class="app-btn" onclick="document.execCommand('bold')"><b>B</b></button>
+              <button class="app-btn" onclick="document.execCommand('italic')"><i>I</i></button>
+              <button class="app-btn" onclick="document.execCommand('underline')"><u>U</u></button>
+              <button class="app-btn" onclick="downloadText('doc.html', document.getElementById('wordEditor').innerHTML)">💾 Exportar Doc</button>
+            </div>
+            <div id="wordEditor" contenteditable="true" style="flex:1; background:#fff; color:#000; padding:15px; outline:none; border-radius:4px; overflow-y:auto;">Redacta tu documento en Word...</div>`;
+
+        case 'excel':
+          return `
+            <div class="app-toolbar">
+              <button class="app-btn" onclick="calcExcelSum()">Sumar Columna A</button>
+              <span id="excelResult" style="font-size:12px;"></span>
+            </div>
+            <table border="1" style="width:100%; border-collapse:collapse; color:white; text-align:center;">
+              <tr style="background:#333;"><th>#</th><th>A</th><th>B</th><th>C</th></tr>
+              <tr><td>1</td><td contenteditable class="ex-a">10</td><td contenteditable>20</td><td contenteditable>30</td></tr>
+              <tr><td>2</td><td contenteditable class="ex-a">40</td><td contenteditable>50</td><td contenteditable>60</td></tr>
+              <tr><td>3</td><td contenteditable class="ex-a">70</td><td contenteditable>80</td><td contenteditable>90</td></tr>
+            </table>`;
+
+        case 'paint':
+          return `
+            <div class="app-toolbar">
+              <input type="color" id="paintColor" value="#0078d4">
+              <input type="range" id="paintSize" min="1" max="20" value="4">
+              <button class="app-btn" onclick="clearCanvas()">Limpiar</button>
+              <button class="app-btn" onclick="downloadCanvas()">💾 Guardar PNG</button>
+            </div>
+            <canvas id="paintCanvas" width="620" height="320" style="background:#fff; border-radius:4px;"></canvas>`;
+
+        case 'camera':
+          return `
+            <div class="app-toolbar">
+              <button class="app-btn" onclick="takeSnapshot()">📸 Tomar Foto</button>
+            </div>
+            <video id="webcam" autoplay playsinline style="width:100%; flex:1; object-fit:cover; border-radius:4px; background:#000;"></video>`;
+
+        case 'youtube':
+          return `
+            <div class="app-toolbar">
+              <input type="text" id="ytQuery" value="musica lofi" class="login-input" style="flex:1; text-align:left;">
+              <button class="app-btn" onclick="searchYT()">Buscar en YT</button>
+            </div>
+            <iframe id="ytPlayer" style="width:100%; flex:1; border:none;" src="https://www.youtube.com/embed/jfKfPfyJRdk"></iframe>`;
+
+        case 'gemini':
+        case 'ezpack':
+          return `
+            <div id="ai-chat-box" style="flex:1; overflow-y:auto; padding:10px; display:flex; flex-direction:column;">
+              <div class="chat-msg">🤖 <b>${id === 'gemini' ? 'Gemini AI' : 'EZPack AI'}:</b> ¡Hola ${activeUser}! ¿Qué código o consulta deseas procesar hoy?</div>
+            </div>
+            <div class="app-toolbar">
+              <input type="text" id="ai-input" placeholder="Pregunta algo..." class="login-input" style="flex:1; text-align:left;" onkeypress="if(event.key==='Enter') sendAiMsg('${id}')">
+              <button class="app-btn" onclick="sendAiMsg('${id}')">Enviar</button>
+            </div>`;
+
+        case 'osc':
+        case 'chrome':
+          return `
+            <div class="app-toolbar">
+              <input type="text" id="browserUrl" value="https://bing.com" class="login-input" style="flex:1; text-align:left;">
+              <button class="app-btn" onclick="loadUrl()">Navegar</button>
+            </div>
+            <iframe id="browserFrame" style="width:100%; flex:1; border:none; background:white;" src="https://bing.com"></iframe>`;
+
+        case 'store':
+          return `
+            <h3 style="margin-bottom:10px;">David Store</h3>
+            <div class="store-grid">
+              ${storeCatalog.map(a => `
+                <div class="store-card">
+                  <div style="font-size:30px;">${a.icon}</div>
+                  <div style="font-size:12px;">${a.name}</div>
+                  <button onclick="installStoreApp('${a.id}')">Instalar</button>
+                </div>
+              `).join('')}
+            </div>`;
+
+        case 'explorer':
+          return `
+            <div class="app-toolbar">Ruta: <b id="exp-path">${currentPath}</b></div>
+            <div id="exp-list" style="flex:1; overflow-y:auto;">${renderExplorerFiles()}</div>`;
+
+        case 'cmd':
+        case 'terminal':
+          return `
+            <div class="terminal-out" id="term-out">davidOS Shell v3.0 (UNIX Core)\nEscribe 'help' para listar los comandos.\n\n</div>
+            <div class="terminal-input-line">
+              <span id="term-prompt">david@davidOS:${currentPath}$</span>
+              <input type="text" class="terminal-input" id="term-in" onkeypress="handleUnixCmd(event)">
+            </div>`;
+
+        case 'settings':
+          return `
+            <div class="app-toolbar">
+              <button class="app-btn" onclick="setBg('linear-gradient(135deg, #1e1e24, #2a085c, #0f4c81)')">Fondo Azul</button>
+              <button class="app-btn" onclick="setBg('linear-gradient(135deg, #11998e, #38ef7d)')">Fondo Verde</button>
+              <button class="app-btn" onclick="setBg('#000')">Fondo Negro</button>
+              <button class="app-btn" style="background:#ff5f56;" onclick="restoreSystem()">Restaurar OS</button>
+            </div>
+            <div style="padding:10px;">
+              <p>👤 Usuario actual: <b>${activeUser}</b></p>
+              <p>👑 Edición: <b>davidOS Ultimate</b></p>
+              <p>🌐 Red Wi-Fi: <b id="settings-wifi">Conectado (DavidNet_5G)</b></p>
+            </div>`;
+
+        case 'run':
+          return `
+            <div style="padding:15px; display:flex; flex-direction:column; gap:10px;">
+              <label>Escribe el identificador de la app o sitio a abrir:</label>
+              <input type="text" id="run-input" placeholder="ejemplo: powerpoint, word, cmd, notepad" class="login-input" style="text-align:left;">
+              <button class="app-btn" onclick="executeRun()">Ejecutar</button>
+            </div>`;
+
+        case 'control':
+          return `
+            <h3>Panel de Control del Sistema</h3><br>
+            <p>⚡ Procesador: 10 Núcleos / 12 Hilos</p>
+            <p>💾 Memoria RAM: 8 GB</p>
+            <p>💿 Almacenamiento NVMe KIOXIA: 512 GB libre</p>`;
+
+        default:
+          return `<iframe style="width:100%; height:100%; border:none; background:white;" src="${id}"></iframe>`;
+      }
+    }
+
+    // --- POWERPOINT INTERACTIVE CONTROLLER ---
+    function initPptApp() {
+      renderPptThumbnails();
+      loadPptEditor();
+    }
+
+    function renderPptThumbnails() {
+      const container = document.getElementById('ppt-thumbnails');
+      if (!container) return;
+      container.innerHTML = pptSlides.map((slide, index) => `
+        <div onclick="selectPptSlide(${index})" style="padding:8px; background:${index === activePptIndex ? 'var(--accent-color)' : 'rgba(255,255,255,0.08)'}; border-radius:4px; cursor:pointer; font-size:11px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; border:1px solid rgba(255,255,255,0.1);">
+          <b>#${index + 1}</b> ${slide.title || 'Diapositiva'}
+        </div>
+      `).join('');
+    }
+
+    function selectPptSlide(index) {
+      activePptIndex = index;
+      loadPptEditor();
+      renderPptThumbnails();
+    }
+
+    function loadPptEditor() {
+      const t = document.getElementById('ppt-title');
+      const b = document.getElementById('ppt-body');
+      if (t && b && pptSlides[activePptIndex]) {
+        t.value = pptSlides[activePptIndex].title;
+        b.value = pptSlides[activePptIndex].body;
+      }
+    }
+
+    function updateCurrentSlide() {
+      const t = document.getElementById('ppt-title');
+      const b = document.getElementById('ppt-body');
+      if (pptSlides[activePptIndex]) {
+        pptSlides[activePptIndex].title = t.value;
+        pptSlides[activePptIndex].body = b.value;
+        renderPptThumbnails();
+      }
+    }
+
+    function addPptSlide() {
+      pptSlides.push({ title: `Diapositiva ${pptSlides.length + 1}`, body: "Contenido de la diapositiva..." });
+      activePptIndex = pptSlides.length - 1;
+      renderPptThumbnails();
+      loadPptEditor();
+    }
+
+    function deletePptSlide() {
+      if (pptSlides.length <= 1) {
+        alert("El documento debe tener al menos una diapositiva.");
+        return;
+      }
+      pptSlides.splice(activePptIndex, 1);
+      if (activePptIndex >= pptSlides.length) activePptIndex = pptSlides.length - 1;
+      renderPptThumbnails();
+      loadPptEditor();
+    }
+
+    function startSlideshow() {
+      let showIndex = activePptIndex;
+      const modal = document.createElement('div');
+      modal.id = 'ppt-slideshow-overlay';
+      modal.style.cssText = 'position:fixed; inset:0; background:#111; z-index:999999; display:flex; flex-direction:column; justify-content:space-between; padding:40px; color:white;';
+
+      function updateShow() {
+        modal.innerHTML = `
+          <div style="font-size:13px; opacity:0.6; display:flex; justify-content:space-between;">
+            <span>Modo Presentación - Diapositiva ${showIndex + 1} de ${pptSlides.length}</span>
+            <span>Haz clic en Salir para volver a davidOS</span>
+          </div>
+          <div style="flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:20px;">
+            <h1 style="font-size:42px; margin-bottom:20px; color:var(--accent-color);">${pptSlides[showIndex].title}</h1>
+            <p style="font-size:22px; white-space:pre-wrap; max-width:850px; line-height:1.6;">${pptSlides[showIndex].body}</p>
+          </div>
+          <div style="display:flex; justify-content:center; gap:15px;">
+            <button class="app-btn" id="ppt-prev-btn">◀ Anterior</button>
+            <button class="app-btn" id="ppt-close-btn" style="background:#ff5f56;">❌ Salir</button>
+            <button class="app-btn" id="ppt-next-btn">Siguiente ▶</button>
+          </div>
+        `;
+        document.getElementById('ppt-prev-btn').onclick = () => { if (showIndex > 0) { showIndex--; updateShow(); } };
+        document.getElementById('ppt-next-btn').onclick = () => { if (showIndex < pptSlides.length - 1) { showIndex++; updateShow(); } };
+        document.getElementById('ppt-close-btn').onclick = () => modal.remove();
+      }
+
+      document.body.appendChild(modal);
+      updateShow();
+    }
+
+    function downloadPpt() {
+      let content = "=== PRESENTACIÓN POWERPOINT (davidOS) ===\n\n";
+      pptSlides.forEach((s, i) => {
+        content += `--- Diapositiva ${i + 1}: ${s.title} ---\n${s.body}\n\n`;
+      });
+      downloadText("presentacion.txt", content);
+    }
+
+    // --- UNIX TERMINAL HANDLER ---
+    function handleUnixCmd(e) {
+      if (e.key !== 'Enter') return;
+      const input = document.getElementById('term-in');
+      const out = document.getElementById('term-out');
+      const cmdLine = input.value.trim();
+      input.value = '';
+
+      out.innerText += `david@davidOS:${currentPath}$ ${cmdLine}\n`;
+      const parts = cmdLine.split(' ');
+      const cmd = parts[0].toLowerCase();
+      const arg = parts[1];
+
+      switch(cmd) {
+        case 'help':
+          out.innerText += "Comandos UNIX disponibles:\n ls, pwd, cd, cat, touch, mkdir, echo, clear, date, whoami\n";
+          break;
+        case 'ls':
+          out.innerText += (vfs[currentPath] || []).join('   ') + "\n";
+          break;
+        case 'pwd':
+          out.innerText += currentPath + "\n";
+          break;
+        case 'clear':
+          out.innerText = "";
+          break;
+        case 'whoami':
+          out.innerText += `${activeUser}\n`;
+          break;
+        case 'date':
+          out.innerText += new Date().toString() + "\n";
+          break;
+        case 'cat':
+          const filePath = currentPath + '/' + arg;
+          out.innerText += (fileContents[filePath] || "Archivo no encontrado") + "\n";
+          break;
+        case 'touch':
+          if (arg) {
+            if (!vfs[currentPath]) vfs[currentPath] = [];
+            vfs[currentPath].push(arg);
+            fileContents[currentPath + '/' + arg] = "";
+            out.innerText += `Archivo '${arg}' creado.\n`;
+          }
+          break;
+        case 'mkdir':
+          if (arg) {
+            const newDirPath = currentPath + '/' + arg;
+            vfs[currentPath].push(arg);
+            vfs[newDirPath] = [];
+            out.innerText += `Directorio '${arg}' creado.\n`;
+          }
+          break;
+        case 'echo':
+          out.innerText += parts.slice(1).join(' ') + "\n";
+          break;
+        default:
+          if(cmd !== "") out.innerText += `bash: ${cmd}: comando no encontrado\n`;
+      }
+
+      document.getElementById('term-prompt').innerText = `david@davidOS:${currentPath}$`;
+      out.scrollTop = out.scrollHeight;
+    }
+
+    // --- APP HELPERS ---
+    function calcExcelSum() {
+      let sum = 0;
+      document.querySelectorAll('.ex-a').forEach(td => sum += parseFloat(td.innerText || 0));
+      document.getElementById('excelResult').innerText = `Suma A = ${sum}`;
+    }
+
+    function downloadText(filename, text) {
+      const a = document.createElement('a');
+      a.download = filename;
+      a.href = URL.createObjectURL(new Blob([text], {type: 'text/plain'}));
+      a.click();
+    }
+
+    function initCamera() {
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => { document.getElementById('webcam').srcObject = stream; })
+        .catch(err => console.log("Cámara no disponible"));
+    }
+
+    function takeSnapshot() { alert("📸 Foto capturada correctamente."); }
+
+    function initPaintCanvas() {
+      const canvas = document.getElementById('paintCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let drawing = false;
+      canvas.onmousedown = () => drawing = true;
+      canvas.onmouseup = () => { drawing = false; ctx.beginPath(); };
+      canvas.onmousemove = (e) => {
+        if (!drawing) return;
+        const rect = canvas.getBoundingClientRect();
+        ctx.lineWidth = document.getElementById('paintSize').value;
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = document.getElementById('paintColor').value;
+        ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+      };
+    }
+
+    function clearCanvas() {
+      const c = document.getElementById('paintCanvas');
+      if(c) c.getContext('2d').clearRect(0,0,c.width,c.height);
+    }
+
+    function downloadCanvas() {
+      const c = document.getElementById('paintCanvas');
+      const a = document.createElement('a');
+      a.download = 'dibujo-davidOS.png';
+      a.href = c.toDataURL();
+      a.click();
+    }
+
+    function sendAiMsg(bot) {
+      const input = document.getElementById('ai-input');
+      const box = document.getElementById('ai-chat-box');
+      if (!input.value.trim()) return;
+
+      box.innerHTML += `<div class="chat-msg">👤 <b>Tú:</b> ${input.value}</div>`;
+      const userText = input.value;
+      input.value = '';
+
+      setTimeout(() => {
+        box.innerHTML += `<div class="chat-msg">🤖 <b>${bot === 'gemini' ? 'Gemini AI' : 'EZPack AI'}:</b> Respuesta procesada para "${userText}".</div>`;
+        box.scrollTop = box.scrollHeight;
+      }, 500);
+    }
+
+    function searchYT() {
+      const q = document.getElementById('ytQuery').value;
+      document.getElementById('ytPlayer').src = `https://www.youtube.com/embed?listType=search&list=${encodeURIComponent(q)}`;
+    }
+
+    function loadUrl() {
+      let u = document.getElementById('browserUrl').value;
+      if (!u.startsWith('http')) u = 'https://' + u;
+      document.getElementById('browserFrame').src = u;
+    }
+
+    function installStoreApp(storeId) {
+      const item = storeCatalog.find(s => s.id === storeId);
+      if (!item) return;
+
+      if (!apps.some(a => a.id === item.url || a.id === item.id)) {
+        apps.push({ id: item.url || item.id, name: item.name, icon: item.icon });
+        renderIcons();
+        alert(`¡${item.name} instalada en davidOS!`);
+      } else {
+        alert(`${item.name} ya está instalada.`);
+      }
+    }
+
+    function renderExplorerFiles() {
+      return (vfs[currentPath] || []).map(f => `<div style="padding:6px; background:rgba(255,255,255,0.05); margin-bottom:4px; border-radius:4px;">📄 ${f}</div>`).join('');
+    }
+
+    function executeRun() {
+      const target = document.getElementById('run-input').value.trim();
+      if (target) openApp(target);
+    }
+
+    function setBg(bg) { document.documentElement.style.setProperty('--bg-wallpaper', bg); }
+    function restoreSystem() {
+      if (confirm('¿Deseas restaurar davidOS a los valores de fábrica?')) location.reload();
+    }
+  </script>
+</body>
+</html>
