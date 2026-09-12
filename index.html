@@ -304,7 +304,7 @@
       "🎂","🍰","🍫","🍬","🍭","🍮","☕","🍵","🍶","🍾","🍷","🍸","🍹","🍺","🍻","🥂","🥃","🥤","🥑","🍆",
       "🌙","⭐","🌟","✨","⚡","💥","🔥","🌈","☀️","⛅","🌧️","❄️","🎈","🎉","🎊","🎁","🏆","🥇","💎","🎵",
       "🎶","🎨","🎭","🎬","🎤","🎧","🎷","🎸","🎹","🎺","🎻","🥁","📱","💻","🖥️","⌨️","🖱️","💾","🎥","📺",
-      "📷","🔍","💡","🔦","⏰","⏳","📦","✏️","📝","📁","📂","📌","📍","✂️","🔒","🔓","🔑","🔨","⚙️","💣",
+      "📷","🔍","💡","flashlight","⏰","⏳","📦","✏️","📝","📁","📂","📌","📍","✂️","🔒","🔓","🔑","🔨","⚙️","💣",
       "🛡️","💊","💉","🛒","🛍️","🚩","🏳️","🖤","❤️","🧡","💛","💚","💙","💜","🤎","🤍","💯","💬","💭","💤"
     ];
 
@@ -349,7 +349,8 @@
       { id: 'terminal', name: 'davidconsole', icon: '💻' },
       { id: 'obs', name: 'OBS Studio', icon: '📹' },
       { id: 'secure', name: 'David Secure', icon: '🛡️' },
-      { id: 'media', name: 'Reproductor', icon: '🎵' }
+      { id: 'media', name: 'Reproductor', icon: '🎵' },
+      { id: 'davidosgames', name: 'davidOS Games', icon: '🎮' }
     ];
 
     let storeCatalog = [
@@ -362,11 +363,11 @@
 
     // --- EDITIONS CONTROL LOGIC ---
     const editionLimits = {
-      'Starter': ['calc', 'notepad', 'paint', 'emojis', 'explorer', 'settings', 'media'],
-      'Home': ['calc', 'notepad', 'paint', 'emojis', 'explorer', 'settings', 'media', 'youtube', 'camera', 'osc', 'word', 'powerpoint', 'store'],
-      'Professional': ['calc', 'notepad', 'paint', 'emojis', 'explorer', 'settings', 'media', 'youtube', 'camera', 'osc', 'word', 'powerpoint', 'store', 'excel', 'chrome', 'cmd', 'control', 'outlook', 'gemini', 'run'],
-      'Ultimate': ['calc', 'notepad', 'paint', 'emojis', 'explorer', 'settings', 'media', 'youtube', 'camera', 'osc', 'word', 'powerpoint', 'store', 'excel', 'chrome', 'cmd', 'control', 'outlook', 'gemini', 'run', 'terminal', 'secure', 'obs'],
-      'Pro': ['calc', 'powerpoint', 'notepad', 'word', 'excel', 'youtube', 'gemini', 'ezpack', 'paint', 'camera', 'store', 'osc', 'chrome', 'explorer', 'settings', 'run', 'control', 'outlook', 'emojis', 'cmd', 'terminal', 'obs', 'secure', 'media']
+      'Starter': ['calc', 'notepad', 'paint', 'emojis', 'explorer', 'settings', 'media', 'davidosgames'],
+      'Home': ['calc', 'notepad', 'paint', 'emojis', 'explorer', 'settings', 'media', 'youtube', 'camera', 'osc', 'word', 'powerpoint', 'store', 'davidosgames'],
+      'Professional': ['calc', 'notepad', 'paint', 'emojis', 'explorer', 'settings', 'media', 'youtube', 'camera', 'osc', 'word', 'powerpoint', 'store', 'excel', 'chrome', 'cmd', 'control', 'outlook', 'gemini', 'run', 'davidosgames'],
+      'Ultimate': ['calc', 'notepad', 'paint', 'emojis', 'explorer', 'settings', 'media', 'youtube', 'camera', 'osc', 'word', 'powerpoint', 'store', 'excel', 'chrome', 'cmd', 'control', 'outlook', 'gemini', 'run', 'terminal', 'secure', 'obs', 'davidosgames'],
+      'Pro': ['calc', 'powerpoint', 'notepad', 'word', 'excel', 'youtube', 'gemini', 'ezpack', 'paint', 'camera', 'store', 'osc', 'chrome', 'explorer', 'settings', 'run', 'control', 'outlook', 'emojis', 'cmd', 'terminal', 'obs', 'secure', 'media', 'davidosgames']
     };
 
     function isAppAllowedInEdition(appId) {
@@ -395,6 +396,15 @@
       { title: "Características de PowerPoint", body: "Puedes agregar, editar y eliminar diapositivas.\nHaz clic en 'Presentar' para verla a pantalla completa." }
     ];
     let activePptIndex = 0;
+
+    // --- DAVIDOS GAMES STATE ---
+    let tttBoard = Array(9).fill('');
+    let tttCurrentTurn = 'X';
+    let tttGameActive = true;
+
+    let memCards = [];
+    let memFlipped = [];
+    let memMatched = [];
 
     // --- SYSTEM INIT ---
     function initSystem() {
@@ -834,6 +844,7 @@
       if (appId === 'camera') initCamera();
       if (appId === 'powerpoint') initPptApp();
       if (appId === 'explorer') refreshExplorer();
+      if (appId === 'davidosgames') resetTTT();
       pushRecentApp(appId);
     }
 
@@ -918,6 +929,27 @@
     // --- REAL APPS IMPLEMENTATION ---
     function getAppContent(id) {
       switch(id) {
+        case 'davidosgames':
+          return `
+            <div style="display:flex; flex-direction:column; height:100%;">
+              <div class="app-toolbar">
+                <button class="app-btn" onclick="switchGameTab('ttt')">❌ Tres en Raya (3 en Línea)</button>
+                <button class="app-btn" onclick="switchGameTab('mem')">🎴 Juego de Memoria</button>
+              </div>
+              <div id="game-tab-ttt" style="display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; gap:12px;">
+                <div id="ttt-status" style="font-size:16px; font-weight:bold; color:var(--accent-color);">Turno: Jugador X</div>
+                <div style="display:grid; grid-template-columns:repeat(3, 80px); gap:6px;">
+                  ${Array(9).fill(0).map((_, i) => `<button id="ttt-btn-${i}" class="app-btn" style="width:80px; height:80px; font-size:32px; font-weight:bold; background:rgba(255,255,255,0.08);" onclick="playTTT(${i})"></button>`).join('')}
+                </div>
+                <button class="app-btn" style="margin-top:6px;" onclick="resetTTT()">🔄 Reiniciar Partida</button>
+              </div>
+              <div id="game-tab-mem" style="display:none; flex-direction:column; align-items:center; justify-content:center; flex:1; gap:12px;">
+                <div id="mem-status" style="font-size:15px; opacity:0.9;">Encuentra todas las parejas de emojis</div>
+                <div id="mem-grid" style="display:grid; grid-template-columns:repeat(4, 60px); gap:8px;"></div>
+                <button class="app-btn" onclick="initMemoryGame()">🔄 Nuevo Juego de Memoria</button>
+              </div>
+            </div>`;
+
         case 'calc':
           return `
             <div style="display:flex; flex-direction:column; height:100%; gap:8px; padding:4px; user-select:none;">
@@ -1152,6 +1184,104 @@
 
         default:
           return `<iframe style="width:100%; height:100%; border:none; background:white;" src="${id}"></iframe>`;
+      }
+    }
+
+    // --- DAVIDOS GAMES CONTROLLER ---
+    function switchGameTab(tab) {
+      document.getElementById('game-tab-ttt').style.display = tab === 'ttt' ? 'flex' : 'none';
+      document.getElementById('game-tab-mem').style.display = tab === 'mem' ? 'flex' : 'none';
+      if (tab === 'mem') initMemoryGame();
+    }
+
+    function resetTTT() {
+      tttBoard = Array(9).fill('');
+      tttCurrentTurn = 'X';
+      tttGameActive = true;
+      const status = document.getElementById('ttt-status');
+      if (status) status.innerText = 'Turno: Jugador X';
+      for (let i = 0; i < 9; i++) {
+        const btn = document.getElementById(`ttt-btn-${i}`);
+        if (btn) btn.innerText = '';
+      }
+    }
+
+    function playTTT(index) {
+      if (!tttGameActive || tttBoard[index] !== '') return;
+      tttBoard[index] = tttCurrentTurn;
+      const btn = document.getElementById(`ttt-btn-${index}`);
+      if (btn) btn.innerText = tttCurrentTurn;
+
+      const winCombos = [
+        [0,1,2], [3,4,5], [6,7,8],
+        [0,3,6], [1,4,7], [2,5,8],
+        [0,4,8], [2,4,6]
+      ];
+
+      let roundWon = false;
+      for (let combo of winCombos) {
+        const [a, b, c] = combo;
+        if (tttBoard[a] && tttBoard[a] === tttBoard[b] && tttBoard[a] === tttBoard[c]) {
+          roundWon = true;
+          break;
+        }
+      }
+
+      if (roundWon) {
+        document.getElementById('ttt-status').innerText = `🎉 ¡Ganador: Jugador ${tttCurrentTurn}!`;
+        tttGameActive = false;
+        return;
+      }
+
+      if (!tttBoard.includes('')) {
+        document.getElementById('ttt-status').innerText = '🤝 ¡Empate!';
+        tttGameActive = false;
+        return;
+      }
+
+      tttCurrentTurn = tttCurrentTurn === 'X' ? 'O' : 'X';
+      document.getElementById('ttt-status').innerText = `Turno: Jugador ${tttCurrentTurn}`;
+    }
+
+    function initMemoryGame() {
+      const items = ['⚽', '🏀', '🎮', '🚗', '🍕', '🚀'];
+      const deck = [...items, ...items].sort(() => Math.random() - 0.5);
+      memCards = deck;
+      memFlipped = [];
+      memMatched = [];
+      document.getElementById('mem-status').innerText = 'Encuentra todas las parejas de emojis';
+      renderMemoryBoard();
+    }
+
+    function renderMemoryBoard() {
+      const grid = document.getElementById('mem-grid');
+      if (!grid) return;
+      grid.innerHTML = memCards.map((card, idx) => {
+        const isFlipped = memFlipped.includes(idx) || memMatched.includes(idx);
+        return `<button class="app-btn" style="width:60px; height:60px; font-size:24px; background:${isFlipped ? 'rgba(255,255,255,0.2)' : 'var(--accent-color)'};" onclick="flipMemCard(${idx})">${isFlipped ? card : '❓'}</button>`;
+      }).join('');
+    }
+
+    function flipMemCard(idx) {
+      if (memFlipped.length >= 2 || memFlipped.includes(idx) || memMatched.includes(idx)) return;
+      memFlipped.push(idx);
+      renderMemoryBoard();
+
+      if (memFlipped.length === 2) {
+        const [first, second] = memFlipped;
+        if (memCards[first] === memCards[second]) {
+          memMatched.push(first, second);
+          memFlipped = [];
+          if (memMatched.length === memCards.length) {
+            document.getElementById('mem-status').innerText = '🎉 ¡Felicidades! Completaste el juego.';
+          }
+          renderMemoryBoard();
+        } else {
+          setTimeout(() => {
+            memFlipped = [];
+            renderMemoryBoard();
+          }, 800);
+        }
       }
     }
 
