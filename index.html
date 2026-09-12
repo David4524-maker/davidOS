@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="davidOS Web Edition — un sistema operativo simulado en el navegador con apps interactivas.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚪</text></svg>">
   <title>davidOS Web Edition</title>
   <style>
     :root {
@@ -87,6 +89,84 @@
     .app-toolbar { display: flex; gap: 8px; padding-bottom: 8px; border-bottom: 1px solid #333; margin-bottom: 8px; align-items: center; flex-wrap: wrap; }
     .app-btn { background: var(--accent-color); border: none; color: white; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
     .chat-msg { margin-bottom: 8px; padding: 8px; border-radius: 6px; background: rgba(255,255,255,0.05); }
+    .chat-msg small { opacity: 0.5; margin-left: 6px; font-weight: normal; }
+
+    /* --- ACCESSIBILITY --- */
+    a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, [tabindex]:focus-visible, .icon:focus-visible {
+      outline: 2px solid var(--accent-color); outline-offset: 2px;
+    }
+    ::-webkit-scrollbar { width: 9px; height: 9px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 6px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.35); }
+
+    /* --- TRANSITIONS / ANIMATIONS --- */
+    #login-screen { transition: opacity 0.4s ease; }
+    #login-screen.fade-out { opacity: 0; pointer-events: none; }
+    .shake { animation: shakeErr 0.4s; }
+    @keyframes shakeErr { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-8px);} 75%{transform:translateX(8px);} }
+    .window { animation: winOpen 0.15s ease-out; }
+    @keyframes winOpen { from { opacity:0; transform:scale(0.96); } to { opacity:1; transform:scale(1); } }
+    #desktop { transition: filter 0.3s; }
+
+    /* --- DESKTOP ICON EXTRAS --- */
+    .icon { position: relative; }
+    .icon-pin { position: absolute; top: 2px; right: 6px; font-size: 11px; opacity: 0; cursor: pointer; }
+    .icon:hover .icon-pin { opacity: 0.85; }
+    .icon-pin.pinned { opacity: 1; }
+    .icon-name { max-width: 76px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* --- CONTEXT MENU --- */
+    #context-menu { display: none; position: fixed; z-index: 20000; background: var(--window-bg); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 6px; min-width: 200px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+    #context-menu.active { display: block; }
+    .ctx-item { padding: 8px 12px; border-radius: 5px; color: white; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+    .ctx-item:hover { background: var(--accent-color); }
+    .ctx-sep { height: 1px; background: rgba(255,255,255,0.1); margin: 5px 0; }
+
+    /* --- WINDOW RESIZE / TASKBAR RUNNING APPS --- */
+    .win-resize-handle { position: absolute; width: 16px; height: 16px; right: 0; bottom: 0; cursor: nwse-resize; }
+    .window.maximized .win-resize-handle { display: none; }
+    .taskbar-running { display: flex; align-items: center; gap: 6px; margin-left: 6px; overflow-x: auto; max-width: 40vw; }
+    .taskbar-app-btn { background: rgba(255,255,255,0.06); border: none; border-bottom: 2px solid transparent; color: white; padding: 6px 10px; border-radius: 6px 6px 0 0; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+    .taskbar-app-btn:hover { background: rgba(255,255,255,0.15); }
+    .taskbar-app-btn.focused { background: rgba(255,255,255,0.18); border-bottom-color: var(--accent-color); }
+
+    /* --- NOTIFICATIONS STACK --- */
+    #notif-stack { position: fixed; top: 15px; right: 15px; z-index: 99998; display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
+    .notif-card { background: var(--theme-bg); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 10px 14px; color: white; font-size: 12px; max-width: 260px; box-shadow: 0 8px 20px rgba(0,0,0,0.5); animation: notifIn 0.2s ease-out; }
+    @keyframes notifIn { from { opacity:0; transform: translateX(30px); } to { opacity:1; transform: translateX(0); } }
+    .notif-dot { position: absolute; top: 2px; right: 2px; width: 7px; height: 7px; border-radius: 50%; background: #ff5f56; display: none; }
+    .notif-dot.show { display: block; }
+
+    /* --- TRAY SLIDERS --- */
+    .tray-slider-row { display: flex; align-items: center; gap: 8px; grid-column: 1 / -1; font-size: 12px; }
+    .tray-slider-row input[type=range] { flex: 1; accent-color: var(--accent-color); }
+
+    /* --- START MENU EXTRAS --- */
+    .start-section-title { font-size: 11px; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+    .power-btn { background: rgba(255,95,86,0.15); border: 1px solid rgba(255,95,86,0.4); color: #ff5f56; border-radius: 6px; padding: 6px 10px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 5px; }
+    .power-btn:hover { background: rgba(255,95,86,0.3); }
+    #power-menu { display: none; position: absolute; bottom: 55px; left: 10px; background: var(--window-bg); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 6px; z-index: 8002; min-width: 180px; }
+    #power-menu.active { display: block; }
+
+    /* --- SHUTDOWN / RESTART OVERLAY --- */
+    #shutdown-screen { display: none; position: fixed; inset: 0; background: #000; z-index: 999999; color: white; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
+    #shutdown-screen.active { display: flex; }
+
+    /* --- FILE EXPLORER BREADCRUMB --- */
+    .exp-crumb { cursor: pointer; color: var(--accent-color); }
+    .exp-crumb:hover { text-decoration: underline; }
+    .exp-item { padding:6px 8px; background:rgba(255,255,255,0.05); margin-bottom:4px; border-radius:4px; cursor:pointer; display:flex; align-items:center; gap:6px; }
+    .exp-item:hover { background: rgba(255,255,255,0.12); }
+
+    /* --- STORE SEARCH --- */
+    .store-search { width: 100%; margin-bottom: 12px; }
+
+    @media (max-width: 640px) {
+      .taskbar-search { width: 110px; }
+      .taskbar-running { max-width: 20vw; }
+      #start-menu, #emoji-menu { width: calc(100vw - 20px); left: 10px; }
+    }
   </style>
 </head>
 <body>
@@ -95,21 +175,45 @@
   <div id="boot-screen">
     <div class="boot-door">🚪</div>
     <div class="boot-loader-track"><div class="boot-loader-bar"></div></div>
+    <div id="boot-percent" style="margin-top:12px; font-size:12px; opacity:0.6;">Iniciando davidOS... 0%</div>
+  </div>
+
+  <!-- SHUTDOWN / RESTART SCREEN -->
+  <div id="shutdown-screen">
+    <div class="boot-door" style="animation:pulse 1s infinite;">🚪</div>
+    <div id="shutdown-text" style="font-size:15px; opacity:0.8;">Cerrando davidOS...</div>
+  </div>
+
+  <!-- NOTIFICATION STACK -->
+  <div id="notif-stack"></div>
+
+  <!-- DESKTOP CONTEXT MENU -->
+  <div id="context-menu">
+    <div class="ctx-item" onclick="ctxAction('refresh')">🔄 Actualizar escritorio</div>
+    <div class="ctx-item" onclick="ctxAction('wallpaper')">🖼️ Cambiar fondo</div>
+    <div class="ctx-item" onclick="ctxAction('sort')">🔤 Ordenar iconos</div>
+    <div class="ctx-sep"></div>
+    <div class="ctx-item" onclick="ctxAction('newnote')">📝 Nueva nota rápida</div>
+    <div class="ctx-item" onclick="ctxAction('about')">ℹ️ Acerca de davidOS</div>
+    <div class="ctx-sep"></div>
+    <div class="ctx-item" onclick="ctxAction('settings')">⚙️ Ajustes</div>
   </div>
 
   <!-- LOGIN SCREEN -->
   <div id="login-screen" style="display: none;">
-    <div class="login-box">
+    <div class="login-box" id="login-box">
       <div class="login-avatar">👤</div>
+      <div id="login-clock" style="font-size:13px; opacity:0.7; margin-top:-8px;"></div>
       <input type="text" id="login-username" class="login-input" value="Usuario David" oninput="updateAccountName(this.value)">
-      <input type="password" class="login-input" placeholder="Contraseña">
+      <input type="password" id="login-password" class="login-input" placeholder="Contraseña" onkeypress="if(event.key==='Enter') unlockDesktop()">
       <button class="login-btn" onclick="unlockDesktop()">Iniciar Sesión</button>
+      <div id="login-error" style="font-size:12px; color:#ff8a80; min-height:14px;"></div>
     </div>
     <div class="login-footer">
-      <label>📶 Wi-Fi: <select id="login-wifi" class="login-input" style="padding:2px 5px;"><option>DavidNet_5G</option><option>Sin Red</option></select></label>
-      <label>🌐 Idioma: <select class="login-input" style="padding:2px 5px;"><option>Español</option><option>English</option></select></label>
+      <label>📶 Wi-Fi: <select id="login-wifi" class="login-input" style="padding:2px 5px;" onchange="updateWifiStatus(this.value)"><option>DavidNet_5G</option><option>Sin Red</option></select></label>
+      <label>🌐 Idioma: <select id="login-lang" class="login-input" style="padding:2px 5px;" onchange="updateLanguage(this.value)"><option value="es">Español</option><option value="en">English</option></select></label>
       <label>👑 Edición: 
-        <select id="login-edition" class="login-input" style="padding:2px 5px;">
+        <select id="login-edition" class="login-input" style="padding:2px 5px;" onchange="updateEdition(this.value)">
           <option>Starter</option><option>Home</option><option>Professional</option><option selected>Ultimate</option><option>Pro</option>
         </select>
       </label>
@@ -126,7 +230,21 @@
         <span id="start-menu-title">Aplicaciones de davidOS</span>
         <span style="font-size:11px; opacity:0.6;" id="app-count-badge"></span>
       </div>
+      <div id="start-extra-sections"></div>
       <div class="start-grid" id="start-grid"></div>
+      <div style="border-top:1px solid #333; padding-top:10px; display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:12px; opacity:0.7;">👤 <span id="start-user-display">Usuario David</span></span>
+        <button class="power-btn" onclick="togglePowerMenu(event)">⏻ Encendido</button>
+      </div>
+    </div>
+
+    <!-- POWER MENU -->
+    <div id="power-menu">
+      <div class="ctx-item" onclick="powerAction('sleep')">🌙 Suspender</div>
+      <div class="ctx-item" onclick="powerAction('restart')">🔄 Reiniciar</div>
+      <div class="ctx-item" onclick="powerAction('shutdown')">⏻ Apagar</div>
+      <div class="ctx-sep"></div>
+      <div class="ctx-item" onclick="powerAction('logout')">🚪 Cerrar sesión</div>
     </div>
 
     <!-- EMOJI MENU -->
@@ -149,14 +267,22 @@
       <div class="taskbar-left">
         <button class="start-btn" onclick="toggleStartMenu()" title="Menú Inicio">🚪</button>
         <button class="start-btn" onclick="toggleEmojiMenu()" title="Panel de Emojis">😀</button>
-        <input type="text" class="taskbar-search" placeholder="🔍 Buscar app en davidOS..." oninput="filterApps(this.value)" onfocus="if(this.value.trim() !== '') filterApps(this.value)" onkeypress="handleSearchKey(event)">
+        <input type="text" class="taskbar-search" placeholder="🔍 Buscar app en davidOS..." oninput="filterAppsDebounced(this.value)" onfocus="if(this.value.trim() !== '') filterApps(this.value)" onkeypress="handleSearchKey(event)" aria-label="Buscar aplicaciones">
+        <div class="taskbar-running" id="taskbar-running"></div>
       </div>
       <div class="taskbar-right">
-        <div class="tray-overflow" onclick="toggleTray()">▲
-          <div class="tray-menu" id="tray-menu"><span>🛡️</span><span>🔊</span><span>🔋</span></div>
+        <div class="tray-overflow" onclick="toggleTray()" style="position:relative;">
+          <span id="notif-bell">🔔<span class="notif-dot" id="notif-dot"></span></span>
         </div>
-        <span id="wifi-display">📶</span>
-        <span id="clock-display">00:00</span>
+        <div class="tray-overflow" onclick="toggleTray()">▲
+          <div class="tray-menu" id="tray-menu">
+            <span title="Seguridad">🛡️</span><span title="Sonido">🔊</span><span title="Batería">🔋</span>
+            <div class="tray-slider-row">🔊 <input type="range" id="volume-slider" min="0" max="100" value="70" oninput="setVolume(this.value)"></div>
+            <div class="tray-slider-row">☀️ <input type="range" id="brightness-slider" min="30" max="100" value="100" oninput="setBrightness(this.value)"></div>
+          </div>
+        </div>
+        <span id="wifi-display">📶 DavidNet_5G</span>
+        <span id="clock-display" title="">00:00</span>
       </div>
     </div>
   </div>
@@ -174,11 +300,11 @@
       "🧠","👤","👥","🗣️","👶","👧","🧒","👦","👩","🧑","👨","👵","👴","💃","🕺","🏃‍♀️","🏃‍♂️","🐕","🐈","🐎",
       "🦄","🐖","🐘","🐭","🐰","🦊","🐻","🐼","🐸","🐲","🐍","🐙","🦑","🦐","crab","🐬","🐳","🦈","🐊","🐅",
       "🚗","🏎️","🚓","🚑","🚒","🚲","🛵","🏍️","✈️","🛳️","⛵","⚓","🚀","🛸","🎮","🕹️","⚽","🏀","🏈","⚾",
-      "🍕","🍔","🍟","🌭","🍿","🥓","🍳","🧇","🥞","🍞","🥐","🧀","🌮","🌯","🥩","🍱","🍣","🍡","🍦","🍧",
+      "🍕","🍔","🍟","🌭","🍿","🥓","🍳","🧇","🥞","🍞","🥐","🧀","🌮","🌯","🥩","🍱","Sushi","🍡","🍦","🍧",
       "🎂","🍰","🍫","🍬","🍭","🍮","☕","🍵","🍶","🍾","🍷","🍸","🍹","🍺","🍻","🥂","🥃","🥤","🥑","🍆",
       "🌙","⭐","🌟","✨","⚡","💥","🔥","🌈","☀️","⛅","🌧️","❄️","🎈","🎉","🎊","🎁","🏆","🥇","💎","🎵",
       "🎶","🎨","🎭","🎬","🎤","🎧","🎷","🎸","🎹","🎺","🎻","🥁","📱","💻","🖥️","⌨️","🖱️","💾","🎥","📺",
-      "📷","🔍","💡","flashlight","⏰","⏳","📦","✏️","📝","📁","📂","📌","📍","✂️","🔒","🔓","🔑","🔨","⚙️","💣",
+      "📷","🔍","💡","🔦","⏰","⏳","📦","✏️","📝","📁","📂","📌","📍","✂️","🔒","🔓","🔑","🔨","⚙️","💣",
       "🛡️","💊","💉","🛒","🛍️","🚩","🏳️","🖤","❤️","🧡","💛","💚","💙","💜","🤎","🤍","💯","💬","💭","💤"
     ];
 
@@ -187,7 +313,8 @@
       "/": ["home", "bin", "documents"],
       "/home": ["david"],
       "/home/david": ["bienvenida.txt", "codigo.ez"],
-      "/documents": ["nota.txt"]
+      "/documents": ["nota.txt"],
+      "/bin": []
     };
     let fileContents = {
       "/home/david/bienvenida.txt": "¡Bienvenido a davidOS! Sistema completamente funcional.",
@@ -195,9 +322,11 @@
     };
     let currentPath = "/home/david";
     let activeUser = "Usuario David";
+    let sessionStart = Date.now();
 
     // --- APP DATABASE ---
     let apps = [
+      { id: 'calc', name: 'Calculadora', icon: '🧮' },
       { id: 'powerpoint', name: 'PowerPoint', icon: '📅' },
       { id: 'notepad', name: 'Bloc de Notas', icon: '📄' },
       { id: 'word', name: 'Word', icon: '📝' },
@@ -231,7 +360,34 @@
       { id: 'gimp', name: 'GIMP', icon: '🖌️', type: 'frame', url: 'https://www.photopea.com' }
     ];
 
+    // --- EDITIONS CONTROL LOGIC ---
+    const editionLimits = {
+      'Starter': ['calc', 'notepad', 'paint', 'emojis', 'explorer', 'settings', 'media'],
+      'Home': ['calc', 'notepad', 'paint', 'emojis', 'explorer', 'settings', 'media', 'youtube', 'camera', 'osc', 'word', 'powerpoint', 'store'],
+      'Professional': ['calc', 'notepad', 'paint', 'emojis', 'explorer', 'settings', 'media', 'youtube', 'camera', 'osc', 'word', 'powerpoint', 'store', 'excel', 'chrome', 'cmd', 'control', 'outlook', 'gemini', 'run'],
+      'Ultimate': ['calc', 'notepad', 'paint', 'emojis', 'explorer', 'settings', 'media', 'youtube', 'camera', 'osc', 'word', 'powerpoint', 'store', 'excel', 'chrome', 'cmd', 'control', 'outlook', 'gemini', 'run', 'terminal', 'secure', 'obs'],
+      'Pro': ['calc', 'powerpoint', 'notepad', 'word', 'excel', 'youtube', 'gemini', 'ezpack', 'paint', 'camera', 'store', 'osc', 'chrome', 'explorer', 'settings', 'run', 'control', 'outlook', 'emojis', 'cmd', 'terminal', 'obs', 'secure', 'media']
+    };
+
+    function isAppAllowedInEdition(appId) {
+      const ed = window.currentEdition || (document.getElementById('login-edition') ? document.getElementById('login-edition').value : 'Ultimate');
+      const allowed = editionLimits[ed] || editionLimits['Pro'];
+      return allowed.includes(appId);
+    }
+
     let zIndexCounter = 100;
+    let openWindowsOrder = [];
+    let recentApps = JSON.parse(localStorage.getItem('davidos-recents') || '[]');
+    let pinnedApps = JSON.parse(localStorage.getItem('davidos-pins') || '["calc","notepad","terminal","store"]');
+    let cmdHistory = [];
+    let cmdHistoryIndex = -1;
+    let paintUndoStack = [];
+
+    // --- CALCULATOR STATE ---
+    let calcCurrent = '0';
+    let calcPrev = null;
+    let calcOp = null;
+    let calcResetNext = false;
 
     // --- POWERPOINT STATE ---
     let pptSlides = [
@@ -242,25 +398,144 @@
 
     // --- SYSTEM INIT ---
     function initSystem() {
+      window.currentEdition = document.getElementById('login-edition') ? document.getElementById('login-edition').value : 'Ultimate';
+      let pct = 0;
+      const pctEl = document.getElementById('boot-percent');
+      const pctTimer = setInterval(() => {
+        pct = Math.min(100, pct + Math.floor(Math.random() * 18) + 5);
+        if (pctEl) pctEl.innerText = `Iniciando davidOS... ${pct}%`;
+        if (pct >= 100) clearInterval(pctTimer);
+      }, 280);
+
       setTimeout(() => {
         document.getElementById('boot-screen').style.display = 'none';
         document.getElementById('login-screen').style.display = 'flex';
+        updateLoginClock();
+        setInterval(updateLoginClock, 1000);
       }, 3000);
 
+      restorePersistedState();
       setInterval(updateClock, 1000);
+      updateClock();
       renderIcons();
       renderEmojiPicker();
+      setupGlobalListeners();
     }
 
     if (document.readyState === 'complete' || document.readyState === 'interactive') { initSystem(); } 
     else { window.addEventListener('load', initSystem); }
 
+    function restorePersistedState() {
+      const bg = localStorage.getItem('davidos-wallpaper');
+      if (bg) document.documentElement.style.setProperty('--bg-wallpaper', bg);
+      const installed = JSON.parse(localStorage.getItem('davidos-installed') || '[]');
+      installed.forEach(item => { if (!apps.some(a => a.id === item.id)) apps.push(item); });
+      const vol = localStorage.getItem('davidos-volume');
+      const bright = localStorage.getItem('davidos-brightness');
+      if (vol) document.getElementById('volume-slider') && (document.getElementById('volume-slider').value = vol);
+      if (bright) { document.getElementById('brightness-slider') && (document.getElementById('brightness-slider').value = bright); setBrightness(bright, true); }
+    }
+
+    function setupGlobalListeners() {
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('#start-menu') && !e.target.closest('.start-btn')) document.getElementById('start-menu').classList.remove('active');
+        if (!e.target.closest('#emoji-menu') && !e.target.closest('.start-btn')) document.getElementById('emoji-menu').classList.remove('active');
+        if (!e.target.closest('.tray-overflow')) document.getElementById('tray-menu').classList.remove('active');
+        if (!e.target.closest('#power-menu') && !e.target.closest('.power-btn')) document.getElementById('power-menu').classList.remove('active');
+        if (!e.target.closest('#context-menu')) document.getElementById('context-menu').classList.remove('active');
+      });
+      document.getElementById('desktop').addEventListener('contextmenu', (e) => {
+        if (e.target.closest('.window') || e.target.closest('#taskbar')) return;
+        e.preventDefault();
+        const menu = document.getElementById('context-menu');
+        menu.style.left = Math.min(e.clientX, window.innerWidth - 220) + 'px';
+        menu.style.top = Math.min(e.clientY, window.innerHeight - 260) + 'px';
+        menu.classList.add('active');
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          document.getElementById('start-menu').classList.remove('active');
+          document.getElementById('emoji-menu').classList.remove('active');
+          document.getElementById('context-menu').classList.remove('active');
+          const overlay = document.getElementById('ppt-slideshow-overlay');
+          if (overlay) overlay.remove();
+        }
+
+        // Teclado físico para la Calculadora cuando la ventana está enfocada/abierta
+        const calcWin = document.getElementById('win-calc');
+        if (calcWin && calcWin.style.display !== 'none') {
+          if (e.key >= '0' && e.key <= '9') calcAppendNum(e.key);
+          else if (e.key === '.' || e.key === ',') calcAppendNum('.');
+          else if (e.key === '+') calcChooseOp('+');
+          else if (e.key === '-') calcChooseOp('-');
+          else if (e.key === '*') calcChooseOp('*');
+          else if (e.key === '/') { e.preventDefault(); calcChooseOp('/'); }
+          else if (e.key === 'Enter' || e.key === '=') { e.preventDefault(); calcCompute(); }
+          else if (e.key === 'Backspace') calcBackspace();
+          else if (e.key === 'c' || e.key === 'C') calcClear();
+        }
+      });
+    }
+
     function updateClock() {
       const d = new Date();
       document.getElementById('clock-display').innerText = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      document.getElementById('clock-display').title = d.toLocaleDateString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      const uptimeEl = document.getElementById('uptime-display');
+      if (uptimeEl) {
+        const secs = Math.floor((Date.now() - sessionStart) / 1000);
+        const m = Math.floor(secs / 60), s = secs % 60;
+        uptimeEl.innerText = `${m}m ${s}s`;
+      }
     }
 
-    function unlockDesktop() { document.getElementById('login-screen').style.display = 'none'; }
+    function updateLoginClock() {
+      const el = document.getElementById('login-clock');
+      if (!el) return;
+      const d = new Date();
+      el.innerText = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' · ' + d.toLocaleDateString();
+    }
+
+    function unlockDesktop() {
+      const user = document.getElementById('login-username').value.trim();
+      const errEl = document.getElementById('login-error');
+      if (!user) {
+        document.getElementById('login-box').classList.add('shake');
+        errEl.innerText = 'Ingresa un nombre de usuario.';
+        setTimeout(() => document.getElementById('login-box').classList.remove('shake'), 400);
+        return;
+      }
+      errEl.innerText = '';
+      const edVal = document.getElementById('login-edition') ? document.getElementById('login-edition').value : 'Ultimate';
+      updateEdition(edVal);
+      const login = document.getElementById('login-screen');
+      login.classList.add('fade-out');
+      setTimeout(() => { login.style.display = 'none'; }, 350);
+      document.getElementById('start-user-display').innerText = activeUser;
+      showNotification(`Bienvenido, ${activeUser} 👋 (${window.currentEdition || edVal})`);
+    }
+
+    function updateWifiStatus(val) {
+      const connected = val !== 'Sin Red';
+      document.getElementById('wifi-display').innerText = connected ? `📶 ${val}` : '📵 Sin conexión';
+      const sw = document.getElementById('settings-wifi');
+      if (sw) sw.innerText = connected ? `Conectado (${val})` : 'Desconectado';
+    }
+
+    function updateEdition(val) {
+      window.currentEdition = val;
+      const el = document.getElementById('settings-edition');
+      if (el) el.innerText = `davidOS ${val}`;
+      const aboutEl = document.getElementById('about-edition');
+      if (aboutEl) aboutEl.innerText = val;
+      renderIcons();
+    }
+
+    let currentLang = 'es';
+    function updateLanguage(val) {
+      currentLang = val;
+      showNotification(val === 'en' ? 'Language set to English (partial support)' : 'Idioma cambiado a Español');
+    }
     function toggleStartMenu() {
       document.getElementById('emoji-menu').classList.remove('active');
       const startMenu = document.getElementById('start-menu');
@@ -279,7 +554,72 @@
       document.getElementById('emoji-menu').classList.toggle('active');
     }
     function toggleTray() { document.getElementById('tray-menu').classList.toggle('active'); }
-    function updateAccountName(val) { activeUser = val || "Usuario David"; }
+    function updateAccountName(val) {
+      activeUser = val || "Usuario David";
+      const disp = document.getElementById('start-user-display');
+      if (disp) disp.innerText = activeUser;
+    }
+
+    function togglePowerMenu(e) {
+      e.stopPropagation();
+      document.getElementById('power-menu').classList.toggle('active');
+    }
+
+    function powerAction(action) {
+      document.getElementById('power-menu').classList.remove('active');
+      document.getElementById('start-menu').classList.remove('active');
+      const shutdown = document.getElementById('shutdown-screen');
+      const text = document.getElementById('shutdown-text');
+      if (action === 'sleep') { showNotification('💤 davidOS suspendido (haz clic en cualquier lugar para reactivar)'); return; }
+      text.innerText = action === 'restart' ? 'Reiniciando davidOS...' : (action === 'logout' ? 'Cerrando sesión...' : 'Cerrando davidOS...');
+      shutdown.classList.add('active');
+      setTimeout(() => {
+        if (action === 'restart' || action === 'logout') {
+          location.reload();
+        } else {
+          shutdown.innerHTML = '<div style="font-size:14px; opacity:0.6;">Ya puedes cerrar esta pestaña.</div>';
+        }
+      }, 1800);
+    }
+
+    function setVolume(val) { localStorage.setItem('davidos-volume', val); }
+    function setBrightness(val, silent) {
+      document.getElementById('desktop').style.filter = `brightness(${val}%)`;
+      localStorage.setItem('davidos-brightness', val);
+    }
+
+    function ctxAction(action) {
+      document.getElementById('context-menu').classList.remove('active');
+      switch(action) {
+        case 'refresh': renderIcons(); showNotification('🔄 Escritorio actualizado'); break;
+        case 'wallpaper': openApp('settings'); break;
+        case 'sort': apps.sort((a,b) => a.name.localeCompare(b.name)); renderIcons(); break;
+        case 'newnote': openApp('notepad'); break;
+        case 'about': showAboutModal(); break;
+        case 'settings': openApp('settings'); break;
+      }
+    }
+
+    function showAboutModal() {
+      const win = document.createElement('div');
+      win.id = 'win-about';
+      win.className = 'window';
+      win.style.top = '120px'; win.style.left = '200px'; win.style.width = '380px'; win.style.height = '260px';
+      win.style.zIndex = ++zIndexCounter;
+      win.innerHTML = `
+        <div class="window-header" onmousedown="dragWindow(event, 'win-about')">
+          <span>ℹ️ Acerca de davidOS</span>
+          <div class="window-controls"><button class="win-btn win-close" onclick="closeWin('win-about')"></button></div>
+        </div>
+        <div class="window-body" style="align-items:center; justify-content:center; text-align:center; gap:6px;">
+          <div style="font-size:40px;">🚪</div>
+          <b>davidOS Web Edition</b>
+          <span style="font-size:12px; opacity:0.7;">Edición: <span id="about-edition">${window.currentEdition || 'Ultimate'}</span></span>
+          <span style="font-size:12px; opacity:0.7;">Compilación 3.0 · Núcleo UNIX simulado</span>
+          <span style="font-size:11px; opacity:0.5;">Hecho con HTML, CSS y JavaScript puro.</span>
+        </div>`;
+      document.getElementById('windows-container').appendChild(win);
+    }
 
     function renderEmojiPicker() {
       const grid = document.getElementById('emoji-grid');
@@ -304,18 +644,42 @@
       setTimeout(() => { toast.style.display = 'none'; }, 2000);
     }
 
+    function showNotification(msg) {
+      const stack = document.getElementById('notif-stack');
+      if (!stack) { showToast(msg); return; }
+      const card = document.createElement('div');
+      card.className = 'notif-card';
+      card.innerText = msg;
+      stack.appendChild(card);
+      const dot = document.getElementById('notif-dot');
+      if (dot) dot.classList.add('show');
+      setTimeout(() => {
+        card.style.opacity = '0';
+        card.style.transition = 'opacity 0.3s';
+        setTimeout(() => card.remove(), 300);
+      }, 4000);
+    }
+
     function renderIcons() {
       const dGrid = document.getElementById('desktop-grid');
       dGrid.innerHTML = '';
 
       apps.forEach(app => {
-        const iconHtml = `<div class="icon-img">${app.icon}</div><div>${app.name}</div>`;
+        const pinned = pinnedApps.includes(app.id);
+        const allowed = isAppAllowedInEdition(app.id);
+        const lockBadge = !allowed ? '<span style="position:absolute; top:2px; left:6px; font-size:10px;" title="No disponible en esta edición">🔒</span>' : '';
+        const iconHtml = `${lockBadge}<span class="icon-pin ${pinned ? 'pinned' : ''}" onclick="togglePin(event,'${app.id}')" title="Fijar/Desfijar">📌</span><div class="icon-img" style="${!allowed ? 'opacity:0.45;' : ''}">${app.icon}</div><div class="icon-name" style="${!allowed ? 'opacity:0.6;' : ''}">${app.name}</div>`;
         const dIcon = document.createElement('div');
         dIcon.className = 'icon';
-        dIcon.onclick = () => {
+        dIcon.tabIndex = 0;
+        dIcon.setAttribute('role', 'button');
+        dIcon.setAttribute('aria-label', app.name);
+        dIcon.onclick = (e) => {
+          if (e.target.classList.contains('icon-pin')) return;
           if(app.id === 'emojis') toggleEmojiMenu();
           else openApp(app.id);
         };
+        dIcon.onkeydown = (e) => { if (e.key === 'Enter') dIcon.onclick(e); };
         dIcon.innerHTML = iconHtml;
         dGrid.appendChild(dIcon);
       });
@@ -323,7 +687,25 @@
       filterApps('');
     }
 
+    function togglePin(e, appId) {
+      e.stopPropagation();
+      if (pinnedApps.includes(appId)) pinnedApps = pinnedApps.filter(id => id !== appId);
+      else pinnedApps.push(appId);
+      localStorage.setItem('davidos-pins', JSON.stringify(pinnedApps));
+      renderIcons();
+    }
+
+    function pushRecentApp(appId) {
+      recentApps = [appId, ...recentApps.filter(id => id !== appId)].slice(0, 5);
+      localStorage.setItem('davidos-recents', JSON.stringify(recentApps));
+    }
+
     // --- TASKBAR APP SEARCH CONTROLLER ---
+    let searchDebounceTimer = null;
+    function filterAppsDebounced(query) {
+      clearTimeout(searchDebounceTimer);
+      searchDebounceTimer = setTimeout(() => filterApps(query), 120);
+    }
     function filterApps(query) {
       const startMenu = document.getElementById('start-menu');
       const emojiMenu = document.getElementById('emoji-menu');
@@ -331,12 +713,23 @@
       const badge = document.getElementById('app-count-badge');
       const q = query.toLowerCase().trim();
 
+      const extra = document.getElementById('start-extra-sections');
+
       if (q !== '') {
         startMenu.classList.add('active');
         emojiMenu.classList.remove('active');
         if(title) title.innerText = `Resultados para "${query}"`;
+        if (extra) extra.innerHTML = '';
       } else {
         if(title) title.innerText = "Aplicaciones de davidOS";
+        if (extra) {
+          const pinned = apps.filter(a => pinnedApps.includes(a.id));
+          const recents = recentApps.map(id => apps.find(a => a.id === id)).filter(Boolean);
+          let html = '';
+          if (pinned.length) html += `<div class="start-section-title">📌 Fijados</div><div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:6px;">${pinned.map(a => `<span title="${a.name}" style="cursor:pointer; font-size:20px;" onclick="openApp('${a.id}'); document.getElementById('start-menu').classList.remove('active');">${a.icon}</span>`).join('')}</div>`;
+          if (recents.length) html += `<div class="start-section-title">🕘 Recientes</div><div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:6px;">${recents.map(a => `<span title="${a.name}" style="cursor:pointer; font-size:20px;" onclick="openApp('${a.id}'); document.getElementById('start-menu').classList.remove('active');">${a.icon}</span>`).join('')}</div>`;
+          extra.innerHTML = html;
+        }
       }
 
       const filtered = apps.filter(a => a.name.toLowerCase().includes(q));
@@ -351,8 +744,10 @@
       }
 
       filtered.forEach(app => {
+        const allowed = isAppAllowedInEdition(app.id);
         const item = document.createElement('div');
         item.className = 'icon';
+        item.style.position = 'relative';
         item.onclick = () => {
           if(app.id === 'emojis') toggleEmojiMenu();
           else openApp(app.id);
@@ -360,7 +755,8 @@
           document.querySelector('.taskbar-search').value = '';
           filterApps('');
         };
-        item.innerHTML = `<div class="icon-img">${app.icon}</div><div>${app.name}</div>`;
+        const lock = !allowed ? '<span style="position:absolute; top:2px; left:6px; font-size:10px;">🔒</span>' : '';
+        item.innerHTML = `${lock}<div class="icon-img" style="${!allowed ? 'opacity:0.45;' : ''}">${app.icon}</div><div style="${!allowed ? 'opacity:0.6;' : ''}">${app.name}</div>`;
         grid.appendChild(item);
       });
     }
@@ -381,8 +777,22 @@
 
     // --- WINDOW MANAGER ---
     function openApp(appId) {
+      if (!isAppAllowedInEdition(appId)) {
+        const ed = window.currentEdition || 'Ultimate';
+        const app = apps.find(a => a.id === appId);
+        const name = app ? app.name : appId;
+        showNotification(`🔒 [davidOS ${ed}] "${name}" no está disponible en esta edición.`);
+        return;
+      }
+
       const existing = document.getElementById(`win-${appId}`);
-      if (existing) { existing.style.display = 'flex'; existing.style.zIndex = ++zIndexCounter; return; }
+      if (existing) {
+        existing.style.display = 'flex';
+        focusWindow(existing.id);
+        renderTaskbarRunning();
+        if (appId === 'explorer') refreshExplorer();
+        return;
+      }
 
       const app = apps.find(a => a.id === appId);
       if (!app) return;
@@ -390,54 +800,167 @@
       const win = document.createElement('div');
       win.id = `win-${appId}`;
       win.className = 'window';
-      win.style.top = '60px'; win.style.left = '100px';
+
+      // Tamaño personalizado compacto para la calculadora
+      if (appId === 'calc') {
+        win.style.width = '320px';
+        win.style.height = '420px';
+        win.style.minWidth = '280px';
+        win.style.minHeight = '380px';
+      }
+
+      const cascade = (openWindowsOrder.length % 6) * 24;
+      win.style.top = (60 + cascade) + 'px'; win.style.left = (100 + cascade) + 'px';
       win.style.zIndex = ++zIndexCounter;
 
       win.innerHTML = `
-        <div class="window-header" onmousedown="dragWindow(event, '${win.id}')">
+        <div class="window-header" onmousedown="dragWindow(event, '${win.id}')" ondblclick="maximizeWin('${win.id}')">
           <span>${app.icon} ${app.name}</span>
           <div class="window-controls">
-            <button class="win-btn win-min" onclick="minimizeWin('${win.id}')"></button>
-            <button class="win-btn win-max" onclick="maximizeWin('${win.id}')"></button>
-            <button class="win-btn win-close" onclick="closeWin('${win.id}')"></button>
+            <button class="win-btn win-min" title="Minimizar" onclick="minimizeWin('${win.id}')"></button>
+            <button class="win-btn win-max" title="Maximizar" onclick="maximizeWin('${win.id}')"></button>
+            <button class="win-btn win-close" title="Cerrar" onclick="closeWin('${win.id}')"></button>
           </div>
         </div>
         <div class="window-body" id="body-${appId}">${getAppContent(appId)}</div>
+        <div class="win-resize-handle" onmousedown="resizeWindow(event, '${win.id}')"></div>
       `;
 
+      win.addEventListener('mousedown', () => focusWindow(win.id));
       document.getElementById('windows-container').appendChild(win);
+      openWindowsOrder.push({ id: win.id, appId, name: app.name, icon: app.icon });
+      renderTaskbarRunning();
       if (appId === 'paint') initPaintCanvas();
       if (appId === 'camera') initCamera();
       if (appId === 'powerpoint') initPptApp();
+      if (appId === 'explorer') refreshExplorer();
+      pushRecentApp(appId);
     }
 
-    function closeWin(id) { document.getElementById(id).remove(); }
-    function minimizeWin(id) { document.getElementById(id).style.display = 'none'; }
+    function focusWindow(id) {
+      const win = document.getElementById(id);
+      if (!win) return;
+      win.style.zIndex = ++zIndexCounter;
+      document.querySelectorAll('.taskbar-app-btn').forEach(b => b.classList.remove('focused'));
+      const btn = document.getElementById(`taskbtn-${id}`);
+      if (btn) btn.classList.add('focused');
+    }
+
+    function closeWin(id) {
+      const el = document.getElementById(id);
+      if (el) el.remove();
+      openWindowsOrder = openWindowsOrder.filter(w => w.id !== id);
+      renderTaskbarRunning();
+    }
+    function minimizeWin(id) {
+      document.getElementById(id).style.display = 'none';
+      renderTaskbarRunning();
+    }
     function maximizeWin(id) { document.getElementById(id).classList.toggle('maximized'); }
+    function closeAllWindows() {
+      openWindowsOrder.slice().forEach(w => closeWin(w.id));
+      showToast('Todas las ventanas cerradas');
+    }
+
+    function renderTaskbarRunning() {
+      const bar = document.getElementById('taskbar-running');
+      if (!bar) return;
+      bar.innerHTML = openWindowsOrder.map(w => {
+        const win = document.getElementById(w.id);
+        const hidden = win && win.style.display === 'none';
+        return `<button class="taskbar-app-btn" id="taskbtn-${w.id}" onclick="toggleWinFromTaskbar('${w.id}')" title="${w.name}">${w.icon} ${hidden ? '▾' : ''}${w.name.length > 10 ? w.name.slice(0,10)+'…' : w.name}</button>`;
+      }).join('');
+    }
+
+    function toggleWinFromTaskbar(id) {
+      const win = document.getElementById(id);
+      if (!win) return;
+      if (win.style.display === 'none') { win.style.display = 'flex'; focusWindow(id); }
+      else { win.style.display = 'none'; }
+      renderTaskbarRunning();
+    }
 
     function dragWindow(e, id) {
+      if (e.target.closest('.window-controls')) return;
       const win = document.getElementById(id);
+      if (win.classList.contains('maximized')) return;
       let shiftX = e.clientX - win.getBoundingClientRect().left;
       let shiftY = e.clientY - win.getBoundingClientRect().top;
       win.style.zIndex = ++zIndexCounter;
 
       function moveAt(pageX, pageY) {
-        win.style.left = pageX - shiftX + 'px';
-        win.style.top = pageY - shiftY + 'px';
+        win.style.left = Math.max(0, pageX - shiftX) + 'px';
+        win.style.top = Math.max(0, pageY - shiftY) + 'px';
       }
       function onMouseMove(event) { moveAt(event.pageX, event.pageY); }
       document.addEventListener('mousemove', onMouseMove);
-      document.onmouseup = function() { document.removeEventListener('mousemove', onMouseMove); };
+      document.onmouseup = function(upEvent) {
+        document.removeEventListener('mousemove', onMouseMove);
+        document.onmouseup = null;
+        if (upEvent.clientX < 6) { win.style.left = '0px'; win.style.top = '0px'; win.style.width = '50vw'; win.style.height = 'calc(100vh - 48px)'; }
+        else if (upEvent.clientX > window.innerWidth - 6) { win.style.left = '50vw'; win.style.top = '0px'; win.style.width = '50vw'; win.style.height = 'calc(100vh - 48px)'; }
+      };
+    }
+
+    function resizeWindow(e, id) {
+      e.stopPropagation();
+      const win = document.getElementById(id);
+      const startX = e.clientX, startY = e.clientY;
+      const startW = win.offsetWidth, startH = win.offsetHeight;
+      function onMove(ev) {
+        win.style.width = Math.max(280, startW + (ev.clientX - startX)) + 'px';
+        win.style.height = Math.max(300, startH + (ev.clientY - startY)) + 'px';
+      }
+      document.addEventListener('mousemove', onMove);
+      document.onmouseup = function() { document.removeEventListener('mousemove', onMove); document.onmouseup = null; };
     }
 
     // --- REAL APPS IMPLEMENTATION ---
     function getAppContent(id) {
       switch(id) {
+        case 'calc':
+          return `
+            <div style="display:flex; flex-direction:column; height:100%; gap:8px; padding:4px; user-select:none;">
+              <div style="background:#18181c; border:1px solid #333; border-radius:6px; padding:10px 14px; text-align:right; min-height:65px; display:flex; flex-direction:column; justify-content:center;">
+                <div id="calc-subdisplay" style="font-size:12px; color:#aaa; min-height:16px; font-family:monospace;"></div>
+                <div id="calc-display" style="font-size:26px; font-weight:bold; color:white; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-family:monospace;">0</div>
+              </div>
+              <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:6px; flex:1;">
+                <button class="app-btn" style="background:rgba(255,255,255,0.1); font-size:15px;" onclick="calcPercent()">%</button>
+                <button class="app-btn" style="background:rgba(255,255,255,0.1); font-size:15px;" onclick="calcClear()">C</button>
+                <button class="app-btn" style="background:rgba(255,255,255,0.1); font-size:15px;" onclick="calcBackspace()">⌫</button>
+                <button class="app-btn" style="background:var(--accent-color); font-size:16px; font-weight:bold;" onclick="calcChooseOp('/')">÷</button>
+
+                <button class="app-btn" style="background:rgba(255,255,255,0.05); font-size:16px;" onclick="calcAppendNum('7')">7</button>
+                <button class="app-btn" style="background:rgba(255,255,255,0.05); font-size:16px;" onclick="calcAppendNum('8')">8</button>
+                <button class="app-btn" style="background:rgba(255,255,255,0.05); font-size:16px;" onclick="calcAppendNum('9')">9</button>
+                <button class="app-btn" style="background:var(--accent-color); font-size:16px; font-weight:bold;" onclick="calcChooseOp('*')">×</button>
+
+                <button class="app-btn" style="background:rgba(255,255,255,0.05); font-size:16px;" onclick="calcAppendNum('4')">4</button>
+                <button class="app-btn" style="background:rgba(255,255,255,0.05); font-size:16px;" onclick="calcAppendNum('5')">5</button>
+                <button class="app-btn" style="background:rgba(255,255,255,0.05); font-size:16px;" onclick="calcAppendNum('6')">6</button>
+                <button class="app-btn" style="background:var(--accent-color); font-size:16px; font-weight:bold;" onclick="calcChooseOp('-')">−</button>
+
+                <button class="app-btn" style="background:rgba(255,255,255,0.05); font-size:16px;" onclick="calcAppendNum('1')">1</button>
+                <button class="app-btn" style="background:rgba(255,255,255,0.05); font-size:16px;" onclick="calcAppendNum('2')">2</button>
+                <button class="app-btn" style="background:rgba(255,255,255,0.05); font-size:16px;" onclick="calcAppendNum('3')">3</button>
+                <button class="app-btn" style="background:var(--accent-color); font-size:16px; font-weight:bold;" onclick="calcChooseOp('+')">+</button>
+
+                <button class="app-btn" style="background:rgba(255,255,255,0.1); font-size:15px;" onclick="calcToggleSign()">±</button>
+                <button class="app-btn" style="background:rgba(255,255,255,0.05); font-size:16px;" onclick="calcAppendNum('0')">0</button>
+                <button class="app-btn" style="background:rgba(255,255,255,0.05); font-size:16px;" onclick="calcAppendNum('.')">.</button>
+                <button class="app-btn" style="background:#27c93f; color:black; font-weight:bold; font-size:18px;" onclick="calcCompute()">=</button>
+              </div>
+            </div>`;
+
         case 'powerpoint':
           return `
             <div style="display:flex; flex-direction:column; height:100%;">
               <div class="app-toolbar">
                 <button class="app-btn" onclick="addPptSlide()">+ Nueva Diapositiva</button>
+                <button class="app-btn" onclick="duplicatePptSlide()">📋 Duplicar</button>
+                <button class="app-btn" onclick="movePptSlide(-1)">⬆️</button>
+                <button class="app-btn" onclick="movePptSlide(1)">⬇️</button>
                 <button class="app-btn" style="background:#ff5f56;" onclick="deletePptSlide()">🗑️ Eliminar</button>
                 <button class="app-btn" style="background:#27c93f; color:black; font-weight:bold;" onclick="startSlideshow()">▶️ Presentar</button>
                 <button class="app-btn" onclick="downloadPpt()">💾 Exportar Presentación</button>
@@ -455,9 +978,14 @@
           return `
             <div class="app-toolbar">
               <button class="app-btn" onclick="downloadText('nota.txt', document.getElementById('notepad-txt').value)">💾 Guardar TXT</button>
-              <button class="app-btn" onclick="document.getElementById('notepad-txt').value=''">Limpiar</button>
+              <label class="app-btn" style="cursor:pointer;">📂 Abrir<input type="file" accept=".txt" style="display:none;" onchange="notepadOpenFile(event)"></label>
+              <button class="app-btn" onclick="if(confirm('¿Borrar todo el contenido?')) document.getElementById('notepad-txt').value=''">🗑️ Limpiar</button>
+              <select class="app-btn" style="cursor:pointer;" onchange="document.getElementById('notepad-txt').style.fontSize=this.value+'px'">
+                <option value="13">Tamaño: Normal</option><option value="16">Grande</option><option value="20">Muy grande</option>
+              </select>
+              <span id="notepad-count" style="font-size:11px; opacity:0.6; margin-left:auto;">0 palabras · 0 caracteres</span>
             </div>
-            <textarea id="notepad-txt" style="flex:1; background:#18181c; color:#fff; border:none; outline:none; font-family:monospace; padding:10px; resize:none;" placeholder="Escribe tus notas aquí..."></textarea>`;
+            <textarea id="notepad-txt" oninput="updateNotepadCount()" style="flex:1; background:#18181c; color:#fff; border:none; outline:none; font-family:monospace; padding:10px; resize:none;" placeholder="Escribe tus notas aquí..."></textarea>`;
 
         case 'word':
           return `
@@ -465,17 +993,29 @@
               <button class="app-btn" onclick="document.execCommand('bold')"><b>B</b></button>
               <button class="app-btn" onclick="document.execCommand('italic')"><i>I</i></button>
               <button class="app-btn" onclick="document.execCommand('underline')"><u>U</u></button>
+              <select class="app-btn" style="cursor:pointer;" onchange="document.execCommand('fontSize', false, this.value)">
+                <option value="3">Tamaño</option><option value="2">Pequeño</option><option value="4">Normal</option><option value="6">Grande</option><option value="7">Muy grande</option>
+              </select>
+              <button class="app-btn" onclick="document.execCommand('insertUnorderedList')">• Lista</button>
+              <button class="app-btn" onclick="document.execCommand('insertOrderedList')">1. Lista</button>
+              <button class="app-btn" onclick="document.execCommand('justifyLeft')">⬅️</button>
+              <button class="app-btn" onclick="document.execCommand('justifyCenter')">↔️</button>
+              <button class="app-btn" onclick="document.execCommand('justifyRight')">➡️</button>
+              <button class="app-btn" onclick="localStorage.setItem('davidos-word-doc', document.getElementById('wordEditor').innerHTML); showNotification('💾 Documento guardado')">Guardar</button>
               <button class="app-btn" onclick="downloadText('doc.html', document.getElementById('wordEditor').innerHTML)">💾 Exportar Doc</button>
             </div>
-            <div id="wordEditor" contenteditable="true" style="flex:1; background:#fff; color:#000; padding:15px; outline:none; border-radius:4px; overflow-y:auto;">Redacta tu documento en Word...</div>`;
+            <div id="wordEditor" contenteditable="true" style="flex:1; background:#fff; color:#000; padding:15px; outline:none; border-radius:4px; overflow-y:auto;">${localStorage.getItem('davidos-word-doc') || 'Redacta tu documento en Word...'}</div>`;
 
         case 'excel':
           return `
             <div class="app-toolbar">
-              <button class="app-btn" onclick="calcExcelSum()">Sumar Columna A</button>
+              <button class="app-btn" onclick="calcExcelSum()">Σ Sumar columnas</button>
+              <button class="app-btn" onclick="excelAddRow()">+ Fila</button>
+              <button class="app-btn" onclick="excelDeleteRow()">− Fila</button>
+              <button class="app-btn" onclick="excelExportCSV()">💾 Exportar CSV</button>
               <span id="excelResult" style="font-size:12px;"></span>
             </div>
-            <table border="1" style="width:100%; border-collapse:collapse; color:white; text-align:center;">
+            <table id="excel-table" border="1" style="width:100%; border-collapse:collapse; color:white; text-align:center;">
               <tr style="background:#333;"><th>#</th><th>A</th><th>B</th><th>C</th></tr>
               <tr><td>1</td><td contenteditable class="ex-a">10</td><td contenteditable>20</td><td contenteditable>30</td></tr>
               <tr><td>2</td><td contenteditable class="ex-a">40</td><td contenteditable>50</td><td contenteditable>60</td></tr>
@@ -485,24 +1025,30 @@
         case 'paint':
           return `
             <div class="app-toolbar">
-              <input type="color" id="paintColor" value="#0078d4">
-              <input type="range" id="paintSize" min="1" max="20" value="4">
+              <select id="paintTool" class="app-btn" style="cursor:pointer;">
+                <option value="pen">✏️ Lápiz</option><option value="eraser">🧽 Borrador</option><option value="rect">▭ Rectángulo</option><option value="circle">⚪ Círculo</option>
+              </select>
+              <input type="color" id="paintColor" value="#0078d4" title="Color">
+              <input type="range" id="paintSize" min="1" max="20" value="4" title="Grosor">
+              <button class="app-btn" onclick="undoCanvas()">↩️ Deshacer</button>
               <button class="app-btn" onclick="clearCanvas()">Limpiar</button>
               <button class="app-btn" onclick="downloadCanvas()">💾 Guardar PNG</button>
             </div>
-            <canvas id="paintCanvas" width="620" height="320" style="background:#fff; border-radius:4px;"></canvas>`;
+            <canvas id="paintCanvas" width="620" height="320" style="background:#fff; border-radius:4px; cursor:crosshair;"></canvas>`;
 
         case 'camera':
           return `
             <div class="app-toolbar">
               <button class="app-btn" onclick="takeSnapshot()">📸 Tomar Foto</button>
+              <button class="app-btn" id="camera-download-btn" style="display:none;" onclick="downloadSnapshot()">💾 Descargar</button>
             </div>
-            <video id="webcam" autoplay playsinline style="width:100%; flex:1; object-fit:cover; border-radius:4px; background:#000;"></video>`;
+            <video id="webcam" autoplay playsinline style="width:100%; flex:1; object-fit:cover; border-radius:4px; background:#000;"></video>
+            <canvas id="webcam-canvas" style="display:none;"></canvas>`;
 
         case 'youtube':
           return `
             <div class="app-toolbar">
-              <input type="text" id="ytQuery" value="musica lofi" class="login-input" style="flex:1; text-align:left;">
+              <input type="text" id="ytQuery" value="musica lofi" class="login-input" style="flex:1; text-align:left;" onkeypress="if(event.key==='Enter') searchYT()">
               <button class="app-btn" onclick="searchYT()">Buscar en YT</button>
             </div>
             <iframe id="ytPlayer" style="width:100%; flex:1; border:none;" src="https://www.youtube.com/embed/jfKfPfyJRdk"></iframe>`;
@@ -510,8 +1056,12 @@
         case 'gemini':
         case 'ezpack':
           return `
+            <div class="app-toolbar">
+              <b style="margin-right:auto;">${id === 'gemini' ? '✨ Gemini AI' : '📦 EZPack AI'}</b>
+              <button class="app-btn" onclick="document.getElementById('ai-chat-box').innerHTML=''">🗑️ Limpiar chat</button>
+            </div>
             <div id="ai-chat-box" style="flex:1; overflow-y:auto; padding:10px; display:flex; flex-direction:column;">
-              <div class="chat-msg">🤖 <b>${id === 'gemini' ? 'Gemini AI' : 'EZPack AI'}:</b> ¡Hola ${activeUser}! ¿Qué código o consulta deseas procesar hoy?</div>
+              <div class="chat-msg">🤖 <b>${id === 'gemini' ? 'Gemini AI' : 'EZPack AI'}:</b> ¡Hola ${activeUser}! ¿Qué código o consulta deseas procesar hoy? <small>${new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</small></div>
             </div>
             <div class="app-toolbar">
               <input type="text" id="ai-input" placeholder="Pregunta algo..." class="login-input" style="flex:1; text-align:left;" onkeypress="if(event.key==='Enter') sendAiMsg('${id}')">
@@ -522,7 +1072,8 @@
         case 'chrome':
           return `
             <div class="app-toolbar">
-              <input type="text" id="browserUrl" value="https://bing.com" class="login-input" style="flex:1; text-align:left;">
+              <button class="app-btn" onclick="reloadBrowser()">🔄</button>
+              <input type="text" id="browserUrl" value="https://bing.com" class="login-input" style="flex:1; text-align:left;" onkeypress="if(event.key==='Enter') loadUrl()">
               <button class="app-btn" onclick="loadUrl()">Navegar</button>
             </div>
             <iframe id="browserFrame" style="width:100%; flex:1; border:none; background:white;" src="https://bing.com"></iframe>`;
@@ -530,20 +1081,26 @@
         case 'store':
           return `
             <h3 style="margin-bottom:10px;">David Store</h3>
-            <div class="store-grid">
+            <input type="text" class="login-input store-search" placeholder="🔍 Buscar en la tienda..." oninput="filterStore(this.value)">
+            <div class="store-grid" id="store-grid">
               ${storeCatalog.map(a => `
-                <div class="store-card">
+                <div class="store-card" data-name="${a.name.toLowerCase()}">
                   <div style="font-size:30px;">${a.icon}</div>
                   <div style="font-size:12px;">${a.name}</div>
-                  <button onclick="installStoreApp('${a.id}')">Instalar</button>
+                  <button onclick="installStoreApp('${a.id}')">${apps.some(x => x.id === a.url || x.id === a.id) ? 'Instalada ✓' : 'Instalar'}</button>
                 </div>
               `).join('')}
             </div>`;
 
         case 'explorer':
           return `
-            <div class="app-toolbar">Ruta: <b id="exp-path">${currentPath}</b></div>
-            <div id="exp-list" style="flex:1; overflow-y:auto;">${renderExplorerFiles()}</div>`;
+            <div class="app-toolbar">
+              <button class="app-btn" onclick="explorerUp()">⬆️ Subir</button>
+              <button class="app-btn" onclick="explorerNewFolder()">📁 Nueva carpeta</button>
+              <button class="app-btn" onclick="explorerNewFile()">📄 Nuevo archivo</button>
+            </div>
+            <div id="exp-breadcrumb" style="font-size:12px; padding-bottom:8px;"></div>
+            <div id="exp-list" style="flex:1; overflow-y:auto;"></div>`;
 
         case 'cmd':
         case 'terminal':
@@ -551,7 +1108,7 @@
             <div class="terminal-out" id="term-out">davidOS Shell v3.0 (UNIX Core)\nEscribe 'help' para listar los comandos.\n\n</div>
             <div class="terminal-input-line">
               <span id="term-prompt">david@davidOS:${currentPath}$</span>
-              <input type="text" class="terminal-input" id="term-in" onkeypress="handleUnixCmd(event)">
+              <input type="text" class="terminal-input" id="term-in" onkeypress="handleUnixCmd(event)" onkeydown="handleTermHistory(event)" autocomplete="off">
             </div>`;
 
         case 'settings':
@@ -559,20 +1116,25 @@
             <div class="app-toolbar">
               <button class="app-btn" onclick="setBg('linear-gradient(135deg, #1e1e24, #2a085c, #0f4c81)')">Fondo Azul</button>
               <button class="app-btn" onclick="setBg('linear-gradient(135deg, #11998e, #38ef7d)')">Fondo Verde</button>
+              <button class="app-btn" onclick="setBg('linear-gradient(135deg, #ff512f, #dd2476)')">Fondo Atardecer</button>
               <button class="app-btn" onclick="setBg('#000')">Fondo Negro</button>
+              <label class="app-btn" style="cursor:pointer;">🖼️ Subir imagen<input type="file" accept="image/*" style="display:none;" onchange="setCustomWallpaper(event)"></label>
               <button class="app-btn" style="background:#ff5f56;" onclick="restoreSystem()">Restaurar OS</button>
             </div>
-            <div style="padding:10px;">
-              <p>👤 Usuario actual: <b>${activeUser}</b></p>
-              <p>👑 Edición: <b>davidOS Ultimate</b></p>
+            <div style="padding:10px; display:flex; flex-direction:column; gap:6px;">
+              <p>👤 Usuario actual: <b id="settings-user">${activeUser}</b></p>
+              <p>👑 Edición: <b id="settings-edition">davidOS ${window.currentEdition || 'Ultimate'}</b></p>
               <p>🌐 Red Wi-Fi: <b id="settings-wifi">Conectado (DavidNet_5G)</b></p>
+              <p>🪟 Ventanas abiertas: <b>${openWindowsOrder.length}</b></p>
+              <p>📦 Apps instaladas: <b>${apps.length}</b></p>
+              <p>🧭 Versión: <b>davidOS Web Edition 3.0</b></p>
             </div>`;
 
         case 'run':
           return `
             <div style="padding:15px; display:flex; flex-direction:column; gap:10px;">
               <label>Escribe el identificador de la app o sitio a abrir:</label>
-              <input type="text" id="run-input" placeholder="ejemplo: powerpoint, word, cmd, notepad" class="login-input" style="text-align:left;">
+              <input type="text" id="run-input" placeholder="ejemplo: calc, powerpoint, word, cmd, notepad" class="login-input" style="text-align:left;">
               <button class="app-btn" onclick="executeRun()">Ejecutar</button>
             </div>`;
 
@@ -581,11 +1143,110 @@
             <h3>Panel de Control del Sistema</h3><br>
             <p>⚡ Procesador: 10 Núcleos / 12 Hilos</p>
             <p>💾 Memoria RAM: 8 GB</p>
-            <p>💿 Almacenamiento NVMe KIOXIA: 512 GB libre</p>`;
+            <p>💿 Almacenamiento NVMe KIOXIA: 512 GB libre</p>
+            <p>🪟 Ventanas activas: <b>${openWindowsOrder.length}</b></p>
+            <p>⏱️ Tiempo activo: <b id="uptime-display">calculando...</b></p>
+            <div class="app-toolbar" style="margin-top:10px;">
+              <button class="app-btn" style="background:#ff5f56;" onclick="closeAllWindows()">🗙 Cerrar todas las ventanas</button>
+            </div>`;
 
         default:
           return `<iframe style="width:100%; height:100%; border:none; background:white;" src="${id}"></iframe>`;
       }
+    }
+
+    // --- CALCULATOR CONTROLLER (SIN EVAL) ---
+    function calcUpdateDisplay() {
+      const disp = document.getElementById('calc-display');
+      const sub = document.getElementById('calc-subdisplay');
+      if (disp) disp.innerText = calcCurrent;
+      if (sub) {
+        const opSymbol = calcOp === '*' ? '×' : (calcOp === '/' ? '÷' : (calcOp === '-' ? '−' : calcOp));
+        sub.innerText = (calcPrev !== null && calcOp !== null) ? `${calcPrev} ${opSymbol}` : '';
+      }
+    }
+
+    function calcAppendNum(n) {
+      if (calcCurrent === '0' || calcResetNext) {
+        calcCurrent = n === '.' ? '0.' : n;
+        calcResetNext = false;
+      } else {
+        if (n === '.' && calcCurrent.includes('.')) return;
+        if (calcCurrent.length >= 14) return;
+        calcCurrent += n;
+      }
+      calcUpdateDisplay();
+    }
+
+    function calcClear() {
+      calcCurrent = '0';
+      calcPrev = null;
+      calcOp = null;
+      calcResetNext = false;
+      calcUpdateDisplay();
+    }
+
+    function calcBackspace() {
+      if (calcResetNext) return;
+      if (calcCurrent.length === 1 || (calcCurrent.length === 2 && calcCurrent.startsWith('-'))) {
+        calcCurrent = '0';
+      } else {
+        calcCurrent = calcCurrent.slice(0, -1);
+      }
+      calcUpdateDisplay();
+    }
+
+    function calcToggleSign() {
+      if (calcCurrent === '0') return;
+      calcCurrent = calcCurrent.startsWith('-') ? calcCurrent.slice(1) : '-' + calcCurrent;
+      calcUpdateDisplay();
+    }
+
+    function calcPercent() {
+      const val = parseFloat(calcCurrent);
+      if (isNaN(val)) return;
+      calcCurrent = (val / 100).toString();
+      calcUpdateDisplay();
+    }
+
+    function calcChooseOp(op) {
+      if (calcOp !== null && !calcResetNext) {
+        calcCompute();
+      }
+      calcPrev = calcCurrent;
+      calcOp = op;
+      calcResetNext = true;
+      calcUpdateDisplay();
+    }
+
+    function calcCompute() {
+      if (calcPrev === null || calcOp === null) return;
+      const a = parseFloat(calcPrev);
+      const b = parseFloat(calcCurrent);
+      if (isNaN(a) || isNaN(b)) return;
+
+      let res = 0;
+      switch (calcOp) {
+        case '+': res = a + b; break;
+        case '-': res = a - b; break;
+        case '*': res = a * b; break;
+        case '/':
+          if (b === 0) {
+            showNotification('⚠️ Error: División por cero');
+            calcClear();
+            return;
+          }
+          res = a / b;
+          break;
+      }
+
+      // Evita problemas de precisión en coma flotante (ej: 0.1 + 0.2)
+      res = Math.round(res * 1e10) / 1e10;
+      calcCurrent = res.toString();
+      calcPrev = null;
+      calcOp = null;
+      calcResetNext = true;
+      calcUpdateDisplay();
     }
 
     // --- POWERPOINT INTERACTIVE CONTROLLER ---
@@ -636,6 +1297,24 @@
       loadPptEditor();
     }
 
+    function duplicatePptSlide() {
+      const slide = pptSlides[activePptIndex];
+      pptSlides.splice(activePptIndex + 1, 0, { title: slide.title + ' (copia)', body: slide.body });
+      activePptIndex++;
+      renderPptThumbnails();
+      loadPptEditor();
+    }
+
+    function movePptSlide(dir) {
+      const newIndex = activePptIndex + dir;
+      if (newIndex < 0 || newIndex >= pptSlides.length) return;
+      const [slide] = pptSlides.splice(activePptIndex, 1);
+      pptSlides.splice(newIndex, 0, slide);
+      activePptIndex = newIndex;
+      renderPptThumbnails();
+      loadPptEditor();
+    }
+
     function deletePptSlide() {
       if (pptSlides.length <= 1) {
         alert("El documento debe tener al menos una diapositiva.");
@@ -671,8 +1350,15 @@
         `;
         document.getElementById('ppt-prev-btn').onclick = () => { if (showIndex > 0) { showIndex--; updateShow(); } };
         document.getElementById('ppt-next-btn').onclick = () => { if (showIndex < pptSlides.length - 1) { showIndex++; updateShow(); } };
-        document.getElementById('ppt-close-btn').onclick = () => modal.remove();
+        document.getElementById('ppt-close-btn').onclick = () => { modal.remove(); document.removeEventListener('keydown', onKey); };
       }
+
+      function onKey(e) {
+        if (e.key === 'ArrowRight' && showIndex < pptSlides.length - 1) { showIndex++; updateShow(); }
+        else if (e.key === 'ArrowLeft' && showIndex > 0) { showIndex--; updateShow(); }
+        else if (e.key === 'Escape') { modal.remove(); document.removeEventListener('keydown', onKey); }
+      }
+      document.addEventListener('keydown', onKey);
 
       document.body.appendChild(modal);
       updateShow();
@@ -687,21 +1373,44 @@
     }
 
     // --- UNIX TERMINAL HANDLER ---
+    function joinPath(base, name) {
+      if (name === '..') {
+        const parts = base.split('/').filter(Boolean);
+        parts.pop();
+        return parts.length ? '/' + parts.join('/') : '/';
+      }
+      if (name === '.' || !name) return base;
+      if (name.startsWith('/')) return name;
+      return base === '/' ? `/${name}` : `${base}/${name}`;
+    }
+
+    function handleTermHistory(e) {
+      if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+      if (!cmdHistory.length) return;
+      e.preventDefault();
+      const input = e.target;
+      if (e.key === 'ArrowUp') cmdHistoryIndex = Math.max(0, cmdHistoryIndex - 1);
+      else cmdHistoryIndex = Math.min(cmdHistory.length, cmdHistoryIndex + 1);
+      input.value = cmdHistory[cmdHistoryIndex] || '';
+    }
+
     function handleUnixCmd(e) {
       if (e.key !== 'Enter') return;
-      const input = document.getElementById('term-in');
-      const out = document.getElementById('term-out');
+      const input = e.target;
+      const body = input.closest('.window-body');
+      const out = body.querySelector('.terminal-out');
       const cmdLine = input.value.trim();
       input.value = '';
+      if (cmdLine) { cmdHistory.push(cmdLine); cmdHistoryIndex = cmdHistory.length; }
 
       out.innerText += `david@davidOS:${currentPath}$ ${cmdLine}\n`;
-      const parts = cmdLine.split(' ');
-      const cmd = parts[0].toLowerCase();
+      const parts = cmdLine.split(' ').filter(Boolean);
+      const cmd = (parts[0] || '').toLowerCase();
       const arg = parts[1];
 
       switch(cmd) {
         case 'help':
-          out.innerText += "Comandos UNIX disponibles:\n ls, pwd, cd, cat, touch, mkdir, echo, clear, date, whoami\n";
+          out.innerText += "Comandos UNIX disponibles:\n ls, pwd, cd, cat, touch, mkdir, rm, echo, clear, date, whoami, history, neofetch\n";
           break;
         case 'ls':
           out.innerText += (vfs[currentPath] || []).join('   ') + "\n";
@@ -709,6 +1418,16 @@
         case 'pwd':
           out.innerText += currentPath + "\n";
           break;
+        case 'cd': {
+          if (!arg || arg === '~') { currentPath = '/home/david'; break; }
+          const target = joinPath(currentPath, arg);
+          if (Object.prototype.hasOwnProperty.call(vfs, target)) {
+            currentPath = target;
+          } else {
+            out.innerText += `bash: cd: ${arg}: No existe el directorio\n`;
+          }
+          break;
+        }
         case 'clear':
           out.innerText = "";
           break;
@@ -718,25 +1437,46 @@
         case 'date':
           out.innerText += new Date().toString() + "\n";
           break;
-        case 'cat':
-          const filePath = currentPath + '/' + arg;
+        case 'history':
+          out.innerText += cmdHistory.map((c,i) => `  ${i+1}  ${c}`).join('\n') + "\n";
+          break;
+        case 'neofetch':
+          out.innerText += `        🚪  davidOS\n        ---------------------\n        OS: davidOS Web Edition 3.0\n        Usuario: ${activeUser}\n        Ruta: ${currentPath}\n        Apps instaladas: ${apps.length}\n`;
+          break;
+        case 'cat': {
+          const filePath = joinPath(currentPath, arg);
           out.innerText += (fileContents[filePath] || "Archivo no encontrado") + "\n";
           break;
+        }
         case 'touch':
           if (arg) {
             if (!vfs[currentPath]) vfs[currentPath] = [];
-            vfs[currentPath].push(arg);
-            fileContents[currentPath + '/' + arg] = "";
+            if (!vfs[currentPath].includes(arg)) vfs[currentPath].push(arg);
+            fileContents[joinPath(currentPath, arg)] = "";
             out.innerText += `Archivo '${arg}' creado.\n`;
-          }
+            refreshExplorer();
+          } else out.innerText += "Uso: touch <nombre_archivo>\n";
           break;
         case 'mkdir':
           if (arg) {
-            const newDirPath = currentPath + '/' + arg;
-            vfs[currentPath].push(arg);
-            vfs[newDirPath] = [];
+            if (!vfs[currentPath]) vfs[currentPath] = [];
+            const newDirPath = joinPath(currentPath, arg);
+            if (!vfs[currentPath].includes(arg)) vfs[currentPath].push(arg);
+            if (!vfs[newDirPath]) vfs[newDirPath] = [];
             out.innerText += `Directorio '${arg}' creado.\n`;
-          }
+            refreshExplorer();
+          } else out.innerText += "Uso: mkdir <nombre_carpeta>\n";
+          break;
+        case 'rm':
+          if (arg) {
+            if (vfs[currentPath] && vfs[currentPath].includes(arg)) {
+              vfs[currentPath] = vfs[currentPath].filter(f => f !== arg);
+              delete fileContents[joinPath(currentPath, arg)];
+              delete vfs[joinPath(currentPath, arg)];
+              out.innerText += `'${arg}' eliminado.\n`;
+              refreshExplorer();
+            } else out.innerText += `rm: no se encuentra '${arg}'\n`;
+          } else out.innerText += "Uso: rm <nombre>\n";
           break;
         case 'echo':
           out.innerText += parts.slice(1).join(' ') + "\n";
@@ -745,15 +1485,60 @@
           if(cmd !== "") out.innerText += `bash: ${cmd}: comando no encontrado\n`;
       }
 
-      document.getElementById('term-prompt').innerText = `david@davidOS:${currentPath}$`;
+      const promptEl = body.querySelector('#term-prompt');
+      if (promptEl) promptEl.innerText = `david@davidOS:${currentPath}$`;
       out.scrollTop = out.scrollHeight;
     }
 
     // --- APP HELPERS ---
+    function updateNotepadCount() {
+      const ta = document.getElementById('notepad-txt');
+      const counter = document.getElementById('notepad-count');
+      if (!ta || !counter) return;
+      const text = ta.value;
+      const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+      counter.innerText = `${words} palabras · ${text.length} caracteres`;
+    }
+
+    function notepadOpenFile(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => { document.getElementById('notepad-txt').value = reader.result; updateNotepadCount(); };
+      reader.readAsText(file);
+    }
+
     function calcExcelSum() {
-      let sum = 0;
-      document.querySelectorAll('.ex-a').forEach(td => sum += parseFloat(td.innerText || 0));
-      document.getElementById('excelResult').innerText = `Suma A = ${sum}`;
+      const cols = { A: 0, B: 0, C: 0 };
+      document.querySelectorAll('#excel-table tr').forEach((row, i) => {
+        if (i === 0) return;
+        const cells = row.querySelectorAll('td[contenteditable]');
+        cols.A += parseFloat(cells[0]?.innerText || 0) || 0;
+        cols.B += parseFloat(cells[1]?.innerText || 0) || 0;
+        cols.C += parseFloat(cells[2]?.innerText || 0) || 0;
+      });
+      document.getElementById('excelResult').innerText = `Suma A=${cols.A}  B=${cols.B}  C=${cols.C}`;
+    }
+
+    function excelAddRow() {
+      const table = document.getElementById('excel-table');
+      const rowCount = table.rows.length;
+      const row = table.insertRow(-1);
+      row.innerHTML = `<td>${rowCount}</td><td contenteditable class="ex-a">0</td><td contenteditable>0</td><td contenteditable>0</td>`;
+    }
+
+    function excelDeleteRow() {
+      const table = document.getElementById('excel-table');
+      if (table.rows.length > 2) table.deleteRow(-1);
+    }
+
+    function excelExportCSV() {
+      let csv = '';
+      document.querySelectorAll('#excel-table tr').forEach(row => {
+        const cells = Array.from(row.querySelectorAll('th,td')).map(c => c.innerText.trim());
+        csv += cells.join(',') + '\n';
+      });
+      downloadText('hoja-davidOS.csv', csv);
     }
 
     function downloadText(filename, text) {
@@ -769,26 +1554,88 @@
         .catch(err => console.log("Cámara no disponible"));
     }
 
-    function takeSnapshot() { alert("📸 Foto capturada correctamente."); }
+    let lastSnapshotUrl = null;
+    function takeSnapshot() {
+      const video = document.getElementById('webcam');
+      const canvas = document.getElementById('webcam-canvas');
+      if (!video || !video.videoWidth) { showNotification('⚠️ La cámara no está lista todavía.'); return; }
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0);
+      lastSnapshotUrl = canvas.toDataURL('image/png');
+      document.getElementById('camera-download-btn').style.display = 'inline-block';
+      showNotification('📸 Foto capturada correctamente.');
+    }
+    function downloadSnapshot() {
+      if (!lastSnapshotUrl) return;
+      const a = document.createElement('a');
+      a.download = 'foto-davidOS.png';
+      a.href = lastSnapshotUrl;
+      a.click();
+    }
 
     function initPaintCanvas() {
       const canvas = document.getElementById('paintCanvas');
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
+      paintUndoStack = [];
       let drawing = false;
-      canvas.onmousedown = () => drawing = true;
+      let startX = 0, startY = 0;
+      let snapshot = null;
+
+      function pos(e) {
+        const rect = canvas.getBoundingClientRect();
+        return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      }
+      function saveUndoState() {
+        paintUndoStack.push(canvas.toDataURL());
+        if (paintUndoStack.length > 20) paintUndoStack.shift();
+      }
+
+      canvas.onmousedown = (e) => {
+        drawing = true;
+        saveUndoState();
+        const p = pos(e);
+        startX = p.x; startY = p.y;
+        snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+      };
       canvas.onmouseup = () => { drawing = false; ctx.beginPath(); };
+      canvas.onmouseleave = () => { drawing = false; };
       canvas.onmousemove = (e) => {
         if (!drawing) return;
-        const rect = canvas.getBoundingClientRect();
+        const p = pos(e);
+        const tool = document.getElementById('paintTool').value;
         ctx.lineWidth = document.getElementById('paintSize').value;
         ctx.lineCap = 'round';
-        ctx.strokeStyle = document.getElementById('paintColor').value;
-        ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+        ctx.strokeStyle = tool === 'eraser' ? '#ffffff' : document.getElementById('paintColor').value;
+        ctx.fillStyle = document.getElementById('paintColor').value;
+
+        if (tool === 'pen' || tool === 'eraser') {
+          ctx.lineTo(p.x, p.y);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+        } else if (tool === 'rect' && snapshot) {
+          ctx.putImageData(snapshot, 0, 0);
+          ctx.strokeRect(startX, startY, p.x - startX, p.y - startY);
+        } else if (tool === 'circle' && snapshot) {
+          ctx.putImageData(snapshot, 0, 0);
+          const r = Math.hypot(p.x - startX, p.y - startY);
+          ctx.beginPath();
+          ctx.arc(startX, startY, r, 0, Math.PI * 2);
+          ctx.stroke();
+        }
       };
+    }
+
+    function undoCanvas() {
+      const c = document.getElementById('paintCanvas');
+      if (!c || !paintUndoStack.length) return;
+      const img = new Image();
+      img.onload = () => c.getContext('2d').drawImage(img, 0, 0);
+      img.src = paintUndoStack.pop();
     }
 
     function clearCanvas() {
@@ -804,17 +1651,20 @@
       a.click();
     }
 
+    function nowTime() { return new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); }
+
     function sendAiMsg(bot) {
       const input = document.getElementById('ai-input');
       const box = document.getElementById('ai-chat-box');
       if (!input.value.trim()) return;
 
-      box.innerHTML += `<div class="chat-msg">👤 <b>Tú:</b> ${input.value}</div>`;
+      box.innerHTML += `<div class="chat-msg">👤 <b>Tú:</b> ${input.value} <small>${nowTime()}</small></div>`;
       const userText = input.value;
       input.value = '';
+      box.scrollTop = box.scrollHeight;
 
       setTimeout(() => {
-        box.innerHTML += `<div class="chat-msg">🤖 <b>${bot === 'gemini' ? 'Gemini AI' : 'EZPack AI'}:</b> Respuesta procesada para "${userText}".</div>`;
+        box.innerHTML += `<div class="chat-msg">🤖 <b>${bot === 'gemini' ? 'Gemini AI' : 'EZPack AI'}:</b> Respuesta procesada para "${userText}". <small>${nowTime()}</small></div>`;
         box.scrollTop = box.scrollHeight;
       }, 500);
     }
@@ -830,21 +1680,102 @@
       document.getElementById('browserFrame').src = u;
     }
 
+    function reloadBrowser() {
+      const frame = document.getElementById('browserFrame');
+      if (frame) frame.src = frame.src;
+    }
+
     function installStoreApp(storeId) {
       const item = storeCatalog.find(s => s.id === storeId);
       if (!item) return;
 
       if (!apps.some(a => a.id === item.url || a.id === item.id)) {
-        apps.push({ id: item.url || item.id, name: item.name, icon: item.icon });
+        const newApp = { id: item.url || item.id, name: item.name, icon: item.icon };
+        apps.push(newApp);
+        const installed = JSON.parse(localStorage.getItem('davidos-installed') || '[]');
+        installed.push(newApp);
+        localStorage.setItem('davidos-installed', JSON.stringify(installed));
         renderIcons();
-        alert(`¡${item.name} instalada en davidOS!`);
+        const storeBody = document.getElementById('body-store');
+        if (storeBody) storeBody.innerHTML = getAppContent('store');
+        showNotification(`✅ ¡${item.name} instalada en davidOS!`);
       } else {
-        alert(`${item.name} ya está instalada.`);
+        showNotification(`ℹ️ ${item.name} ya está instalada.`);
       }
     }
 
-    function renderExplorerFiles() {
-      return (vfs[currentPath] || []).map(f => `<div style="padding:6px; background:rgba(255,255,255,0.05); margin-bottom:4px; border-radius:4px;">📄 ${f}</div>`).join('');
+    function filterStore(q) {
+      q = q.toLowerCase().trim();
+      document.querySelectorAll('#store-grid .store-card').forEach(card => {
+        card.style.display = card.dataset.name.includes(q) ? 'flex' : 'none';
+      });
+    }
+
+    function refreshExplorer() {
+      const list = document.getElementById('exp-list');
+      const crumbEl = document.getElementById('exp-breadcrumb');
+      if (!list) return;
+      const items = vfs[currentPath] || [];
+      list.innerHTML = items.length ? items.map(name => {
+        const fullPath = currentPath === '/' ? `/${name}` : `${currentPath}/${name}`;
+        const isFolder = Object.prototype.hasOwnProperty.call(vfs, fullPath);
+        return `<div class="exp-item" onclick="${isFolder ? `explorerNavigate('${fullPath}')` : `explorerOpenFile('${fullPath}')`}">
+          <span>${isFolder ? '📁' : '📄'}</span><span>${name}</span>
+        </div>`;
+      }).join('') : `<div style="opacity:0.5; padding:10px; font-size:12px;">Carpeta vacía</div>`;
+
+      if (crumbEl) {
+        const parts = currentPath.split('/').filter(Boolean);
+        let acc = '';
+        let html = `<span class="exp-crumb" onclick="explorerNavigate('/')">🏠 raíz</span>`;
+        parts.forEach(p => {
+          acc += '/' + p;
+          html += ` / <span class="exp-crumb" onclick="explorerNavigate('${acc}')">${p}</span>`;
+        });
+        crumbEl.innerHTML = html;
+      }
+    }
+
+    function explorerNavigate(path) {
+      currentPath = path;
+      refreshExplorer();
+      const promptEl = document.getElementById('term-prompt');
+      if (promptEl) promptEl.innerText = `david@davidOS:${currentPath}$`;
+    }
+
+    function explorerUp() {
+      if (currentPath === '/') return;
+      const parts = currentPath.split('/').filter(Boolean);
+      parts.pop();
+      explorerNavigate(parts.length ? '/' + parts.join('/') : '/');
+    }
+
+    function explorerNewFolder() {
+      const name = prompt('Nombre de la nueva carpeta:');
+      if (!name) return;
+      if (!vfs[currentPath]) vfs[currentPath] = [];
+      vfs[currentPath].push(name);
+      const newPath = currentPath === '/' ? `/${name}` : `${currentPath}/${name}`;
+      vfs[newPath] = [];
+      refreshExplorer();
+    }
+
+    function explorerNewFile() {
+      const name = prompt('Nombre del nuevo archivo:');
+      if (!name) return;
+      if (!vfs[currentPath]) vfs[currentPath] = [];
+      vfs[currentPath].push(name);
+      const fullPath = currentPath === '/' ? `/${name}` : `${currentPath}/${name}`;
+      fileContents[fullPath] = '';
+      refreshExplorer();
+    }
+
+    function explorerOpenFile(path) {
+      openApp('notepad');
+      setTimeout(() => {
+        const ta = document.getElementById('notepad-txt');
+        if (ta) ta.value = fileContents[path] || '';
+      }, 50);
     }
 
     function executeRun() {
@@ -852,9 +1783,29 @@
       if (target) openApp(target);
     }
 
-    function setBg(bg) { document.documentElement.style.setProperty('--bg-wallpaper', bg); }
+    function setBg(bg) {
+      document.documentElement.style.setProperty('--bg-wallpaper', bg);
+      localStorage.setItem('davidos-wallpaper', bg);
+      showNotification('🖼️ Fondo de pantalla actualizado');
+    }
+    function setCustomWallpaper(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => setBg(`url(${reader.result}) center/cover no-repeat`);
+      reader.readAsDataURL(file);
+    }
     function restoreSystem() {
-      if (confirm('¿Deseas restaurar davidOS a los valores de fábrica?')) location.reload();
+      if (confirm('¿Deseas restaurar davidOS a los valores de fábrica? Esto borrará tus apps instaladas, fondo y preferencias guardadas.')) {
+        localStorage.removeItem('davidos-wallpaper');
+        localStorage.removeItem('davidos-installed');
+        localStorage.removeItem('davidos-pins');
+        localStorage.removeItem('davidos-recents');
+        localStorage.removeItem('davidos-volume');
+        localStorage.removeItem('davidos-brightness');
+        localStorage.removeItem('davidos-word-doc');
+        location.reload();
+      }
     }
   </script>
 </body>
