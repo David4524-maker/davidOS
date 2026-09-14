@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="davidOS Web Edition — un sistema operativo simulado en el navegador con apps interactivas.">
+  <meta name="description" content="davidOS Web Edition — un sistema operativo simulado en el navegador con apps interactivas, Kernel y BIOS.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚪</text></svg>">
   <title>davidOS Web Edition</title>
   <style>
@@ -16,7 +16,21 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; font-family: 'Segoe UI', sans-serif; }
-    body, html { width: 100%; height: 100%; overflow: hidden; filter: var(--filter-mode); }
+    body, html { width: 100%; height: 100%; overflow: hidden; filter: var(--filter-mode); background: #000; }
+
+    /* --- BIOS SETUP UI --- */
+    #bios-screen {
+      position: fixed; inset: 0; background: #0000aa; color: #ffffff; z-index: 1000000;
+      font-family: 'Courier New', monospace; display: none; flex-direction: column; justify-content: space-between; padding: 20px;
+    }
+    #bios-screen.active { display: flex; }
+    .bios-header { background: #5555ff; color: #fff; padding: 4px 10px; font-weight: bold; text-align: center; }
+    .bios-container { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; flex: 1; margin-top: 15px; border: 2px solid #fff; padding: 15px; }
+    .bios-sidebar { border-right: 1px dashed #fff; padding-right: 15px; }
+    .bios-menu-item { padding: 4px 8px; cursor: pointer; color: #ffff55; }
+    .bios-menu-item.active { background: #5555ff; color: #fff; }
+    .bios-content { padding-left: 10px; }
+    .bios-footer { background: #5555ff; color: #fff; padding: 4px 10px; font-size: 12px; display: flex; justify-content: space-between; }
 
     /* --- BOOT SCREEN --- */
     #boot-screen {
@@ -28,6 +42,12 @@
     .boot-loader-bar { width: 40%; height: 100%; background: var(--accent-color); animation: bootMove 1.2s infinite ease-in-out; }
     @keyframes bootMove { 0% { transform: translateX(-100%); } 100% { transform: translateX(250%); } }
     @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+
+    /* --- POST LOG CONSOLE --- */
+    #post-screen {
+      position: fixed; inset: 0; background: #000; color: #00ff00; z-index: 999999;
+      font-family: 'Courier New', monospace; padding: 20px; font-size: 13px; display: flex; flex-direction: column; justify-content: space-between;
+    }
 
     /* --- LOGIN SCREEN --- */
     #login-screen {
@@ -167,21 +187,149 @@
       .taskbar-running { max-width: 20vw; }
       #start-menu, #emoji-menu { width: calc(100vw - 20px); left: 10px; }
     }
+
+    /* --- BSOD SCREEN STYLES --- */
+    #bsod-screen {
+      position: fixed; inset: 0; background: #787878; z-index: 10000000;
+      display: none; flex-direction: column; justify-content: center; align-items: flex-start;
+      padding: 0 15vw; color: white; font-family: 'Segoe UI', system-ui, sans-serif; overflow: hidden;
+    }
+    #bsod-screen.active { display: flex; }
+    .bsod-bg-lines {
+      position: absolute; inset: 0; pointer-events: none; z-index: 1;
+    }
+    .bsod-line { position: absolute; top: 0; width: 3px; background: #000000; }
+    .bsod-line.blue { background: #00a2ff; width: 2px; }
+    .bsod-container {
+      position: relative; z-index: 2; display: flex; flex-direction: column; gap: 80px; width: 100%; max-width: 900px;
+    }
+    .bsod-top-row {
+      display: flex; align-items: center; gap: 30px;
+    }
+    .bsod-door {
+      position: relative; width: 110px; height: 160px; background: #855535; border: 4px solid #5a3820; flex-shrink: 0;
+    }
+    .bsod-door-inner {
+      position: absolute; inset: 6px; border: 2px solid #5a3820; display: flex; flex-direction: column; gap: 6px; padding: 4px;
+    }
+    .bsod-door-panel-box {
+      flex: 1; background: #6c4327; border: 1px solid #482a16;
+    }
+    .bsod-knob {
+      position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 12px; height: 12px; background: #ffff00; border-radius: 50%;
+    }
+    .bsod-crack-svg {
+      position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none;
+    }
+    .bsod-text-block {
+      display: flex; flex-direction: column; gap: 18px;
+    }
+    .bsod-red-title {
+      color: #ff0000; font-size: 26px; font-weight: bold; font-family: sans-serif;
+    }
+    .bsod-white-msg {
+      color: #d8d8d8; font-size: 24px; font-weight: bold; line-height: 1.3; font-family: sans-serif;
+    }
+    .bsod-bottom-row {
+      display: flex; align-items: center; gap: 60px; margin-left: 60px;
+    }
+    .bsod-btn-reboot {
+      background: #00a2ff; color: #ffffff; border: none; padding: 18px 32px; font-size: 22px; font-weight: bold; cursor: pointer; border-radius: 0; font-family: sans-serif;
+    }
+    .bsod-btn-reboot:hover { background: #0088db; }
+    .bsod-btn-off {
+      background: transparent; color: #000000; border: none; padding: 10px 15px; font-size: 22px; font-weight: bold; cursor: pointer; font-family: sans-serif;
+    }
+    .bsod-btn-off:hover { opacity: 0.7; }
   </style>
 </head>
 <body>
 
+  <!-- BIOS POST SCREEN -->
+  <div id="post-screen">
+    <div>
+      <div>davidOS BIOS (C) 2026 David Corp. Release 3.0</div>
+      <div>CPU: Intel(R) Core(TM) i5-1235U @ 4.40GHz</div>
+      <div>Motherboard: HP 24-cb1009la Virtual Board</div>
+      <br>
+      <div id="post-log"></div>
+    </div>
+    <div style="color:#ffff00;">Press [F2] or [DEL] to enter davidOS BIOS Setup Utility</div>
+  </div>
+
+  <!-- BIOS SETUP UTILITY MENU -->
+  <div id="bios-screen">
+    <div class="bios-header">davidOS BIOS Setup Utility - Version 3.0.1</div>
+    <div class="bios-container">
+      <div class="bios-sidebar">
+        <div class="bios-menu-item active" onclick="setBiosTab('main')">Main System</div>
+        <div class="bios-menu-item" onclick="setBiosTab('kernel')">Kernel Diagnostics</div>
+        <div class="bios-menu-item" onclick="setBiosTab('boot')">Boot Configuration</div>
+        <div class="bios-menu-item" onclick="setBiosTab('security')">Security</div>
+        <div class="bios-menu-item" onclick="exitBios()">Save & Exit</div>
+      </div>
+      <div class="bios-content" id="bios-content-area">
+        <!-- Dynamic BIOS Tab Content -->
+      </div>
+    </div>
+    <div class="bios-footer">
+      <span>[ESC] Exit Setup</span>
+      <span>[F10] Save & Reboot</span>
+    </div>
+  </div>
+
   <!-- BOOT SCREEN -->
-  <div id="boot-screen">
+  <div id="boot-screen" style="display:none;">
     <div class="boot-door">🚪</div>
     <div class="boot-loader-track"><div class="boot-loader-bar"></div></div>
-    <div id="boot-percent" style="margin-top:12px; font-size:12px; opacity:0.6;">Iniciando davidOS... 0%</div>
+    <div id="boot-percent" style="margin-top:12px; font-size:12px; opacity:0.6;">Cargando davidKernel v3.0... 0%</div>
   </div>
 
   <!-- SHUTDOWN / RESTART SCREEN -->
   <div id="shutdown-screen">
     <div class="boot-door" style="animation:pulse 1s infinite;">🚪</div>
     <div id="shutdown-text" style="font-size:15px; opacity:0.8;">Cerrando davidOS...</div>
+  </div>
+
+  <!-- BSOD SCREEN -->
+  <div id="bsod-screen">
+    <div class="bsod-bg-lines">
+      <div class="bsod-line" style="left: 8%; height: 60%;"></div>
+      <div class="bsod-line" style="left: 22%; height: 100%;"></div>
+      <div class="bsod-line" style="left: 36%; height: 75%;"></div>
+      <div class="bsod-line" style="left: 48%; height: 100%;"></div>
+      <div class="bsod-line" style="left: 64%; height: 67%;"></div>
+      <div class="bsod-line blue" style="left: 75%; height: 55%;"></div>
+      <div class="bsod-line" style="left: 83%; height: 62%;"></div>
+      <div class="bsod-line" style="left: 98%; height: 65%;"></div>
+    </div>
+    <div class="bsod-container">
+      <div class="bsod-top-row">
+        <div class="bsod-door">
+          <div class="bsod-door-inner">
+            <div class="bsod-door-panel-box"></div>
+            <div class="bsod-door-panel-box"></div>
+          </div>
+          <div class="bsod-knob"></div>
+          <svg class="bsod-crack-svg" viewBox="0 0 110 160">
+            <path d="M 35 10 L 60 50 L 30 90 L 65 125 L 45 155" stroke="#000000" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M 60 50 L 80 70" stroke="#000000" stroke-width="4" fill="none" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="bsod-text-block">
+          <div class="bsod-red-title">NOOOOOOO D:</div>
+          <div class="bsod-white-msg">
+            Se crasheo el sistema operativo,<br>
+            por favor reinicie el sistema<br>
+            operativo
+          </div>
+        </div>
+      </div>
+      <div class="bsod-bottom-row">
+        <button class="bsod-btn-reboot" onclick="bsodRestart()">Reiniciar davidOS</button>
+        <button class="bsod-btn-off" onclick="bsodShutdown()">Apagar sistema</button>
+      </div>
+    </div>
   </div>
 
   <!-- NOTIFICATION STACK -->
@@ -244,6 +392,7 @@
       <div class="ctx-item" onclick="powerAction('restart')">🔄 Reiniciar</div>
       <div class="ctx-item" onclick="powerAction('shutdown')">⏻ Apagar</div>
       <div class="ctx-sep"></div>
+      <div class="ctx-item" onclick="triggerBSOD()">💥 Pantallazo Azul (BSOD)</div>
       <div class="ctx-item" onclick="powerAction('logout')">🚪 Cerrar sesión</div>
     </div>
 
@@ -288,6 +437,166 @@
   </div>
 
   <script>
+    /* ==========================================================================
+       davidKernel & BIOS ENGINE IMPLEMENTATION
+       ========================================================================== */
+    const davidKernel = {
+      version: "3.0.0-release",
+      build: "2026.09.K12",
+      processes: [],
+      nextPid: 1000,
+      allocatedMemoryMB: 128,
+      maxMemoryMB: 16384, // 16 GB Virtual Memory
+
+      init: function() {
+        this.spawnProcess("kernel_core", "System Kernel Core", 64);
+        this.spawnProcess("vfs_daemon", "Virtual File System Daemon", 32);
+        this.spawnProcess("window_server", "davidOS UI Window Server", 64);
+      },
+
+      spawnProcess: function(id, name, memoryAllocated) {
+        const process = {
+          pid: this.nextPid++,
+          appId: id,
+          name: name,
+          memory: memoryAllocated || Math.floor(Math.random() * 40) + 20,
+          startTime: new Date().toLocaleTimeString()
+        };
+        this.processes.push(process);
+        this.allocatedMemoryMB += process.memory;
+        return process;
+      },
+
+      killProcess: function(pid) {
+        const index = this.processes.findIndex(p => p.pid === pid || p.appId === pid);
+        if (index !== -1) {
+          this.allocatedMemoryMB -= this.processes[index].memory;
+          this.processes.splice(index, 1);
+          return true;
+        }
+        return false;
+      },
+
+      sysCall: function(action, data) {
+        switch(action) {
+          case 'GET_SYSTEM_STATS':
+            return {
+              processes: this.processes,
+              memoryUsed: this.allocatedMemoryMB,
+              memoryTotal: this.maxMemoryMB,
+              kernelVersion: this.version
+            };
+          case 'READ_VFS':
+            return vfs[data] || null;
+          default:
+            return null;
+        }
+      }
+    };
+
+    const davidBIOS = {
+      config: {
+        secureBoot: true,
+        cpuFrequency: "4.40 GHz",
+        ramSpeed: "3200 MHz",
+        bootOrder: ["Virtual SSD (davidOS)", "Network PXE", "USB Flash Drive"]
+      },
+      bootedToSetup: false,
+
+      runPost: function(onComplete) {
+        const postLog = document.getElementById('post-log');
+        const logs = [
+          "Performing POST (Power-On Self-Test)...",
+          "Testing System RAM: 16384 MB OK",
+          "Initializing CPU: Intel Core i5-1235U [10 Cores / 12 Threads] OK",
+          "Checking Storage Drives: davidOS Virtual NVMe SSD 512GB OK",
+          "Initializing davidKernel Core Architecture...",
+          "Kernel Loaded at 0x00400000. Handing over control to OS..."
+        ];
+
+        let index = 0;
+        const interval = setInterval(() => {
+          if (davidBIOS.bootedToSetup) {
+            clearInterval(interval);
+            return;
+          }
+          if (index < logs.length) {
+            postLog.innerHTML += `<div>> ${logs[index]}</div>`;
+            index++;
+          } else {
+            clearInterval(interval);
+            setTimeout(() => {
+              document.getElementById('post-screen').style.display = 'none';
+              onComplete();
+            }, 800);
+          }
+        }, 350);
+      },
+
+      openSetup: function() {
+        this.bootedToSetup = true;
+        document.getElementById('post-screen').style.display = 'none';
+        document.getElementById('boot-screen').style.display = 'none';
+        document.getElementById('bios-screen').classList.add('active');
+        setBiosTab('main');
+      }
+    };
+
+    function setBiosTab(tab) {
+      const area = document.getElementById('bios-content-area');
+      document.querySelectorAll('.bios-menu-item').forEach(el => el.classList.remove('active'));
+      
+      let html = "";
+      if (tab === 'main') {
+        html = `
+          <h3>System Information</h3><br>
+          <p>BIOS Version: davidOS UEFI v3.0 (2026)</p>
+          <p>Processor: Intel(R) Core(TM) i5-1235U CPU @ 4.40GHz</p>
+          <p>Baseboard: HP 24-cb1009la Virtual Mainboard</p>
+          <p>System Memory: 16384 MB DDR4 @ 3200 MHz</p>
+          <p>Storage: NVMe davidOS-Drive (512 GB)</p>
+          <br><p>System Time: ${new Date().toLocaleTimeString()}</p>
+        `;
+      } else if (tab === 'kernel') {
+        const stats = davidKernel.sysCall('GET_SYSTEM_STATS');
+        html = `
+          <h3>davidKernel v${stats.kernelVersion} Status</h3><br>
+          <p>Active Kernel Processes: ${stats.processes.length}</p>
+          <p>Memory Allocated: ${stats.memoryUsed} MB / ${stats.memoryTotal} MB</p><br>
+          <b>Kernel Process Table:</b>
+          <div style="max-height:180px; overflow-y:auto; border:1px solid #fff; margin-top:5px; padding:5px;">
+            ${stats.processes.map(p => `<p>PID: ${p.pid} | ${p.name} [${p.memory}MB]</p>`).join('')}
+          </div>
+        `;
+      } else if (tab === 'boot') {
+        html = `
+          <h3>Boot Priority Setup</h3><br>
+          <p>1st Boot Device: <b>${davidBIOS.config.bootOrder[0]}</b></p>
+          <p>2nd Boot Device: ${davidBIOS.config.bootOrder[1]}</p>
+          <p>3rd Boot Device: ${davidBIOS.config.bootOrder[2]}</p>
+          <br><p>Fast Boot: [ENABLED]</p>
+        `;
+      } else if (tab === 'security') {
+        html = `
+          <h3>Security Settings</h3><br>
+          <p>Administrator Password: [NOT SET]</p>
+          <p>User Password: [NOT SET]</p>
+          <p>Secure Boot State: <b>${davidBIOS.config.secureBoot ? 'ENABLED' : 'DISABLED'}</b></p>
+        `;
+      } else {
+        exitBios();
+        return;
+      }
+      area.innerHTML = html;
+    }
+
+    function exitBios() {
+      document.getElementById('bios-screen').classList.remove('active');
+      davidBIOS.bootedToSetup = false;
+      document.getElementById('boot-screen').style.display = 'flex';
+      continueOSBootSequence();
+    }
+
     // --- EMOJI LIST ---
     const emojiList = [
       "😀","😃","😄","😁","😆","😅","😂","🤣","😊","😇","🙂","🙃","😉","😌","😍","🥰","😘","😗","😙","😚",
@@ -296,9 +605,9 @@
       "🤔","🤭","🤫","🤥","😶","😐","😑","😬","🙄","😯","😦","😧","😮","😲","🥱","😴","🤤","😪","😵","🤐",
       "🥴","🤢","🤮","🤧","😷","🤒","🤕","🤑","🤠","😈","👿","👹","👺","🤡","💩","👻","💀","☠️","👽","👾",
       "🤖","🎃","😺","😸","😹","😻","😼","😽","🙀","😿","😾","👍","👎","👊","✊","🤛","🤜","🤞","✌️","🤟",
-      "🤘","👌","🤏","👈","👉","👆","👇","☝️","✋","🤚","🖐","🖖","👋","🤙","💪","🖕","✍️","🙏","🦶","🦵",
+      "🤘","👌","\%$","👈","👉","👆","👇","☝️","✋","🤚","🖐","🖖","👋","🤙","💪","🖕","✍️","🙏","🦶","🦵",
       "🧠","👤","👥","🗣️","👶","👧","🧒","👦","👩","🧑","👨","👵","👴","💃","🕺","🏃‍♀️","🏃‍♂️","🐕","🐈","🐎",
-      "🦄","🐖","🐘","🐭","🐰","🦊","🐻","🐼","🐸","🐲","🐍","🐙","🦑","🦐","crab","🐬","🐳","🦈","🐊","🐅",
+      "🦄","🐖","🐘","🐭","🐰","🦊","🐻","🐼","🐸","🐲","🐍","octopus","squid","shrimp","crab","🐬","🐳","🦈","🐊","🐅",
       "🚗","🏎️","🚓","🚑","🚒","🚲","🛵","🏍️","✈️","🛳️","⛵","⚓","🚀","🛸","🎮","🕹️","⚽","🏀","🏈","⚾",
       "🍕","🍔","🍟","🌭","🍿","🥓","🍳","🧇","🥞","🍞","🥐","🧀","🌮","🌯","🥩","🍱","Sushi","🍡","🍦","🍧",
       "🎂","🍰","🍫","🍬","🍭","🍮","☕","🍵","🍶","🍾","🍷","🍸","🍹","🍺","🍻","🥂","🥃","🥤","🥑","🍆",
@@ -317,7 +626,7 @@
       "/bin": []
     };
     let fileContents = {
-      "/home/david/bienvenida.txt": "¡Bienvenido a davidOS! Sistema completamente funcional.",
+      "/home/david/bienvenida.txt": "¡Bienvenido a davidOS! Sistema completamente funcional con Kernel y BIOS.",
       "/home/david/codigo.ez": "print('Hola desde EZScript')"
     };
     let currentPath = "/home/david";
@@ -391,12 +700,21 @@
 
     // --- SYSTEM INIT ---
     function initSystem() {
+      davidKernel.init();
+      davidBIOS.runPost(() => {
+        document.getElementById('boot-screen').style.display = 'flex';
+        continueOSBootSequence();
+      });
+      setupGlobalListeners();
+    }
+
+    function continueOSBootSequence() {
       window.currentEdition = document.getElementById('login-edition') ? document.getElementById('login-edition').value : 'Pro';
       let pct = 0;
       const pctEl = document.getElementById('boot-percent');
       const pctTimer = setInterval(() => {
         pct = Math.min(100, pct + Math.floor(Math.random() * 18) + 5);
-        if (pctEl) pctEl.innerText = `Iniciando davidOS... ${pct}%`;
+        if (pctEl) pctEl.innerText = `Iniciando davidOS Kernel & Desktop... ${pct}%`;
         if (pct >= 100) clearInterval(pctTimer);
       }, 280);
 
@@ -405,14 +723,13 @@
         document.getElementById('login-screen').style.display = 'flex';
         updateLoginClock();
         setInterval(updateLoginClock, 1000);
-      }, 3000);
+      }, 2500);
 
       restorePersistedState();
       setInterval(updateClock, 1000);
       updateClock();
       renderIcons();
       renderEmojiPicker();
-      setupGlobalListeners();
     }
 
     if (document.readyState === 'complete' || document.readyState === 'interactive') { initSystem(); } 
@@ -430,6 +747,15 @@
     }
 
     function setupGlobalListeners() {
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'F2' || e.key === 'Delete') {
+          if (document.getElementById('post-screen').style.display !== 'none' || document.getElementById('boot-screen').style.display !== 'none') {
+            e.preventDefault();
+            davidBIOS.openSetup();
+          }
+        }
+      });
+
       document.addEventListener('click', (e) => {
         if (!e.target.closest('#start-menu') && !e.target.closest('.start-btn')) document.getElementById('start-menu').classList.remove('active');
         if (!e.target.closest('#emoji-menu') && !e.target.closest('.start-btn')) document.getElementById('emoji-menu').classList.remove('active');
@@ -550,13 +876,13 @@
       const shutdown = document.getElementById('shutdown-screen');
       const text = document.getElementById('shutdown-text');
       if (action === 'sleep') { showNotification('💤 davidOS suspendido (haz clic en cualquier lugar para reactivar)'); return; }
-      text.innerText = action === 'restart' ? 'Reiniciando davidOS...' : (action === 'logout' ? 'Cerrando sesión...' : 'Cerrando davidOS...');
+      text.innerText = action === 'restart' ? 'Reiniciando davidOS Kernel...' : (action === 'logout' ? 'Cerrando sesión...' : 'Apagando davidKernel...');
       shutdown.classList.add('active');
       setTimeout(() => {
         if (action === 'restart' || action === 'logout') {
           location.reload();
         } else {
-          shutdown.innerHTML = '<div style="font-size:14px; opacity:0.6;">Ya puedes cerrar esta pestaña.</div>';
+          shutdown.innerHTML = '<div style="font-size:14px; opacity:0.6;">El sistema davidOS se ha apagado de forma segura. Puedes cerrar la pestaña.</div>';
         }
       }, 1800);
     }
@@ -583,7 +909,7 @@
       const win = document.createElement('div');
       win.id = 'win-about';
       win.className = 'window';
-      win.style.top = '120px'; win.style.left = '200px'; win.style.width = '380px'; win.style.height = '260px';
+      win.style.top = '120px'; win.style.left = '200px'; win.style.width = '380px'; win.style.height = '280px';
       win.style.zIndex = ++zIndexCounter;
       win.innerHTML = `
         <div class="window-header" onmousedown="dragWindow(event, 'win-about')">
@@ -594,7 +920,7 @@
           <div style="font-size:40px;">🚪</div>
           <b>davidOS Web Edition</b>
           <span style="font-size:12px; opacity:0.7;">Edición: <span id="about-edition">${window.currentEdition || 'Pro'}</span></span>
-          <span style="font-size:12px; opacity:0.7;">Compilación 3.0 · Núcleo UNIX simulado</span>
+          <span style="font-size:12px; opacity:0.7;">Kernel JavaScript v${davidKernel.version}</span>
           <span style="font-size:11px; opacity:0.5;">Hecho con HTML, CSS y JavaScript puro.</span>
         </div>`;
       document.getElementById('windows-container').appendChild(win);
@@ -774,6 +1100,9 @@
       const winName = app ? app.name : 'Aplicación';
       const winIcon = app ? app.icon : '📱';
 
+      // Register process in Kernel
+      davidKernel.spawnProcess(appId, winName);
+
       const win = document.createElement('div');
       win.id = `win-${appId}`;
       win.className = 'window';
@@ -825,6 +1154,8 @@
     }
 
     function closeWin(id) {
+      const appId = id.replace('win-', '');
+      davidKernel.killProcess(appId);
       const el = document.getElementById(id);
       if (el) el.remove();
       openWindowsOrder = openWindowsOrder.filter(w => w.id !== id);
@@ -1063,7 +1394,7 @@
         case 'terminal':
           return `
             <div style="display:flex; flex-direction:column; height:100%; background:#0a0a0c; padding:10px; font-family:monospace;">
-              <div id="term-out" class="terminal-out">davidOS Console v3.0\nEscribe 'help' para ver la lista de comandos disponibles.\n-----------------------------------------------------</div>
+              <div id="term-out" class="terminal-out">davidOS Console v3.0 (davidKernel v${davidKernel.version})\nEscribe 'help' para ver la lista de comandos disponibles.\n-----------------------------------------------------</div>
               <div class="terminal-input-line">
                 <span>david@os:~$</span>
                 <input type="text" class="terminal-input" id="term-input" onkeypress="handleTermKey(event)" autofocus>
@@ -1087,7 +1418,7 @@
                 <div style="font-size:36px;">🛡️</div>
                 <div>
                   <h3 style="margin:0; color:#27c93f;">El sistema está protegido</h3>
-                  <p style="margin:4px 0 0 0; font-size:12px; opacity:0.8;">David Secure Center está monitoreando en tiempo real.</p>
+                  <p style="margin:4px 0 0 0; font-size:12px; opacity:0.8;">David Secure Center está monitoreando el Kernel en tiempo real.</p>
                 </div>
               </div>
               <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
@@ -1149,8 +1480,9 @@
               </div>
               <hr style="border-color:#333;">
               <div>
-                <b>Información de Edición:</b>
+                <b>Información del Sistema:</b>
                 <p id="settings-edition" style="font-size:13px; opacity:0.8; margin-top:5px;">davidOS ${window.currentEdition || 'Pro'}</p>
+                <p style="font-size:12px; opacity:0.6;">Kernel: davidKernel ${davidKernel.version}</p>
               </div>
             </div>`;
 
@@ -1249,11 +1581,19 @@
         const cmd = input.value.trim();
         out.innerText += `\ndavid@os:~$ ${cmd}`;
 
-        if (cmd === 'help') out.innerText += `\nComandos: help, clear, date, echo, whoami, ls, cat, edition`;
+        if (cmd === 'help') out.innerText += `\nComandos: help, clear, date, echo, whoami, ls, cat, edition, ps, uname, bsod`;
         else if (cmd === 'clear') out.innerText = '';
         else if (cmd === 'date') out.innerText += `\n${new Date().toString()}`;
         else if (cmd === 'whoami') out.innerText += `\n${activeUser}`;
         else if (cmd === 'edition') out.innerText += `\nEdición activa: ${window.currentEdition || 'Pro'}`;
+        else if (cmd === 'uname') out.innerText += `\ndavidOS Kernel v${davidKernel.version} (${davidKernel.build})`;
+        else if (cmd === 'bsod' || cmd === 'crash') { triggerBSOD(); }
+        else if (cmd === 'ps') {
+          out.innerText += `\nPID\tPROCESO\t\tMEMORIA\n-----------------------------------`;
+          davidKernel.processes.forEach(p => {
+            out.innerText += `\n${p.pid}\t${p.name.padEnd(20, ' ')}\t${p.memory} MB`;
+          });
+        }
         else if (cmd.startsWith('echo ')) out.innerText += `\n${cmd.substring(5)}`;
         else if (cmd === 'ls') out.innerText += `\n${(vfs[currentPath] || []).join('   ')}`;
         else if (cmd.startsWith('cat ')) {
@@ -1275,9 +1615,16 @@
         const cmd = input.value.trim();
         out.innerText += `\nC:\\Users\\David> ${cmd}`;
 
-        if (cmd.toLowerCase() === 'help') out.innerText += `\nComandos disponibles: HELP, CLS, VER, DIR, EXIT`;
+        if (cmd.toLowerCase() === 'help') out.innerText += `\nComandos disponibles: HELP, CLS, VER, DIR, TASKLIST, EXIT, BSOD`;
         else if (cmd.toLowerCase() === 'cls') out.innerText = 'Microsoft Windows davidOS [Versión 10.0.19045.3803]\n(c) David Corporation.\n';
-        else if (cmd.toLowerCase() === 'ver') out.innerText += `\ndavidOS [Versión Pro 3.0]`;
+        else if (cmd.toLowerCase() === 'ver') out.innerText += `\ndavidOS [Versión Pro 3.0] Kernel v${davidKernel.version}`;
+        else if (cmd.toLowerCase() === 'bsod' || cmd.toLowerCase() === 'crash') { triggerBSOD(); }
+        else if (cmd.toLowerCase() === 'tasklist') {
+          out.innerText += `\nNombre de imagen              PID       Uso de memoria\n========================= ======== ================`;
+          davidKernel.processes.forEach(p => {
+            out.innerText += `\n${p.appId.padEnd(25, ' ')} ${p.pid}     ${p.memory * 1024} KB`;
+          });
+        }
         else if (cmd.toLowerCase() === 'dir') out.innerText += `\n Directorio de C:\\Users\\David\n\n12/09/2026  04:00 PM    <DIR>          Documentos\n12/09/2026  04:00 PM    <DIR>          Descargas`;
         else if (cmd !== '') out.innerText += `\n'${cmd}' no se reconoce como un comando interno o externo.`;
 
@@ -1317,6 +1664,24 @@
       } else if (fileContents[newPath]) {
         showNotification(`📄 ${name}: ${fileContents[newPath]}`);
       }
+    }
+
+    // --- BSOD SCREEN FUNCTIONS ---
+    function triggerBSOD() {
+      const bsod = document.getElementById('bsod-screen');
+      if (bsod) bsod.classList.add('active');
+    }
+
+    function bsodRestart() {
+      const bsod = document.getElementById('bsod-screen');
+      if (bsod) bsod.classList.remove('active');
+      location.reload();
+    }
+
+    function bsodShutdown() {
+      powerAction('shutdown');
+      const bsod = document.getElementById('bsod-screen');
+      if (bsod) bsod.classList.remove('active');
     }
   </script>
 </body>
