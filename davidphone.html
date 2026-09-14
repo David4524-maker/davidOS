@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>davidPhone</title>
+  <style>
+    /* ============================================================
+       THEME TOKENS  (improvement: multi-theme system)
+       ============================================================ */
+    :root {
+      --bg: #0b1020;
+      --accent: #6366f1;
+      --accent-2: #22d3ee;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --card: rgba(255, 255, 255, 0.06);
+      --card-border: rgba(255, 255, 255, 0.12);
+      --wallpaper:
+        radial-gradient(900px 500px at 15% 0%, #1e293b, transparent),
+        radial-gradient(800px 500px at 100% 100%, #312e81, transparent),
+        linear-gradient(180deg, #0e1526, #0b1020);
+    }
+    [data-theme="sunset"] {
+      --accent: #fb7185; --accent-2: #fbbf24;
+      --wallpaper: radial-gradient(800px 500px at 20% 0%, #7c2d12, transparent),
+        radial-gradient(800px 500px at 90% 100%, #be123c, transparent),
+        linear-gradient(180deg, #431407, #1c0a08);
+    }
+    [data-theme="ocean"] {
+      --accent: #38bdf8; --accent-2: #34d399;
+      --wallpaper: radial-gradient(800px 500px at 20% 0%, #0e7490, transparent),
+        radial-gradient(800px 500px at 90% 100%, #1e3a8a, transparent),
+        linear-gradient(180deg, #082f49, #04121f);
+    }
+    [data-theme="forest"] {
+      --accent: #34d399; --accent-2: #a3e635;
+      --wallpaper: radial-gradient(800px 500px at 20% 0%, #14532d, transparent),
+        radial-gradient(800px 500px at 90% 100%, #166534, transparent),
+        linear-gradient(180deg, #052e16, #031206);
+    }
+    [data-theme="light"] {
+      --text: #111827; --muted: #4b5563;
+      --card: rgba(0,0,0,0.05); --card-border: rgba(0,0,0,0.12);
+      --accent: #6366f1; --accent-2: #0891b2;
+      --wallpaper: radial-gradient(800px 500px at 20% 0%, #dbeafe, transparent),
+        radial-gradient(800px 500px at 90% 100%, #e0e7ff, transparent),
+        linear-gradient(180deg, #f8fafc, #e2e8f0);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+      background:
+        radial-gradient(1200px 600px at 20% 10%, #1e293b, transparent),
+        radial-gradient(1000px 500px at 90% 90%, #312e81, transparent),
+        #05070f;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: #e5e7eb;
+      padding: 24px;
+    }
+
+    /* ============================================================
+       PHONE FRAME  (improvement: side buttons, better shadow)
+       ============================================================ */
+    .device { position: relative; }
+    .phone {
+      position: relative;
+      width: 340px;
+      height: 720px;
+      background: linear-gradient(160deg, #23262e, #0b0f1c);
+      border-radius: 48px;
+      padding: 13px;
+      box-shadow: 0 0 0 3px #33363f, 0 0 0 6px #17181d,
+        0 40px 90px rgba(0, 0, 0, 0.7), inset 0 0 30px rgba(0, 0, 0, 0.4);
+    }
+    /* physical buttons */
+    .btn-side { position: absolute; left: -3px; background: #1b1d24; border-radius: 3px 0 0 3px; box-shadow: inset 1px 0 2px rgba(0,0,0,.6); }
+    .btn-mute { top: 120px; width: 3px; height: 26px; }
+    .btn-vol-up { top: 170px; width: 3px; height: 52px; }
+    .btn-vol-dn { top: 235px; width: 3px; height: 52px; }
+    .btn-power { position: absolute; right: -3px; top: 190px; width: 3px; height: 70px; background: #1b1d24; border-radius: 0 3px 3px 0; }
+
+    .screen {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: var(--wallpaper);
+      border-radius: 36px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: background .4s ease;
+    }
+
+    /* ---- Dynamic Island / notch ---- */
+    .notch {
+      position: absolute;
+      top: 12px; left: 50%;
+      transform: translateX(-50%);
+      width: 118px; height: 30px;
+      background: #05070f;
+      border-radius: 20px;
+      z-index: 60;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      transition: width .3s, height .3s;
+    }
+    .notch.expanded { width: 200px; height: 42px; border-radius: 24px; }
+    .notch .cam { width: 9px; height: 9px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #3b82f6, #0b1020); }
+    .notch .speaker { width: 34px; height: 4px; border-radius: 4px; background: #1f2937; }
+    .notch .island-info { display: none; align-items: center; gap: 6px; font-size: 11px; color: #34d399; white-space: nowrap; }
+    .notch.expanded .island-info { display: flex; }
+    .notch.expanded .speaker { display: none; }
+
+    /* ============================================================
+       STATUS BAR  (improvement: live battery, signal, wifi)
+       ============================================================ */
+    .statusbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 24px 6px; font-size: 13px; font-weight: 600; z-index: 40;
+      color: var(--text);
+    }
+    .statusbar .icons { display: flex; gap: 6px; align-items: center; }
+    .statusbar svg { width: 16px; height: 16px; fill: var(--text); }
+    .batt { display: inline-flex; align-items: center; gap: 3px; }
+    .batt-body { position: relative; width: 24px; height: 12px; border: 1.5px solid var(--text); border-radius: 3px; padding: 1.5px; }
+    .batt-body::after { content:""; position:absolute; right:-3px; top:3px; width:2px; height:5px; background: var(--text); border-radius: 0 2px 2px 0; }
+    .batt-fill { height: 100%; background: var(--text); border-radius: 1px; transition: width .5s, background .3s; }
+    .batt-fill.low { background: #ef4444; }
+    .batt-fill.charging { background: #22c55e; }
+    .batt-pct { font-size: 11px; }
+
+    /* ============================================================
+       VIEWS
+       ============================================================ */
+    .view { flex: 1; display: none; flex-direction: column; padding: 8px 18px 26px; overflow-y: auto; }
+    .view.active { display: flex; animation: fade .28s ease; }
+    .view::-webkit-scrollbar { width: 0; }
+    @keyframes fade { from { opacity: 0; transform: scale(.97); } to { opacity: 1; transform: none; } }
+
+    /* ============================================================
+       LOCK SCREEN  (improvement: lock + swipe to unlock)
+       ============================================================ */
+    #lock {
+      position: absolute; inset: 0; z-index: 70;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 70px 24px 30px; background: var(--wallpaper);
+      transition: transform .45s cubic-bezier(.4,0,.2,1), opacity .45s;
+    }
+    #lock.hidden { transform: translateY(-102%); opacity: 0; pointer-events: none; }
+    .lock-time { font-size: 74px; font-weight: 700; letter-spacing: -3px; color: var(--text); line-height: 1; }
+    .lock-date { color: var(--text); opacity: .8; font-size: 15px; margin-top: 4px; }
+    .lock-notes { width: 100%; margin-top: 26px; display: flex; flex-direction: column; gap: 10px; }
+    .lock-note { background: rgba(120,120,140,.28); backdrop-filter: blur(8px); border-radius: 16px; padding: 12px 14px; font-size: 13px; color: var(--text); }
+    .lock-note b { display: block; font-size: 12px; opacity: .8; margin-bottom: 2px; }
+    .lock-foot { margin-top: auto; text-align: center; color: var(--text); }
+    .lock-hint { font-size: 13px; opacity: .7; animation: bob 1.6s ease-in-out infinite; }
+    @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+    .unlock-grip { width: 120px; height: 5px; border-radius: 5px; background: var(--text); opacity: .6; margin: 14px auto 0; }
+
+    /* ============================================================
+       HOME  (improvement: widgets, pages, dock, search)
+       ============================================================ */
+    .home-top { padding-top: 6px; }
+    .search-bar {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--card); border: 1px solid var(--card-border);
+      border-radius: 12px; padding: 9px 12px; margin: 6px 0 14px;
+    }
+    .search-bar input { flex: 1; background: none; border: none; outline: none; color: var(--text); font: inherit; font-size: 14px; }
+    .search-bar svg { width: 16px; height: 16px; fill: var(--muted); }
+
+    .widgets { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+    .widget { background: var(--card); border: 1px solid var(--card-border); border-radius: 20px; padding: 14px; min-height: 96px; }
+    .widget.clock-w { display: flex; flex-direction: column; justify-content: center; }
+    .widget .w-big { font-size: 34px; font-weight: 700; line-height: 1; }
+    .widget .w-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .widget.weather-w { background: linear-gradient(160deg, #38bdf8, #0284c7); border: none; color: #fff; }
+    .widget.weather-w .w-big { font-size: 30px; }
+
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px 8px; }
+    .grid.page { display: none; }
+    .grid.page.on { display: grid; animation: fade .25s ease; }
+    .app { display: flex; flex-direction: column; align-items: center; gap: 6px; background: none; border: none; color: var(--text); cursor: pointer; font: inherit; }
+    .app .ic { position: relative; width: 56px; height: 56px; border-radius: 15px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(0,0,0,.35); transition: transform .12s ease; }
+    .app:active .ic { transform: scale(.88); }
+    .app .ic svg { width: 30px; height: 30px; fill: #fff; }
+    .app span { font-size: 11px; color: var(--text); opacity: .9; }
+    .badge { position: absolute; top: -5px; right: -5px; min-width: 18px; height: 18px; padding: 0 4px; background: #ef4444; color: #fff; border-radius: 9px; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+
+    .ic.calc{background:linear-gradient(160deg,#f59e0b,#b45309)} .ic.notes{background:linear-gradient(160deg,#facc15,#ca8a04)}
+    .ic.torch{background:linear-gradient(160deg,#64748b,#334155)} .ic.weather{background:linear-gradient(160deg,#38bdf8,#0284c7)}
+    .ic.music{background:linear-gradient(160deg,#ec4899,#be185d)} .ic.camera{background:linear-gradient(160deg,#111827,#374151)}
+    .ic.msg{background:linear-gradient(160deg,#22c55e,#15803d)} .ic.settings{background:linear-gradient(160deg,#94a3b8,#475569)}
+    .ic.clock{background:linear-gradient(160deg,#0f172a,#1e293b)} .ic.todo{background:linear-gradient(160deg,#f97316,#c2410c)}
+    .ic.photos{background:linear-gradient(160deg,#a855f7,#7e22ce)} .ic.calendar{background:linear-gradient(160deg,#ef4444,#b91c1c)}
+    .ic.games{background:linear-gradient(160deg,#8b5cf6,#6d28d9)} .ic.convert{background:linear-gradient(160deg,#14b8a6,#0f766e)}
+    .ic.browser{background:linear-gradient(160deg,#3b82f6,#1d4ed8)} .ic.dice{background:linear-gradient(160deg,#e11d48,#9f1239)}
+
+    .page-dots { display: flex; gap: 6px; justify-content: center; margin: 16px 0 8px; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); opacity: .4; cursor: pointer; }
+    .dot.on { opacity: 1; }
+
+    .dock { margin-top: auto; display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; background: var(--card); border: 1px solid var(--card-border); border-radius: 24px; padding: 12px 8px; }
+
+    /* ============================================================
+       APP HEADER
+       ============================================================ */
+    .app-header { display: flex; align-items: center; gap: 10px; padding: 6px 0 14px; }
+    .app-header h2 { font-size: 20px; }
+    .app-header .spacer { margin-left: auto; }
+    .back { background: var(--card); border: 1px solid var(--card-border); color: var(--text); width: 34px; height: 34px; border-radius: 12px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; }
+    .back:active { transform: scale(.92); }
+    .chip { background: var(--card); border: 1px solid var(--card-border); color: var(--text); border-radius: 10px; padding: 6px 12px; font-size: 13px; cursor: pointer; }
+    .chip:active { transform: scale(.94); }
+    .chip.solid { background: var(--accent); border-color: transparent; color: #fff; }
+
+    /* ============================================================
+       CALCULATOR  (improvement: history, keyboard)
+       ============================================================ */
+    .calc-hist { flex: 0 0 auto; max-height: 70px; overflow-y: auto; text-align: right; color: var(--muted); font-size: 13px; margin-bottom: 6px; }
+    .calc-display { background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; padding: 16px 20px; text-align: right; font-size: 38px; font-weight: 600; margin-bottom: 12px; min-height: 78px; word-break: break-all; display: flex; align-items: flex-end; justify-content: flex-end; }
+    .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 9px; }
+    .calc-grid button { aspect-ratio: 1; border-radius: 50%; border: none; font-size: 21px; font-weight: 600; cursor: pointer; background: #1f2740; color: var(--text); transition: filter .12s; }
+    .calc-grid button:active { filter: brightness(1.5); }
+    .calc-grid .op { background: var(--accent); color: #fff; } .calc-grid .op.sel { background: #fff; color: var(--accent); }
+    .calc-grid .fn { background: #374151; color: #fbbf24; } .calc-grid .eq { background: var(--accent-2); color: #04222b; }
+
+    /* ============================================================
+       NOTES  (improvement: multiple notes)
+       ============================================================ */
+    .note-list { display: flex; flex-direction: column; gap: 8px; }
+    .note-item { display: flex; align-items: center; gap: 8px; background: var(--card); border: 1px solid var(--card-border); border-radius: 14px; padding: 12px 14px; cursor: pointer; }
+    .note-item .nt { flex: 1; overflow: hidden; }
+    .note-item .nt b { font-size: 14px; } .note-item .nt small { color: var(--muted); font-size: 12px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .note-del { background: none; border: none; color: #ef4444; font-size: 18px; cursor: pointer; }
+    #noteEditor { flex: 1; background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; padding: 16px; color: var(--text); font-size: 15px; resize: none; outline: none; line-height: 1.5; }
+
+    /* ============================================================
+       CLOCK app  (improvement: stopwatch/timer/alarm tabs)
+       ============================================================ */
+    .tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+    .tab { flex: 1; text-align: center; padding: 8px; border-radius: 10px; background: var(--card); border: 1px solid var(--card-border); color: var(--muted); font-size: 13px; cursor: pointer; }
+    .tab.on { background: var(--accent); color: #fff; border-color: transparent; }
+    .tabpane { display: none; flex: 1; flex-direction: column; align-items: center; justify-content: center; gap: 18px; }
+    .tabpane.on { display: flex; }
+    .big-time { font-size: 52px; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .row-btns { display: flex; gap: 12px; }
+    .rbtn { width: 74px; height: 74px; border-radius: 50%; border: none; cursor: pointer; font-size: 14px; font-weight: 600; background: var(--card); border: 1px solid var(--card-border); color: var(--text); }
+    .rbtn.go { background: #14532d; color: #4ade80; } .rbtn.stop { background: #7f1d1d; color: #fca5a5; }
+    .laps { width: 100%; max-height: 140px; overflow-y: auto; margin-top: 4px; }
+    .lap { display: flex; justify-content: space-between; padding: 8px 4px; border-bottom: 1px solid var(--card-border); font-size: 13px; font-variant-numeric: tabular-nums; }
+    .timer-inputs { display: flex; align-items: center; gap: 4px; font-size: 30px; }
+    .timer-inputs input { width: 60px; background: var(--card); border: 1px solid var(--card-border); color: var(--text); border-radius: 10px; text-align: center; font: inherit; padding: 6px 0; }
+
+    /* ============================================================
+       WEATHER  (improvement: hourly strip)
+       ============================================================ */
+    .weather-view { align-items: center; }
+    .w-city { font-size: 20px; color: var(--muted); }
+    .w-temp { font-size: 68px; font-weight: 700; margin-top: 12px; }
+    .w-desc { font-size: 15px; margin: 4px 0 18px; }
+    .w-hourly { display: flex; gap: 10px; overflow-x: auto; width: 100%; padding-bottom: 8px; margin-bottom: 14px; }
+    .w-hour { flex: 0 0 auto; text-align: center; background: var(--card); border: 1px solid var(--card-border); border-radius: 14px; padding: 10px 12px; font-size: 13px; }
+    .w-hour .h-t { font-weight: 700; margin-top: 6px; }
+    .w-days { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+    .w-row { display: flex; justify-content: space-between; align-items: center; background: var(--card); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px 16px; font-size: 14px; }
+
+    /* ============================================================
+       MUSIC  (improvement: real player)
+       ============================================================ */
+    .music-view { align-items: center; }
+    .album { width: 190px; height: 190px; border-radius: 24px; margin: 10px 0 18px; box-shadow: 0 20px 40px rgba(0,0,0,.5); background: linear-gradient(160deg,#ec4899,#6366f1); display: flex; align-items: center; justify-content: center; }
+    .album svg { width: 70px; height: 70px; fill: rgba(255,255,255,.85); }
+    .album.spin { animation: spin 6s linear infinite; border-radius: 50%; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .track-title { font-size: 19px; font-weight: 700; } .track-artist { color: var(--muted); font-size: 14px; margin-bottom: 16px; }
+    .progress { width: 100%; height: 5px; background: var(--card-border); border-radius: 5px; cursor: pointer; }
+    .progress .fill { height: 100%; width: 0; background: var(--accent); border-radius: 5px; }
+    .p-time { width: 100%; display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-top: 6px; }
+    .m-controls { display: flex; align-items: center; gap: 26px; margin-top: 18px; }
+    .m-controls button { background: none; border: none; color: var(--text); cursor: pointer; }
+    .m-controls svg { width: 30px; height: 30px; fill: var(--text); }
+    .m-play { width: 66px; height: 66px; border-radius: 50%; background: var(--accent) !important; display: flex; align-items: center; justify-content: center; }
+    .m-play svg { fill: #fff; }
+
+    /* ============================================================
+       CAMERA  (improvement: filters + shutter)
+       ============================================================ */
+    .cam-view { padding: 0; }
+    .viewfinder { flex: 1; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+    #camScene { position: absolute; inset: 0; background: linear-gradient(160deg,#1e293b,#0f172a); display: flex; align-items: center; justify-content: center; font-size: 60px; }
+    .cam-top { position: absolute; top: 0; left: 0; right: 0; z-index: 5; padding: 46px 18px 10px; display: flex; gap: 8px; justify-content: center; }
+    .cam-bottom { position: absolute; bottom: 0; left: 0; right: 0; z-index: 5; padding: 16px; display: flex; align-items: center; justify-content: center; }
+    .shutter { width: 66px; height: 66px; border-radius: 50%; background: #fff; border: 4px solid rgba(255,255,255,.4); cursor: pointer; }
+    .shutter:active { transform: scale(.9); }
+    .flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; z-index: 20; }
+    .flash.go { animation: flash .4s ease; }
+    @keyframes flash { 0% { opacity: .9; } 100% { opacity: 0; } }
+
+    /* ============================================================
+       MESSAGES  (improvement: chat bot)
+       ============================================================ */
+    .chat { flex: 1; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; padding-bottom: 8px; }
+    .bubble { max-width: 78%; padding: 9px 13px; border-radius: 18px; font-size: 14px; line-height: 1.35; }
+    .bubble.me { align-self: flex-end; background: var(--accent); color: #fff; border-bottom-right-radius: 4px; }
+    .bubble.them { align-self: flex-start; background: var(--card); border: 1px solid var(--card-border); border-bottom-left-radius: 4px; }
+    .chat-input { display: flex; gap: 8px; padding-top: 8px; }
+    .chat-input input { flex: 1; background: var(--card); border: 1px solid var(--card-border); border-radius: 20px; padding: 10px 14px; color: var(--text); outline: none; font: inherit; }
+    .send-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: var(--accent); color: #fff; cursor: pointer; font-size: 18px; }
+
+    /* ============================================================
+       PHOTOS  (improvement: gallery grid)
+       ============================================================ */
+    .photo-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 4px; }
+    .photo { aspect-ratio: 1; border-radius: 8px; }
+
+    /* ============================================================
+       CALENDAR
+       ============================================================ */
+    .cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; text-align: center; }
+    .cal-grid .dow { font-size: 11px; color: var(--muted); padding: 4px 0; }
+    .cal-cell { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 13px; border-radius: 50%; }
+    .cal-cell.today { background: var(--accent); color: #fff; font-weight: 700; }
+    .cal-cell.muted { color: var(--muted); opacity: .4; }
+
+    /* ============================================================
+       TODO  (improvement: reminders, persisted)
+       ============================================================ */
+    .todo-add { display: flex; gap: 8px; margin-bottom: 14px; }
+    .todo-add input { flex: 1; background: var(--card); border: 1px solid var(--card-border); border-radius: 12px; padding: 10px 12px; color: var(--text); outline: none; font: inherit; }
+    .todo-list { display: flex; flex-direction: column; gap: 8px; }
+    .todo-item { display: flex; align-items: center; gap: 10px; background: var(--card); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; }
+    .todo-check { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--muted); cursor: pointer; flex: 0 0 auto; display: flex; align-items: center; justify-content: center; }
+    .todo-check.done { background: var(--accent-2); border-color: var(--accent-2); color: #04222b; }
+    .todo-item.done .txt { text-decoration: line-through; color: var(--muted); }
+    .todo-item .txt { flex: 1; font-size: 14px; }
+    .todo-item .del { background: none; border: none; color: #ef4444; cursor: pointer; font-size: 16px; }
+
+    /* ============================================================
+       GAMES  (improvement: tic-tac-toe, dice, coin)
+       ============================================================ */
+    .game-tabs { margin-bottom: 14px; }
+    .ttt { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; width: 240px; margin: 0 auto; }
+    .ttt-cell { aspect-ratio: 1; background: var(--card); border: 1px solid var(--card-border); border-radius: 14px; font-size: 42px; font-weight: 700; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text); }
+    .ttt-cell.x { color: var(--accent); } .ttt-cell.o { color: var(--accent-2); }
+    .game-status { text-align: center; margin: 16px 0; font-size: 16px; font-weight: 600; }
+    .dice-face { font-size: 90px; text-align: center; margin: 20px 0; }
+    .coin { width: 130px; height: 130px; border-radius: 50%; margin: 20px auto; background: linear-gradient(160deg,#fbbf24,#b45309); display: flex; align-items: center; justify-content: center; font-size: 44px; font-weight: 800; color: #78350f; box-shadow: 0 12px 30px rgba(0,0,0,.4); }
+    .coin.flip { animation: coinflip .6s ease; } @keyframes coinflip { 50% { transform: rotateY(900deg) scale(1.1); } }
+
+    /* ============================================================
+       CONVERTER  (improvement: unit / currency / tip)
+       ============================================================ */
+    .conv-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+    .conv-field label { font-size: 12px; color: var(--muted); }
+    .conv-field input, .conv-field select { background: var(--card); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; color: var(--text); font: inherit; font-size: 16px; outline: none; }
+    .conv-result { text-align: center; font-size: 30px; font-weight: 700; margin: 10px 0; }
+
+    /* ============================================================
+       BROWSER
+       ============================================================ */
+    .browser-bar { display: flex; gap: 8px; margin-bottom: 12px; }
+    .browser-bar input { flex: 1; background: var(--card); border: 1px solid var(--card-border); border-radius: 20px; padding: 9px 14px; color: var(--text); outline: none; font: inherit; font-size: 13px; }
+    .browser-page { flex: 1; background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--muted); }
+
+    /* ============================================================
+       SETTINGS  (improvement: real toggles + themes)
+       ============================================================ */
+    .set-group { background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; overflow: hidden; margin-bottom: 16px; }
+    .set-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid var(--card-border); font-size: 14px; }
+    .set-row:last-child { border-bottom: none; }
+    .switch { position: relative; width: 46px; height: 26px; border-radius: 13px; background: var(--card-border); cursor: pointer; transition: background .2s; flex: 0 0 auto; }
+    .switch.on { background: #22c55e; }
+    .switch::after { content:""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; transition: transform .2s; }
+    .switch.on::after { transform: translateX(20px); }
+    .theme-swatches { display: flex; gap: 10px; padding: 14px 16px; flex-wrap: wrap; }
+    .swatch { width: 40px; height: 40px; border-radius: 12px; cursor: pointer; border: 2px solid transparent; }
+    .swatch.on { border-color: var(--text); }
+    .slider { width: 130px; }
+
+    /* ============================================================
+       CONTROL CENTER  (improvement: swipe-down panel)
+       ============================================================ */
+    #control { position: absolute; inset: 0; z-index: 55; background: rgba(10,12,22,.6); backdrop-filter: blur(20px); padding: 60px 18px 30px; display: none; flex-direction: column; gap: 12px; }
+    #control.on { display: flex; animation: fade .25s ease; }
+    .cc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .cc-tile { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.15); border-radius: 18px; padding: 14px; display: flex; align-items: center; gap: 10px; cursor: pointer; color: #fff; font-size: 13px; }
+    .cc-tile svg { width: 22px; height: 22px; fill: #fff; }
+    .cc-tile.on { background: var(--accent); }
+    .cc-slider { background: rgba(255,255,255,.12); border-radius: 18px; padding: 14px; }
+    .cc-slider label { font-size: 12px; color: #ddd; display: flex; align-items: center; gap: 8px; }
+    .cc-slider input { width: 100%; margin-top: 10px; }
+    .cc-close { text-align: center; color: #fff; font-size: 13px; opacity: .8; margin-top: auto; cursor: pointer; }
+
+    /* ============================================================
+       APP SWITCHER hint / toast / screenshot flash
+       ============================================================ */
+    .toast { position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(0,0,0,.85); color: #fff; padding: 10px 18px; border-radius: 20px; font-size: 13px; z-index: 90; opacity: 0; transition: all .3s; pointer-events: none; white-space: nowrap; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    #shot { position: absolute; inset: 0; background: #fff; z-index: 95; opacity: 0; pointer-events: none; }
+    #shot.go { animation: flash .35s ease; }
+
+    /* placeholder */
+    .placeholder { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: var(--muted); text-align: center; }
+    .placeholder svg { width: 60px; height: 60px; fill: var(--accent); opacity: .7; }
+
+    .home-bar { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 120px; height: 5px; border-radius: 5px; background: var(--text); opacity: .35; cursor: pointer; z-index: 45; }
+
+    /* side info panel */
+    .legend { max-width: 300px; color: #cbd5e1; font-size: 13px; line-height: 1.6; }
+    .legend h1 { font-size: 20px; color: #fff; margin-bottom: 10px; }
+    .legend b { color: #a5b4fc; }
+    .legend ul { margin: 8px 0 0 16px; }
+    @media (max-width: 760px) { .legend { display: none; } }
+  </style>
+</head>
+<body>
+  <div class="device">
+    <div class="phone">
+      <span class="btn-side btn-mute"></span>
+      <span class="btn-side btn-vol-up"></span>
+      <span class="btn-side btn-vol-dn"></span>
+      <span class="btn-power"></span>
+
+      <div class="screen" id="screen" data-theme="default">
+        <!-- Dynamic Island -->
+        <div class="notch" id="notch" onclick="collapseIsland()">
+          <span class="speaker"></span>
+          <span class="cam"></span>
+          <span class="island-info" id="islandInfo"></span>
+        </div>
+
+        <!-- Status bar -->
+        <div class="statusbar" id="statusbar">
+          <span id="sbTime">9:41</span>
+          <div class="icons">
+            <svg id="sbSignal" viewBox="0 0 24 24"><path d="M2 22h3V10H2zm5 0h3V6H7zm5 0h3V2h-3zm5 0h3v-8h-3z"/></svg>
+            <svg id="sbWifi" viewBox="0 0 24 24"><path d="M12 3C7 3 2.7 5 0 8l12 14L24 8c-2.7-3-7-5-12-5z"/></svg>
+            <span class="batt">
+              <span class="batt-pct" id="battPct">100%</span>
+              <span class="batt-body"><span class="batt-fill" id="battFill" style="width:100%"></span></span>
+            </span>
+          </div>
+        </div>
+
+        <!-- ===================== HOME ===================== -->
+        <section class="view active" id="home">
+          <div class="home-top">
+            <div class="search-bar">
+              <svg viewBox="0 0 24 24"><path d="M10 2a8 8 0 1 0 5 14.3l5.3 5.3 1.4-1.4-5.3-5.3A8 8 0 0 0 10 2zm0 2a6 6 0 1 1 0 12 6 6 0 0 1 0-12z"/></svg>
+              <input id="appSearch" placeholder="Buscar apps..." oninput="filterApps(this.value)" />
+            </div>
+            <div class="widgets">
+              <div class="widget clock-w">
+                <div class="w-big" id="wgTime">9:41</div>
+                <div class="w-sub" id="wgDate">Lunes 13</div>
+              </div>
+              <div class="widget weather-w">
+                <div class="w-sub">Ciudad de David</div>
+                <div class="w-big">24&deg;</div>
+                <div class="w-sub">Parcialmente nublado</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- page 1 -->
+          <div class="grid page on" id="page0"></div>
+          <!-- page 2 -->
+          <div class="grid page" id="page1"></div>
+
+          <div class="page-dots">
+            <span class="dot on" onclick="setPage(0)"></span>
+            <span class="dot" onclick="setPage(1)"></span>
+          </div>
+
+          <div class="dock" id="dock"></div>
+        </section>
+
+        <!-- ===================== CALCULATOR ===================== -->
+        <section class="view" id="calc">
+          <div class="app-header"><button class="back" onclick="goHome()">&#8249;</button><h2>Calculadora</h2></div>
+          <div class="calc-hist" id="calcHist"></div>
+          <div class="calc-display" id="calcDisplay">0</div>
+          <div class="calc-grid">
+            <button class="fn" onclick="calcClear()">AC</button>
+            <button class="fn" onclick="calcDel()">&#9003;</button>
+            <button class="fn" onclick="calcPct()">%</button>
+            <button class="op" data-op="/" onclick="calcOp('/')">&#247;</button>
+            <button onclick="calcNum('7')">7</button><button onclick="calcNum('8')">8</button><button onclick="calcNum('9')">9</button>
+            <button class="op" data-op="*" onclick="calcOp('*')">&#215;</button>
+            <button onclick="calcNum('4')">4</button><button onclick="calcNum('5')">5</button><button onclick="calcNum('6')">6</button>
+            <button class="op" data-op="-" onclick="calcOp('-')">&#8722;</button>
+            <button onclick="calcNum('1')">1</button><button onclick="calcNum('2')">2</button><button onclick="calcNum('3')">3</button>
+            <button class="op" data-op="+" onclick="calcOp('+')">+</button>
+            <button onclick="calcNum('0')" style="grid-column: span 2; aspect-ratio:auto; border-radius:30px;">0</button>
+            <button onclick="calcNum('.')">.</button>
+            <button class="eq" onclick="calcEq()">=</button>
+          </div>
+        </section>
+
+        <!-- ===================== NOTES ===================== -->
+        <section class="view" id="notes">
+          <div class="app-header"><button class="back" onclick="goHome()">&#8249;</button><h2>Notas</h2>
+            <span class="spacer"></span><button class="chip solid" onclick="newNote()">+ Nueva</button></div>
+          <div class="note-list" id="noteList"></div>
+        </section>
+        <section class="view" id="noteEdit">
+          <div class="app-header"><button class="back" onclick="saveNoteBack()">&#8249;</button><h2>Editar nota</h2></div>
+          <textarea id="noteEditor" placeholder="Escribe algo, David..."></textarea>
+          <div style="font-size:12px;color:var(--muted);margin-top:10px;text-align:center">Se guarda automáticamente</div>
+        </section>
+
+        <!-- ===================== TORCH ===================== -->
+        <section class="view" id="torch" style="align-items:center">
+          <div class="app-header" style="width:100%"><button class="back" onclick="goHome()">&#8249;</button><h2>Linterna</h2></div>
+          <button class="rbtn" id="torchBtn" onclick="toggleTorch()" style="width:150px;height:150px;margin-top:30px;flex-direction:column;gap:8px;display:flex">
+            <svg viewBox="0 0 24 24" style="width:46px;height:46px;fill:currentColor"><path d="M9 2h6l-1 5H10zM9.5 9h5l-.5 13h-4z"/></svg>
+            <span id="torchLabel">Apagada</span>
+          </button>
+        </section>
+
+        <!-- ===================== WEATHER ===================== -->
+        <section class="view weather-view" id="weather">
+          <div class="app-header" style="width:100%"><button class="back" onclick="goHome()">&#8249;</button><h2>Clima</h2></div>
+          <div class="w-city">Ciudad de David</div>
+          <div class="w-temp">24&deg;</div>
+          <div class="w-desc">Parcialmente nublado</div>
+          <div class="w-hourly" id="wHourly"></div>
+          <div class="w-days">
+            <div class="w-row"><span>Hoy</span><span>&#9925; 24&deg; / 18&deg;</span></div>
+            <div class="w-row"><span>Martes</span><span>&#9728; 26&deg; / 19&deg;</span></div>
+            <div class="w-row"><span>Miércoles</span><span>&#9729; 23&deg; / 17&deg;</span></div>
+            <div class="w-row"><span>Jueves</span><span>&#127783; 21&deg; / 16&deg;</span></div>
+            <div class="w-row"><span>Viernes</span><span>&#9728; 25&deg; / 18&deg;</span></div>
+          </div>
+        </section>
+
+        <!-- ===================== CLOCK ===================== -->
+        <section class="view" id="clock">
+          <div class="app-header"><button class="back" onclick="goHome()">&#8249;</button><h2>Reloj</h2></div>
+          <div class="tabs">
+            <div class="tab on" onclick="clockTab('sw',this)">Cronómetro</div>
+            <div class="tab" onclick="clockTab('tm',this)">Temporizador</div>
+            <div class="tab" onclick="clockTab('wc',this)">Mundial</div>
+          </div>
+          <div class="tabpane on" id="tab-sw">
+            <div class="big-time" id="swDisplay">00:00.00</div>
+            <div class="row-btns">
+              <button class="rbtn" id="swLap" onclick="swLap()">Vuelta</button>
+              <button class="rbtn go" id="swToggle" onclick="swToggle()">Iniciar</button>
+            </div>
+            <div class="laps" id="swLaps"></div>
+          </div>
+          <div class="tabpane" id="tab-tm">
+            <div class="timer-inputs">
+              <input id="tmMin" type="number" min="0" max="99" value="05"> :
+              <input id="tmSec" type="number" min="0" max="59" value="00">
+            </div>
+            <div class="big-time" id="tmDisplay" style="display:none">05:00</div>
+            <div class="row-btns">
+              <button class="rbtn go" id="tmToggle" onclick="tmToggle()">Iniciar</button>
+              <button class="rbtn" onclick="tmReset()">Reiniciar</button>
+            </div>
+          </div>
+          <div class="tabpane" id="tab-wc">
+            <div class="w-days" style="width:100%">
+              <div class="w-row"><span>Panamá</span><span id="wc1">--:--</span></div>
+              <div class="w-row"><span>Madrid</span><span id="wc2">--:--</span></div>
+              <div class="w-row"><span>Tokio</span><span id="wc3">--:--</span></div>
+              <div class="w-row"><span>Nueva York</span><span id="wc4">--:--</span></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===================== MUSIC ===================== -->
+        <section class="view music-view" id="music">
+          <div class="app-header" style="width:100%"><button class="back" onclick="goHome()">&#8249;</button><h2>Música</h2></div>
+          <div class="album" id="albumArt"><svg viewBox="0 0 24 24"><path d="M9 3h10v3H12v11a4 4 0 1 1-2-3.46V3z"/></svg></div>
+          <div class="track-title" id="trackTitle">--</div>
+          <div class="track-artist" id="trackArtist">--</div>
+          <div class="progress" id="progress" onclick="seek(event)"><div class="fill" id="progFill"></div></div>
+          <div class="p-time"><span id="pCur">0:00</span><span id="pDur">0:00</span></div>
+          <div class="m-controls">
+            <button onclick="prevTrack()"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
+            <button class="m-play" onclick="togglePlay()"><svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+            <button onclick="nextTrack()"><svg viewBox="0 0 24 24"><path d="M16 6h2v12h-2zM6 6l8.5 6L6 18z"/></svg></button>
+          </div>
+        </section>
+
+        <!-- ===================== CAMERA ===================== -->
+        <section class="view cam-view" id="camera">
+          <div class="viewfinder">
+            <div id="camScene">&#127749;</div>
+            <div class="cam-top">
+              <button class="chip" onclick="camFilter('none',this)">Normal</button>
+              <button class="chip" onclick="camFilter('grayscale(1)',this)">B/N</button>
+              <button class="chip" onclick="camFilter('sepia(1)',this)">Sepia</button>
+              <button class="chip" onclick="camFilter('hue-rotate(90deg) saturate(2)',this)">Vivo</button>
+            </div>
+            <div class="cam-bottom">
+              <button class="shutter" onclick="takePhoto()"></button>
+            </div>
+            <div class="flash" id="camFlash"></div>
+          </div>
+          <div class="app-header" style="position:absolute;top:0;z-index:6"><button class="back" onclick="goHome()">&#8249;</button></div>
+        </section>
+
+        <!-- ===================== MESSAGES ===================== -->
+        <section class="view" id="msg">
+          <div class="app-header"><button class="back" onclick="goHome()">&#8249;</button><h2>davidBot</h2></div>
+          <div class="chat" id="chat"></div>
+          <div class="chat-input">
+            <input id="chatInput" placeholder="Mensaje..." onkeydown="chatKey(event)" />
+            <button class="send-btn" onclick="sendMsg()">&#10148;</button>
+          </div>
+        </section>
+
+        <!-- ===================== PHOTOS ===================== -->
+        <section class="view" id="photos">
+          <div class="app-header"><button class="back" onclick="goHome()">&#8249;</button><h2>Fotos</h2></div>
+          <div class="photo-grid" id="photoGrid"></div>
+        </section>
+
+        <!-- ===================== CALENDAR ===================== -->
+        <section class="view" id="calendar">
+          <div class="app-header"><button class="back" onclick="goHome()">&#8249;</button><h2>Calendario</h2></div>
+          <div class="cal-head">
+            <button class="chip" onclick="calMove(-1)">&#8249;</button>
+            <b id="calLabel">--</b>
+            <button class="chip" onclick="calMove(1)">&#8250;</button>
+          </div>
+          <div class="cal-grid" id="calGrid"></div>
+        </section>
+
+        <!-- ===================== TODO ===================== -->
+        <section class="view" id="todo">
+          <div class="app-header"><button class="back" onclick="goHome()">&#8249;</button><h2>Tareas</h2></div>
+          <div class="todo-add">
+            <input id="todoInput" placeholder="Nueva tarea..." onkeydown="if(event.key==='Enter')addTodo()" />
+            <button class="chip solid" onclick="addTodo()">Añadir</button>
+          </div>
+          <div class="todo-list" id="todoList"></div>
+        </section>
+
+        <!-- ===================== GAMES ===================== -->
+        <section class="view" id="games">
+          <div class="app-header"><button class="back" onclick="goHome()">&#8249;</button><h2>Juegos</h2></div>
+          <div class="tabs game-tabs">
+            <div class="tab on" onclick="gameTab('ttt',this)">3 en raya</div>
+            <div class="tab" onclick="gameTab('dice',this)">Dados</div>
+            <div class="tab" onclick="gameTab('coin',this)">Moneda</div>
+          </div>
+          <div class="tabpane on" id="game-ttt">
+            <div class="game-status" id="tttStatus">Turno: X</div>
+            <div class="ttt" id="tttBoard"></div>
+            <button class="chip" onclick="tttReset()" style="margin-top:18px">Reiniciar</button>
+          </div>
+          <div class="tabpane" id="game-dice">
+            <div class="dice-face" id="diceFace">&#9856;</div>
+            <button class="chip solid" onclick="rollDice()">Lanzar dado</button>
+          </div>
+          <div class="tabpane" id="game-coin">
+            <div class="coin" id="coinFace">?</div>
+            <button class="chip solid" onclick="flipCoin()">Lanzar moneda</button>
+          </div>
+        </section>
+
+        <!-- ===================== CONVERTER ===================== -->
+        <section class="view" id="convert">
+          <div class="app-header"><button class="back" onclick="goHome()">&#8249;</button><h2>Conversor</h2></div>
+          <div class="tabs">
+            <div class="tab on" onclick="convTab('len',this)">Longitud</div>
+            <div class="tab" onclick="convTab('cur',this)">Moneda</div>
+            <div class="tab" onclick="convTab('tip',this)">Propina</div>
+          </div>
+          <div class="tabpane on" id="conv-len">
+            <div style="width:100%">
+              <div class="conv-field"><label>Valor</label><input id="lenVal" type="number" value="1" oninput="doLen()"></div>
+              <div class="conv-field"><label>De</label>
+                <select id="lenFrom" onchange="doLen()"><option value="1">Metros</option><option value="1000">Kilómetros</option><option value="0.3048">Pies</option><option value="1609.34">Millas</option></select></div>
+              <div class="conv-field"><label>A</label>
+                <select id="lenTo" onchange="doLen()"><option value="0.3048">Pies</option><option value="1">Metros</option><option value="1000">Kilómetros</option><option value="1609.34">Millas</option></select></div>
+              <div class="conv-result" id="lenRes">--</div>
+            </div>
+          </div>
+          <div class="tabpane" id="conv-cur">
+            <div style="width:100%">
+              <div class="conv-field"><label>Cantidad (USD)</label><input id="curVal" type="number" value="100" oninput="doCur()"></div>
+              <div class="conv-field"><label>Convertir a</label>
+                <select id="curTo" onchange="doCur()"><option value="0.92">EUR</option><option value="0.79">GBP</option><option value="150">JPY</option><option value="17.5">MXN</option></select></div>
+              <div class="conv-result" id="curRes">--</div>
+              <div style="text-align:center;font-size:11px;color:var(--muted)">Tasas de ejemplo</div>
+            </div>
+          </div>
+          <div class="tabpane" id="conv-tip">
+            <div style="width:100%">
+              <div class="conv-field"><label>Cuenta</label><input id="tipBill" type="number" value="50" oninput="doTip()"></div>
+              <div class="conv-field"><label>Propina %</label><input id="tipPct" type="number" value="15" oninput="doTip()"></div>
+              <div class="conv-result" id="tipRes">--</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===================== BROWSER ===================== -->
+        <section class="view" id="browser">
+          <div class="app-header"><button class="back" onclick="goHome()">&#8249;</button><h2>Navegador</h2></div>
+          <div class="browser-bar">
+            <input id="urlBar" value="david.dev" onkeydown="if(event.key==='Enter')browse()" />
+            <button class="chip solid" onclick="browse()">Ir</button>
+          </div>
+          <div class="browser-page" id="browserPage">
+            <svg viewBox="0 0 24 24" style="width:50px;height:50px;fill:var(--accent)"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 2c1.7 0 3 3.6 3 8s-1.3 8-3 8-3-3.6-3-8 1.3-8 3-8zM4.3 9h3.2a18 18 0 0 0 0 6H4.3a8 8 0 0 1 0-6zm12.2 0h3.2a8 8 0 0 1 0 6h-3.2a18 18 0 0 0 0-6z"/></svg>
+            <b style="color:var(--text)">Bienvenido a david.dev</b>
+            <p>Una web ficticia dentro de davidPhone.</p>
+          </div>
+        </section>
+
+        <!-- ===================== SETTINGS ===================== -->
+        <section class="view" id="settings">
+          <div class="app-header"><button class="back" onclick="goHome()">&#8249;</button><h2>Ajustes</h2></div>
+          <div class="set-group">
+            <div class="set-row"><span>Modo avión</span><div class="switch" id="swAirplane" onclick="toggleAirplane(this)"></div></div>
+            <div class="set-row"><span>Wi-Fi</span><div class="switch on" id="swWifi" onclick="toggleWifi(this)"></div></div>
+            <div class="set-row"><span>No molestar</span><div class="switch" id="swDnd" onclick="toggleSwitch(this)"></div></div>
+            <div class="set-row"><span>Vibración</span><div class="switch on" id="swHaptic" onclick="toggleSwitch(this)"></div></div>
+          </div>
+          <div class="set-group">
+            <div class="set-row"><span>Brillo</span><input class="slider" type="range" min="30" max="100" value="100" oninput="setBrightness(this.value)"></div>
+            <div class="set-row"><span>Tema oscuro</span><div class="switch on" id="swDark" onclick="toggleDark(this)"></div></div>
+          </div>
+          <div class="set-group">
+            <div style="padding:12px 16px 0;font-size:12px;color:var(--muted)">Fondo de pantalla</div>
+            <div class="theme-swatches" id="swatches"></div>
+          </div>
+          <div class="set-group">
+            <div class="set-row"><span>Modelo</span><span style="color:var(--muted)">davidPhone Pro</span></div>
+            <div class="set-row"><span>Versión</span><span style="color:var(--muted)">2.0</span></div>
+            <div class="set-row" onclick="resetAll()" style="cursor:pointer"><span style="color:#ef4444">Restablecer todo</span></div>
+          </div>
+        </section>
+
+        <!-- ===================== CONTROL CENTER ===================== -->
+        <div id="control">
+          <div class="cc-grid">
+            <div class="cc-tile" id="ccAirplane" onclick="ccAirplane(this)"><svg viewBox="0 0 24 24"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg>Avión</div>
+            <div class="cc-tile on" id="ccWifi" onclick="ccWifi(this)"><svg viewBox="0 0 24 24"><path d="M12 3C7 3 2.7 5 0 8l12 14L24 8c-2.7-3-7-5-12-5z"/></svg>Wi-Fi</div>
+            <div class="cc-tile on" id="ccBt" onclick="ccToggle(this)"><svg viewBox="0 0 24 24"><path d="M12 2l5 4-3.5 3L17 12l-5 4v-6l-3 3-1.5-1.5L11 8 7.5 4.5 9 3l3 3V2zm0 7.8V14l1.7-1.5z"/></svg>Bluetooth</div>
+            <div class="cc-tile" id="ccDnd" onclick="ccToggle(this)"><svg viewBox="0 0 24 24"><path d="M12 22a2 2 0 0 0 2-2h-4a2 2 0 0 0 2 2zm6-6v-5a6 6 0 0 0-5-5.9V4a1 1 0 0 0-2 0v1.1A6 6 0 0 0 6 11v5l-2 2v1h16v-1z"/></svg>No molestar</div>
+            <div class="cc-tile" id="ccTorch" onclick="ccTorch(this)"><svg viewBox="0 0 24 24"><path d="M9 2h6l-1 5H10zM9.5 9h5l-.5 13h-4z"/></svg>Linterna</div>
+            <div class="cc-tile" id="ccDark" onclick="ccDark(this)"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z"/></svg>Tema oscuro</div>
+          </div>
+          <div class="cc-slider">
+            <label>&#9728; Brillo</label>
+            <input type="range" min="30" max="100" value="100" oninput="setBrightness(this.value)">
+          </div>
+          <div class="cc-slider">
+            <label>&#128266; Volumen</label>
+            <input type="range" min="0" max="100" value="70" id="volSlider">
+          </div>
+          <div class="cc-close" onclick="closeControl()">Cerrar &#9650;</div>
+        </div>
+
+        <!-- Lock screen -->
+        <div id="lock">
+          <div class="lock-time" id="lockTime">9:41</div>
+          <div class="lock-date" id="lockDate">Lunes, 13 de septiembre</div>
+          <div class="lock-notes">
+            <div class="lock-note"><b>davidBot</b>¡Hola David! Toca para chatear conmigo.</div>
+            <div class="lock-note"><b>Recordatorio</b>Tienes tareas pendientes hoy.</div>
+          </div>
+          <div class="lock-foot">
+            <div class="lock-hint">Desliza hacia arriba para abrir</div>
+            <div class="unlock-grip"></div>
+          </div>
+        </div>
+
+        <div class="toast" id="toast"></div>
+        <div id="shot"></div>
+        <div class="home-bar" onclick="goHome()" title="Inicio"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <h1>davidPhone 2.0</h1>
+    <p>Un smartphone completo en un solo archivo HTML. Prueba estas cosas:</p>
+    <ul>
+      <li>Desliza (o toca) la <b>pantalla de bloqueo</b> hacia arriba</li>
+      <li>Abre el <b>Centro de control</b> tocando la barra de estado</li>
+      <li>Cambia el <b>tema/fondo</b> en Ajustes</li>
+      <li>La <b>batería</b> se descarga sola; enciende la linterna</li>
+      <li>Chatea con <b>davidBot</b>, juega, usa el cronómetro</li>
+    </ul>
+    <p style="margin-top:12px;opacity:.7">Todo se guarda en tu navegador.</p>
+  </div>
+
+  <script>
+  /* =====================================================================
+     STATE + PERSISTENCE  (improvement: everything persists)
+     ===================================================================== */
+  const LS = {
+    get: (k, d) => { try { const v = localStorage.getItem('dp_'+k); return v === null ? d : JSON.parse(v); } catch(e){ return d; } },
+    set: (k, v) => { try { localStorage.setItem('dp_'+k, JSON.stringify(v)); } catch(e){} },
+    del: (k) => { try { localStorage.removeItem('dp_'+k); } catch(e){} }
+  };
+  const screen_ = document.getElementById('screen');
+
+  /* =====================================================================
+     HELPERS: haptics, sound, toast
+     ===================================================================== */
+  let hapticOn = LS.get('haptic', true);
+  function haptic(ms=15){ if(hapticOn && navigator.vibrate) navigator.vibrate(ms); }
+  let audioCtx;
+  function beep(freq=440, dur=0.08){
+    try {
+      audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
+      const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.frequency.value = freq; o.type='sine'; o.connect(g); g.connect(audioCtx.destination);
+      g.gain.setValueAtTime(.06, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(.0001, audioCtx.currentTime+dur);
+      o.start(); o.stop(audioCtx.currentTime+dur);
+    } catch(e){}
+  }
+  let toastTimer;
+  function toast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastTimer); toastTimer = setTimeout(()=>t.classList.remove('show'), 1800);
+  }
+
+  /* =====================================================================
+     APP REGISTRY  (improvement: data-driven home + search + dock)
+     ===================================================================== */
+  const APPS = [
+    {id:'calc', name:'Calculadora', cls:'calc', svg:'<rect x="5" y="2" width="14" height="20" rx="3"/><rect x="7.5" y="4.5" width="9" height="4" rx="1" fill="#000" opacity=".35"/><circle cx="9" cy="12" r="1.2" fill="#000" opacity=".35"/><circle cx="12" cy="12" r="1.2" fill="#000" opacity=".35"/><circle cx="15" cy="12" r="1.2" fill="#000" opacity=".35"/><circle cx="9" cy="15.5" r="1.2" fill="#000" opacity=".35"/><circle cx="12" cy="15.5" r="1.2" fill="#000" opacity=".35"/><circle cx="15" cy="15.5" r="1.2" fill="#000" opacity=".35"/><circle cx="9" cy="19" r="1.2" fill="#000" opacity=".35"/><circle cx="12" cy="19" r="1.2" fill="#000" opacity=".35"/><circle cx="15" cy="19" r="1.2" fill="#000" opacity=".35"/>'},
+    {id:'notes', name:'Notas', cls:'notes', svg:'<path d="M5 3.5h14a1.5 1.5 0 0 1 1.5 1.5v14a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 19V5A1.5 1.5 0 0 1 5 3.5z"/><rect x="7" y="7.5" width="10" height="1.8" rx=".9" fill="#000" opacity=".3"/><rect x="7" y="11.1" width="10" height="1.8" rx=".9" fill="#000" opacity=".3"/><rect x="7" y="14.7" width="6.5" height="1.8" rx=".9" fill="#000" opacity=".3"/>'},
+    {id:'clock', name:'Reloj', cls:'clock', svg:'<circle cx="12" cy="12" r="9.5"/><circle cx="12" cy="12" r="7.3" fill="#0f172a"/><path d="M12 7v5.4l3.4 2" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="12" r="1" fill="#f59e0b"/>'},
+    {id:'weather', name:'Clima', cls:'weather', svg:'<circle cx="16" cy="8" r="3.4" fill="#fde68a"/><path d="M7.5 19a4.2 4.2 0 0 1-.4-8.38A5 5 0 0 1 16.8 11a3.9 3.9 0 0 1-.3 8z" fill="#fff"/>'},
+    {id:'music', name:'Música', cls:'music', svg:'<path d="M18 4.2 9 6.4v9.05a3.2 3.2 0 1 0 1.6 2.77V9.1l6-1.47v5.02a3.2 3.2 0 1 0 1.6 2.77z"/>'},
+    {id:'camera', name:'Cámara', cls:'camera', svg:'<path d="M8.6 4.5 7.4 6.5H4.5A1.5 1.5 0 0 0 3 8v9.5A1.5 1.5 0 0 0 4.5 19h15a1.5 1.5 0 0 0 1.5-1.5V8a1.5 1.5 0 0 0-1.5-1.5h-2.9l-1.2-2z"/><circle cx="12" cy="12.4" r="4" fill="#0f172a"/><circle cx="12" cy="12.4" r="2.4" fill="#334155"/>'},
+    {id:'photos', name:'Fotos', cls:'photos', svg:'<rect x="3.5" y="3.5" width="17" height="17" rx="3"/><circle cx="8.5" cy="9" r="1.8" fill="#fde68a"/><path d="M4 17.5 9 12l3.2 3.2L15.5 12l4.5 4.5v1.5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z" fill="#000" opacity=".28"/>'},
+    {id:'calendar', name:'Calendario', cls:'calendar', svg:'<rect x="3.5" y="4.5" width="17" height="16" rx="3"/><path d="M3.5 9h17" stroke="#fff" stroke-width="1.4" opacity=".5"/><rect x="7" y="2.5" width="1.8" height="4" rx=".9"/><rect x="15.2" y="2.5" width="1.8" height="4" rx=".9"/><rect x="6.5" y="11.5" width="3" height="3" rx=".7" fill="#fff" opacity=".85"/><rect x="14.5" y="11.5" width="3" height="3" rx=".7" fill="#fff" opacity=".45"/>'},
+    {id:'todo', name:'Tareas', cls:'todo', svg:'<rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M7 12l3 3 6-6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'},
+    {id:'games', name:'Juegos', cls:'games', svg:'<path d="M8 6h8a5.5 5.5 0 0 1 5.4 6.6l-.7 3.4A2.6 2.6 0 0 1 15 16.7L14 15h-4l-1 1.7a2.6 2.6 0 0 1-4.7-.7l-.7-3.4A5.5 5.5 0 0 1 8 6z"/><rect x="6" y="10.2" width="1.6" height="4.2" rx=".8" fill="#000" opacity=".35"/><rect x="4.4" y="11.8" width="4.2" height="1.6" rx=".8" fill="#000" opacity=".35"/><circle cx="16" cy="11.2" r="1.1" fill="#000" opacity=".35"/><circle cx="18.2" cy="13.4" r="1.1" fill="#000" opacity=".35"/>'},
+    {id:'convert', name:'Conversor', cls:'convert', svg:'<path d="M6 8h11l-2.6-2.6 1.4-1.4L20.8 8.7l-4.4 4.4-1.4-1.4L17.6 9H6z"/><path d="M18 16H7l2.6 2.6-1.4 1.4L3.2 15.3l4.4-4.4 1.4 1.4L6.4 15H18z"/>'},
+    {id:'browser', name:'Navegador', cls:'browser', svg:'<circle cx="12" cy="12" r="9.3"/><path d="M12 2.7A9.3 9.3 0 0 1 12 21.3M12 2.7A9.3 9.3 0 0 0 12 21.3M3 9.2h18M3 14.8h18" fill="none" stroke="#fff" stroke-width="1.1" opacity=".55"/><path d="M13.5 6.5l-1 4.2-4.2 1-1 4.2 4.2-1 1-4.2z" fill="#fff"/>'},
+    {id:'torch', name:'Linterna', cls:'torch', svg:'<path d="M8.5 3h7l-.6 4.2a1 1 0 0 1-.4.7l-.9.6v1a1 1 0 0 1-.3.7L12 12l-.8-.8a1 1 0 0 1-.3-.7v-1l-.9-.6a1 1 0 0 1-.4-.7z"/><path d="M10.2 12.5h3.6l-.5 8.5h-2.6z" opacity=".85"/>'},
+    {id:'settings', name:'Ajustes', cls:'settings', svg:'<path d="M12 2.2l1.9.9.9-1.1a9.6 9.6 0 0 1 2.5 1.5l-.4 1.4 1.4.4a9.6 9.6 0 0 1 1.5 2.5l-1.1.9.9 1.9-.9 1.9 1.1.9a9.6 9.6 0 0 1-1.5 2.5l-1.4-.4-.4 1.4a9.6 9.6 0 0 1-2.5 1.5l-.9-1.1-1.9.9-1.9-.9-.9 1.1a9.6 9.6 0 0 1-2.5-1.5l.4-1.4-1.4-.4a9.6 9.6 0 0 1-1.5-2.5l1.1-.9L2.2 12l.9-1.9-1.1-.9A9.6 9.6 0 0 1 3.5 6.7l1.4.4.4-1.4a9.6 9.6 0 0 1 2.5-1.5l.9 1.1z"/><circle cx="12" cy="12" r="3.4" fill="#334155"/>'},
+    {id:'msg', name:'Mensajes', cls:'msg', svg:'<path d="M4.5 4.5h15a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H9.5l-4.2 3.4a.6.6 0 0 1-1-.47V6.5a2 2 0 0 1 2-2z"/><circle cx="9" cy="10.5" r="1.2" fill="#000" opacity=".3"/><circle cx="12" cy="10.5" r="1.2" fill="#000" opacity=".3"/><circle cx="15" cy="10.5" r="1.2" fill="#000" opacity=".3"/>', badge:1},
+  ];
+  const DOCK = ['msg','music','camera','settings'];
+
+  function appButton(a){
+    const badge = a.badge ? `<span class="badge">${a.badge}</span>` : '';
+    return `<button class="app" data-name="${a.name.toLowerCase()}" onclick="open_('${a.id}')">
+      <span class="ic ${a.cls}">${badge}<svg viewBox="0 0 24 24">${a.svg}</svg></span><span>${a.name}</span></button>`;
+  }
+  function buildHome(){
+    const dockIds = DOCK;
+    const gridApps = APPS.filter(a => !dockIds.includes(a.id));
+    const half = Math.ceil(gridApps.length/2);
+    document.getElementById('page0').innerHTML = gridApps.slice(0, 8).map(appButton).join('');
+    document.getElementById('page1').innerHTML = gridApps.slice(8).map(appButton).join('');
+    document.getElementById('dock').innerHTML = dockIds.map(id => appButton(APPS.find(a=>a.id===id))).join('');
+  }
+  buildHome();
+
+  function setPage(n){
+    document.querySelectorAll('#home .page').forEach((p,i)=> p.classList.toggle('on', i===n));
+    document.querySelectorAll('.page-dots .dot').forEach((d,i)=> d.classList.toggle('on', i===n));
+    haptic(8);
+  }
+  function filterApps(q){
+    q = q.trim().toLowerCase();
+    document.querySelectorAll('#home .app').forEach(el=>{
+      el.style.display = !q || el.dataset.name.includes(q) ? '' : 'none';
+    });
+  }
+
+  /* =====================================================================
+     NAVIGATION
+     ===================================================================== */
+  let current = 'home';
+  function open_(id){
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    current = id; haptic(10);
+    if(id==='calendar') renderCalendar();
+    if(id==='msg') scrollChat();
+  }
+  function goHome(){
+    if(torchOn){ toggleTorch(); }
+    open_('home'); setPage(0);
+    document.getElementById('appSearch').value=''; filterApps('');
+  }
+
+  /* =====================================================================
+     LOCK SCREEN  (improvement: swipe/tap to unlock)
+     ===================================================================== */
+  const lock = document.getElementById('lock');
+  let lockStartY = null;
+  function unlock(){ lock.classList.add('hidden'); haptic(20); beep(660,.1); }
+  function lockPhone(){ lock.classList.remove('hidden'); }
+  lock.addEventListener('click', unlock);
+  lock.addEventListener('touchstart', e=> lockStartY = e.touches[0].clientY, {passive:true});
+  lock.addEventListener('touchmove', e=>{
+    if(lockStartY!==null && lockStartY - e.touches[0].clientY > 40) unlock();
+  }, {passive:true});
+  lock.addEventListener('mousedown', e=> lockStartY = e.clientY);
+  window.addEventListener('mouseup', e=>{ if(lockStartY!==null && lockStartY - e.clientY > 40) unlock(); lockStartY=null; });
+
+  /* =====================================================================
+     CONTROL CENTER  (improvement: swipe-down from status bar)
+     ===================================================================== */
+  const control = document.getElementById('control');
+  document.getElementById('statusbar').addEventListener('click', openControl);
+  function openControl(){ control.classList.add('on'); haptic(10); }
+  function closeControl(){ control.classList.remove('on'); }
+  function ccToggle(el){ el.classList.toggle('on'); haptic(8); }
+  function ccWifi(el){ el.classList.toggle('on'); wifiOn=el.classList.contains('on'); document.getElementById('sbWifi').style.opacity=wifiOn?1:.3; document.getElementById('swWifi').classList.toggle('on',wifiOn); toast(wifiOn?'Wi-Fi activado':'Wi-Fi desactivado'); }
+  function ccAirplane(el){ el.classList.toggle('on'); const on=el.classList.contains('on'); applyAirplane(on); document.getElementById('swAirplane').classList.toggle('on',on); }
+  function ccTorch(el){ toggleTorch(); el.classList.toggle('on', torchOn); }
+  function ccDark(el){ const dark=!screen_.getAttribute('data-theme').includes('light'); setTheme(dark?'light':'default'); el.classList.toggle('on'); }
+
+  /* =====================================================================
+     CLOCK (status bar + widgets + lock)  (improvement: live everywhere)
+     ===================================================================== */
+  function pad(n){ return n<10?'0'+n:n; }
+  const DAYS=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  const MONTHS=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  function tick(){
+    const d=new Date(), t=d.getHours()+':'+pad(d.getMinutes());
+    const dateStr = DAYS[d.getDay()]+', '+d.getDate()+' de '+MONTHS[d.getMonth()];
+    setTxt('sbTime',t); setTxt('wgTime',t); setTxt('lockTime',t);
+    setTxt('wgDate', DAYS[d.getDay()]+' '+d.getDate());
+    setTxt('lockDate', dateStr);
+    // world clock
+    updateWorldClock(d);
+  }
+  function setTxt(id,v){ const e=document.getElementById(id); if(e) e.textContent=v; }
+  function updateWorldClock(d){
+    const zones={wc1:0,wc2:6,wc3:14,wc4:-1}; // rough offsets vs local demo
+    const utc = d.getTime() + d.getTimezoneOffset()*60000;
+    const map = {wc1:-5, wc2:2, wc3:9, wc4:-4};
+    for(const id in map){
+      const z=new Date(utc + map[id]*3600000);
+      setTxt(id, z.getHours()+':'+pad(z.getMinutes()));
+    }
+  }
+  tick(); setInterval(tick,1000);
+
+  /* =====================================================================
+     BATTERY  (improvement: drains, low warning, charging)
+     ===================================================================== */
+  let battery = LS.get('battery', 100), charging=false;
+  function renderBattery(){
+    const f=document.getElementById('battFill');
+    f.style.width = battery+'%';
+    f.classList.toggle('low', battery<=20 && !charging);
+    f.classList.toggle('charging', charging);
+    setTxt('battPct', Math.round(battery)+'%');
+  }
+  renderBattery();
+  setInterval(()=>{
+    if(charging){ battery=Math.min(100,battery+1); if(battery===100) charging=false; }
+    else { battery=Math.max(0, battery - (torchOn?0.6:0.15)); }
+    if(battery===20 && !charging) toast('Batería baja: 20%');
+    LS.set('battery', battery); renderBattery();
+  }, 4000);
+  // tap battery to toggle charging (fun)
+  document.querySelector('.batt').addEventListener('click', e=>{ e.stopPropagation(); charging=!charging; toast(charging?'Cargando ⚡':'Desconectado'); renderBattery(); });
+
+  /* =====================================================================
+     DYNAMIC ISLAND  (improvement: shows now playing / timer)
+     ===================================================================== */
+  const notch=document.getElementById('notch');
+  function showIsland(txt){ document.getElementById('islandInfo').innerHTML=txt; notch.classList.add('expanded'); }
+  function collapseIsland(){ notch.classList.remove('expanded'); }
+
+  /* =====================================================================
+     CALCULATOR  (improvement: history, keyboard, op highlight)
+     ===================================================================== */
+  let cur='0', prev=null, op=null, reset=false;
+  const disp=document.getElementById('calcDisplay');
+  function render(){ disp.textContent=cur; }
+  function highlightOp(o){ document.querySelectorAll('.calc-grid .op').forEach(b=>b.classList.toggle('sel', o && b.dataset.op===o)); }
+  function calcNum(n){ if(reset){cur='0';reset=false;} if(n==='.'&&cur.includes('.'))return; cur=(cur==='0'&&n!=='.')?n:cur+n; render(); highlightOp(null); beep(300,.03); }
+  function calcClear(){ cur='0';prev=null;op=null;reset=false;render();highlightOp(null); }
+  function calcDel(){ cur=cur.length>1?cur.slice(0,-1):'0'; render(); }
+  function calcPct(){ cur=String(parseFloat(cur)/100); render(); }
+  function calcOp(o){ if(op&&!reset)calcEq(); prev=parseFloat(cur); op=o; reset=true; highlightOp(o); beep(360,.04); }
+  function calcEq(){
+    if(op===null||prev===null)return;
+    const b=parseFloat(cur); let r=0;
+    if(op==='+')r=prev+b; if(op==='-')r=prev-b; if(op==='*')r=prev*b; if(op==='/')r=b===0?NaN:prev/b;
+    const expr = `${trim(prev)} ${({'*':'×','/':'÷','+':'+','-':'−'})[op]} ${trim(b)} =`;
+    cur = isNaN(r)?'Error':String(Math.round(r*1e10)/1e10);
+    document.getElementById('calcHist').innerHTML = `<div>${expr} ${cur}</div>` + document.getElementById('calcHist').innerHTML;
+    op=null;prev=null;reset=true;render();highlightOp(null);beep(520,.06);
+  }
+  function trim(n){ return String(Math.round(n*1e6)/1e6); }
+  window.addEventListener('keydown', e=>{
+    if(current!=='calc')return;
+    if(/[0-9.]/.test(e.key)) calcNum(e.key);
+    else if(e.key==='+'||e.key==='-')calcOp(e.key);
+    else if(e.key==='*')calcOp('*'); else if(e.key==='/'){e.preventDefault();calcOp('/');}
+    else if(e.key==='Enter'||e.key==='='){e.preventDefault();calcEq();}
+    else if(e.key==='Backspace')calcDel();
+    else if(e.key.toLowerCase()==='c')calcClear();
+  });
+
+  /* =====================================================================
+     NOTES  (improvement: multiple notes)
+     ===================================================================== */
+  let noteData = LS.get('notes', [{t:'Bienvenido', body:'¡Hola David! Esta es tu primera nota. Toca + para crear más.'}]);
+  let editingNote = -1;
+  function renderNotes(){
+    const list=document.getElementById('noteList');
+    if(!noteData.length){ list.innerHTML='<div style="color:var(--muted);text-align:center;padding:20px">Sin notas</div>'; return; }
+    list.innerHTML = noteData.map((n,i)=>{
+      const title = (n.body.split('\n')[0]||'Nota').slice(0,28)||'Nota';
+      const sub = n.body.replace(/\n/g,' ').slice(0,40)||'Vacía';
+      return `<div class="note-item" onclick="editNote(${i})"><div class="nt"><b>${esc(title)}</b><small>${esc(sub)}</small></div><button class="note-del" onclick="event.stopPropagation();delNote(${i})">&#128465;</button></div>`;
+    }).join('');
+  }
+  function esc(s){ return s.replace(/[<>&]/g, c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c])); }
+  function newNote(){ noteData.unshift({body:''}); editNote(0); }
+  function editNote(i){ editingNote=i; document.getElementById('noteEditor').value=noteData[i].body||''; open_('noteEdit'); setTimeout(()=>document.getElementById('noteEditor').focus(),100); }
+  function delNote(i){ noteData.splice(i,1); LS.set('notes',noteData); renderNotes(); haptic(20); }
+  document.getElementById('noteEditor').addEventListener('input', function(){ if(editingNote>-1){ noteData[editingNote].body=this.value; LS.set('notes',noteData); } });
+  function saveNoteBack(){ noteData=noteData.filter(n=>n.body.trim()!==''); LS.set('notes',noteData); renderNotes(); open_('notes'); }
+  renderNotes();
+
+  /* =====================================================================
+     TORCH  (improvement: full-screen light + drains battery)
+     ===================================================================== */
+  let torchOn=false;
+  function toggleTorch(){
+    torchOn=!torchOn;
+    document.body.style.transition='background .2s';
+    if(torchOn){ screen_.dataset.prevTheme=screen_.getAttribute('data-theme'); screen_.style.setProperty('--wallpaper','#fef9c3'); }
+    else { screen_.style.removeProperty('--wallpaper'); setTheme(currentTheme); }
+    setTxt('torchLabel', torchOn?'Encendida':'Apagada');
+    document.getElementById('torchBtn').style.color = torchOn ? '#78350f' : 'var(--muted)';
+    document.getElementById('ccTorch').classList.toggle('on', torchOn);
+    haptic(15);
+  }
+
+  /* =====================================================================
+     WEATHER  (improvement: hourly strip)
+     ===================================================================== */
+  (function(){
+    const icons=['\u2600\ufe0f','\u26c5','\u2601\ufe0f','\ud83c\udf27\ufe0f'];
+    let html=''; const now=new Date().getHours();
+    for(let i=0;i<8;i++){ const h=(now+i)%24; const temp=22+Math.round(Math.sin(i)*3);
+      html+=`<div class="w-hour"><div>${h}:00</div><div style="font-size:20px">${icons[i%4]}</div><div class="h-t">${temp}°</div></div>`; }
+    document.getElementById('wHourly').innerHTML=html;
+  })();
+
+  /* =====================================================================
+     STOPWATCH + TIMER  (improvement: clock app)
+     ===================================================================== */
+  function clockTab(id,el){ document.querySelectorAll('#clock .tab').forEach(t=>t.classList.remove('on')); el.classList.add('on');
+    document.querySelectorAll('#clock .tabpane').forEach(p=>p.classList.remove('on')); document.getElementById('tab-'+id).classList.add('on'); }
+  let swTime=0, swInt=null;
+  function fmtSw(ms){ const m=Math.floor(ms/60000), s=Math.floor(ms%60000/1000), cs=Math.floor(ms%1000/10); return pad(m)+':'+pad(s)+'.'+pad(cs); }
+  function swToggle(){
+    const b=document.getElementById('swToggle');
+    if(swInt){ clearInterval(swInt); swInt=null; b.textContent='Iniciar'; b.className='rbtn go'; }
+    else { const start=Date.now()-swTime; swInt=setInterval(()=>{ swTime=Date.now()-start; setTxt('swDisplay',fmtSw(swTime)); },31); b.textContent='Parar'; b.className='rbtn stop'; }
+    haptic(10);
+  }
+  function swLap(){ if(!swInt&&swTime===0)return; const laps=document.getElementById('swLaps'); const n=laps.children.length+1;
+    laps.insertAdjacentHTML('afterbegin',`<div class="lap"><span>Vuelta ${n}</span><span>${fmtSw(swTime)}</span></div>`); }
+  let tmLeft=0, tmInt=null;
+  function tmToggle(){
+    const b=document.getElementById('tmToggle');
+    if(tmInt){ clearInterval(tmInt); tmInt=null; b.textContent='Iniciar'; b.className='rbtn go'; return; }
+    if(tmLeft<=0){ const m=+document.getElementById('tmMin').value||0, s=+document.getElementById('tmSec').value||0; tmLeft=m*60+s; }
+    if(tmLeft<=0)return;
+    document.querySelector('#tab-tm .timer-inputs').style.display='none';
+    document.getElementById('tmDisplay').style.display='block';
+    tmTick(); b.textContent='Pausar'; b.className='rbtn stop';
+    tmInt=setInterval(()=>{ tmLeft--; tmTick(); if(tmLeft<=0){ clearInterval(tmInt); tmInt=null; timerDone(); } },1000);
+  }
+  function tmTick(){ setTxt('tmDisplay', pad(Math.floor(tmLeft/60))+':'+pad(tmLeft%60)); showIsland('⏱ '+pad(Math.floor(tmLeft/60))+':'+pad(tmLeft%60)); }
+  function tmReset(){ clearInterval(tmInt); tmInt=null; tmLeft=0; collapseIsland();
+    document.querySelector('#tab-tm .timer-inputs').style.display='flex';
+    document.getElementById('tmDisplay').style.display='none';
+    document.getElementById('tmToggle').textContent='Iniciar'; document.getElementById('tmToggle').className='rbtn go'; }
+  function timerDone(){ toast('¡Tiempo!'); collapseIsland(); haptic(200); beep(880,.2); setTimeout(()=>beep(660,.2),250); tmReset(); }
+
+  /* =====================================================================
+     MUSIC  (improvement: working player w/ progress)
+     ===================================================================== */
+  const tracks=[
+    {t:'Luces de Neón', a:'David & The Coders', d:214, c:'linear-gradient(160deg,#ec4899,#6366f1)'},
+    {t:'Modo Oscuro', a:'Nightshift', d:187, c:'linear-gradient(160deg,#0ea5e9,#1e3a8a)'},
+    {t:'Café a las 3am', a:'Lo-Fi David', d:243, c:'linear-gradient(160deg,#f59e0b,#b45309)'},
+    {t:'Pixel Dreams', a:'8-Bit Hearts', d:168, c:'linear-gradient(160deg,#22c55e,#065f46)'}
+  ];
+  let ti=0, playing=false, pos=0, musicInt=null;
+  function loadTrack(){
+    const t=tracks[ti];
+    setTxt('trackTitle',t.t); setTxt('trackArtist',t.a);
+    document.getElementById('albumArt').style.background=t.c;
+    setTxt('pDur', fmtDur(t.d)); pos=0; updateProg();
+  }
+  function fmtDur(s){ return Math.floor(s/60)+':'+pad(s%60); }
+  function updateProg(){ const t=tracks[ti]; document.getElementById('progFill').style.width=(pos/t.d*100)+'%'; setTxt('pCur',fmtDur(Math.floor(pos))); }
+  function togglePlay(){
+    playing=!playing;
+    document.getElementById('playIcon').innerHTML = playing?'<path d="M6 5h4v14H6zm8 0h4v14h-4z"/>':'<path d="M8 5v14l11-7z"/>';
+    document.getElementById('albumArt').classList.toggle('spin', playing);
+    if(playing){ showIsland('🎵 '+tracks[ti].t); musicInt=setInterval(()=>{ pos+=1; if(pos>=tracks[ti].d){ nextTrack(); return; } updateProg(); },1000); beep(520,.05); }
+    else { clearInterval(musicInt); collapseIsland(); }
+  }
+  function nextTrack(){ ti=(ti+1)%tracks.length; pos=0; loadTrack(); if(playing){ showIsland('🎵 '+tracks[ti].t); } }
+  function prevTrack(){ if(pos>3){pos=0;updateProg();return;} ti=(ti-1+tracks.length)%tracks.length; pos=0; loadTrack(); }
+  function seek(e){ const r=e.currentTarget.getBoundingClientRect(); pos=Math.round((e.clientX-r.left)/r.width*tracks[ti].d); updateProg(); }
+  loadTrack();
+
+  /* =====================================================================
+     CAMERA  (improvement: filters + shutter flash + saves to Photos)
+     ===================================================================== */
+  const scenes=['\ud83c\udf05','\ud83c\udfd4\ufe0f','\ud83c\udf03','\ud83c\udf0a','\ud83c\udf3b','\ud83c\udf0c'];
+  let sceneIdx=0;
+  document.getElementById('camScene').addEventListener('click',()=>{ sceneIdx=(sceneIdx+1)%scenes.length; document.getElementById('camScene').textContent=scenes[sceneIdx]; });
+  function camFilter(f,el){ document.getElementById('camScene').style.filter=f; document.querySelectorAll('.cam-top .chip').forEach(c=>c.classList.remove('solid')); el.classList.add('solid'); }
+  let photos = LS.get('photos', ['\ud83c\udf05','\ud83c\udf0a','\ud83c\udf3b']);
+  function takePhoto(){
+    const fl=document.getElementById('camFlash'); fl.classList.remove('go'); void fl.offsetWidth; fl.classList.add('go');
+    beep(1200,.05); haptic(30);
+    photos.unshift(scenes[sceneIdx]); LS.set('photos',photos); renderPhotos(); toast('Foto guardada');
+  }
+  function renderPhotos(){
+    const grad=['#f472b6','#60a5fa','#34d399','#fbbf24','#a78bfa','#fb7185'];
+    document.getElementById('photoGrid').innerHTML = photos.map((p,i)=>`<div class="photo" style="background:${grad[i%6]};display:flex;align-items:center;justify-content:center;font-size:28px">${p}</div>`).join('');
+  }
+  renderPhotos();
+
+  /* =====================================================================
+     MESSAGES  (improvement: chat bot with replies)
+     ===================================================================== */
+  let chatData = LS.get('chat', [{who:'them', txt:'¡Hola David! Soy davidBot. ¿Cómo estás?'}]);
+  function renderChat(){ document.getElementById('chat').innerHTML = chatData.map(m=>`<div class="bubble ${m.who}">${esc(m.txt)}</div>`).join(''); }
+  function scrollChat(){ const c=document.getElementById('chat'); c.scrollTop=c.scrollHeight; }
+  function chatKey(e){ if(e.key==='Enter' && !e.nativeEvent?.isComposing) sendMsg(); }
+  function sendMsg(){
+    const inp=document.getElementById('chatInput'); const txt=inp.value.trim(); if(!txt)return;
+    chatData.push({who:'me',txt}); inp.value=''; renderChat(); scrollChat(); LS.set('chat',chatData); beep(500,.04);
+    setTimeout(()=>{ chatData.push({who:'them',txt:botReply(txt)}); renderChat(); scrollChat(); LS.set('chat',chatData); beep(400,.04); }, 700);
+  }
+  function botReply(t){
+    t=t.toLowerCase();
+    if(t.includes('hola')) return '¡Hola! ¿En qué puedo ayudarte?';
+    if(t.includes('hora')) return 'Son las '+new Date().getHours()+':'+pad(new Date().getMinutes())+' ⏰';
+    if(t.includes('clima')||t.includes('tiempo')) return 'Hoy: 24° y parcialmente nublado ⛅';
+    if(t.includes('bien')||t.includes('gracias')) return '¡Me alegra! 😄';
+    if(t.includes('?')) return 'Buena pregunta... soy solo un bot de demostración 🤖';
+    const g=['Interesante 🤔','¡Cuéntame más!','😄👍','Anotado, David.','Jaja, buena esa.'];
+    return g[Math.floor(Math.random()*g.length)];
+  }
+  renderChat();
+
+  /* =====================================================================
+     CALENDAR  (improvement: navigable month grid)
+     ===================================================================== */
+  let calDate = new Date();
+  function calMove(d){ calDate.setMonth(calDate.getMonth()+d); renderCalendar(); }
+  function renderCalendar(){
+    const y=calDate.getFullYear(), m=calDate.getMonth();
+    setTxt('calLabel', MONTHS[m].charAt(0).toUpperCase()+MONTHS[m].slice(1)+' '+y);
+    const first=new Date(y,m,1).getDay(), days=new Date(y,m+1,0).getDate();
+    const today=new Date();
+    let html=['D','L','M','X','J','V','S'].map(d=>`<div class="dow">${d}</div>`).join('');
+    for(let i=0;i<first;i++) html+='<div class="cal-cell muted"></div>';
+    for(let d=1;d<=days;d++){ const isToday = d===today.getDate()&&m===today.getMonth()&&y===today.getFullYear();
+      html+=`<div class="cal-cell ${isToday?'today':''}">${d}</div>`; }
+    document.getElementById('calGrid').innerHTML=html;
+  }
+
+  /* =====================================================================
+     TODO  (improvement: persisted checklist)
+     ===================================================================== */
+  let todos = LS.get('todos', [{t:'Probar davidPhone',done:true},{t:'Añadir una tarea',done:false}]);
+  function renderTodos(){
+    const l=document.getElementById('todoList');
+    if(!todos.length){ l.innerHTML='<div style="color:var(--muted);text-align:center;padding:20px">Todo hecho 🎉</div>'; return; }
+    l.innerHTML=todos.map((t,i)=>`<div class="todo-item ${t.done?'done':''}">
+      <div class="todo-check ${t.done?'done':''}" onclick="toggleTodo(${i})">${t.done?'&#10003;':''}</div>
+      <span class="txt">${esc(t.t)}</span>
+      <button class="del" onclick="delTodo(${i})">&#128465;</button></div>`).join('');
+  }
+  function addTodo(){ const i=document.getElementById('todoInput'); const t=i.value.trim(); if(!t)return; todos.push({t,done:false}); i.value=''; saveTodos(); haptic(10); }
+  function toggleTodo(i){ todos[i].done=!todos[i].done; saveTodos(); haptic(8); beep(600,.04); }
+  function delTodo(i){ todos.splice(i,1); saveTodos(); }
+  function saveTodos(){ LS.set('todos',todos); renderTodos(); }
+  renderTodos();
+
+  /* =====================================================================
+     GAMES  (improvement: tic-tac-toe vs AI, dice, coin)
+     ===================================================================== */
+  function gameTab(id,el){ document.querySelectorAll('#games .tab').forEach(t=>t.classList.remove('on')); el.classList.add('on');
+    document.querySelectorAll('#games .tabpane').forEach(p=>p.classList.remove('on')); document.getElementById('game-'+id).classList.add('on'); }
+  let ttt=Array(9).fill(''), tttOver=false;
+  function tttRender(){ document.getElementById('tttBoard').innerHTML=ttt.map((c,i)=>`<div class="ttt-cell ${c.toLowerCase()}" onclick="tttPlay(${i})">${c}</div>`).join(''); }
+  function tttPlay(i){
+    if(ttt[i]||tttOver)return; ttt[i]='X'; beep(440,.05); haptic(10); check();
+    if(!tttOver){ const e=ttt.map((c,idx)=>c?null:idx).filter(x=>x!==null); if(e.length){ ttt[e[Math.floor(Math.random()*e.length)]]='O'; check(); } }
+    tttRender();
+  }
+  function check(){
+    const w=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+    for(const [a,b,c] of w){ if(ttt[a]&&ttt[a]===ttt[b]&&ttt[a]===ttt[c]){ setTxt('tttStatus','¡Gana '+ttt[a]+'!'); tttOver=true; beep(700,.15); return; } }
+    if(ttt.every(x=>x)){ setTxt('tttStatus','¡Empate!'); tttOver=true; }
+    tttRender();
+  }
+  function tttReset(){ ttt=Array(9).fill(''); tttOver=false; setTxt('tttStatus','Turno: X'); tttRender(); }
+  tttRender();
+  const diceFaces=['\u2680','\u2681','\u2682','\u2683','\u2684','\u2685'];
+  function rollDice(){ let n=0; const iv=setInterval(()=>{ setTxt('diceFace',diceFaces[Math.floor(Math.random()*6)]); beep(300+Math.random()*300,.03); if(++n>8){ clearInterval(iv); haptic(30);} },60); }
+  function flipCoin(){ const c=document.getElementById('coinFace'); c.classList.remove('flip'); void c.offsetWidth; c.classList.add('flip'); haptic(20);
+    setTimeout(()=>{ c.textContent=Math.random()<.5?'Cara':'Cruz'; beep(660,.1); },550); }
+
+  /* =====================================================================
+     CONVERTER  (improvement: length / currency / tip)
+     ===================================================================== */
+  function convTab(id,el){ document.querySelectorAll('#convert .tab').forEach(t=>t.classList.remove('on')); el.classList.add('on');
+    document.querySelectorAll('#convert .tabpane').forEach(p=>p.classList.remove('on')); document.getElementById('conv-'+id).classList.add('on'); }
+  function doLen(){ const v=+document.getElementById('lenVal').value, f=+document.getElementById('lenFrom').value, t=+document.getElementById('lenTo').value;
+    setTxt('lenRes', (v*f/t).toFixed(3).replace(/\.?0+$/,'')); }
+  function doCur(){ const v=+document.getElementById('curVal').value, r=+document.getElementById('curTo').value;
+    const sym=document.getElementById('curTo').selectedOptions[0].text; setTxt('curRes',(v*r).toFixed(2)+' '+sym); }
+  function doTip(){ const b=+document.getElementById('tipBill').value, p=+document.getElementById('tipPct').value;
+    const tip=b*p/100; setTxt('tipRes','Total: '+(b+tip).toFixed(2)+' (propina '+tip.toFixed(2)+')'); }
+  doLen(); doCur(); doTip();
+
+  /* =====================================================================
+     BROWSER  (improvement: fake page loader)
+     ===================================================================== */
+  function browse(){ const u=document.getElementById('urlBar').value||'david.dev';
+    document.getElementById('browserPage').innerHTML=`<svg viewBox="0 0 24 24" style="width:50px;height:50px;fill:var(--accent)"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/></svg><b style="color:var(--text)">${esc(u)}</b><p>Página cargada (demo).</p>`; beep(500,.05); }
+
+  /* =====================================================================
+     SETTINGS + THEMES  (improvement: switches, brightness, wallpapers)
+     ===================================================================== */
+  let wifiOn=LS.get('wifi',true);
+  const THEMES=[
+    {id:'default', c:'linear-gradient(160deg,#1e293b,#312e81)'},
+    {id:'sunset', c:'linear-gradient(160deg,#7c2d12,#be123c)'},
+    {id:'ocean', c:'linear-gradient(160deg,#0e7490,#1e3a8a)'},
+    {id:'forest', c:'linear-gradient(160deg,#14532d,#166534)'},
+    {id:'light', c:'linear-gradient(160deg,#dbeafe,#e0e7ff)'}
+  ];
+  let currentTheme = LS.get('theme','default');
+  function buildSwatches(){
+    document.getElementById('swatches').innerHTML = THEMES.map(t=>`<div class="swatch ${t.id===currentTheme?'on':''}" data-t="${t.id}" style="background:${t.c}" onclick="setTheme('${t.id}')"></div>`).join('');
+  }
+  function setTheme(id){
+    currentTheme=id; LS.set('theme',id);
+    if(!torchOn){ screen_.setAttribute('data-theme', id); screen_.style.removeProperty('--wallpaper'); lock.setAttribute('data-theme',id); }
+    document.querySelectorAll('.swatch').forEach(s=>s.classList.toggle('on', s.dataset.t===id));
+    document.getElementById('swDark').classList.toggle('on', id!=='light');
+    haptic(10);
+  }
+  buildSwatches();
+  screen_.setAttribute('data-theme', currentTheme);
+  document.querySelectorAll('.swatch').forEach(s=>s.classList.toggle('on', s.dataset.t===currentTheme));
+  document.getElementById('swDark').classList.toggle('on', currentTheme!=='light');
+
+  function toggleSwitch(el){ el.classList.toggle('on'); haptic(8);
+    if(el.id==='swHaptic'){ hapticOn=el.classList.contains('on'); LS.set('haptic',hapticOn); } }
+  function toggleWifi(el){ el.classList.toggle('on'); wifiOn=el.classList.contains('on'); LS.set('wifi',wifiOn);
+    document.getElementById('sbWifi').style.opacity=wifiOn?1:.3; document.getElementById('ccWifi').classList.toggle('on',wifiOn); }
+  function toggleAirplane(el){ el.classList.toggle('on'); applyAirplane(el.classList.contains('on')); }
+  function applyAirplane(on){
+    document.getElementById('ccAirplane').classList.toggle('on',on);
+    document.getElementById('sbWifi').style.opacity= on?.3:(wifiOn?1:.3);
+    document.getElementById('sbSignal').style.opacity= on?.3:1;
+    toast(on?'Modo avión activado ✈️':'Modo avión desactivado');
+  }
+  function toggleDark(el){ setTheme(el.classList.contains('on')?'light':'default'); }
+  function setBrightness(v){ screen_.style.filter=`brightness(${v/100})`; }
+  function resetAll(){ if(confirm('¿Borrar todos los datos de davidPhone?')){ ['notes','todos','chat','photos','battery','theme','wifi','haptic'].forEach(LS.del); location.reload(); } }
+
+  /* =====================================================================
+     AUTO-LOCK  (improvement: locks after inactivity)
+     ===================================================================== */
+  let idleTimer;
+  function resetIdle(){ clearTimeout(idleTimer); idleTimer=setTimeout(()=>{ if(!lock.classList.contains('hidden'))return; lockPhone(); goHome(); }, 60000); }
+  ['click','keydown','touchstart'].forEach(ev=>window.addEventListener(ev,resetIdle,{passive:true}));
+  resetIdle();
+  </script>
+</body>
+</html>
