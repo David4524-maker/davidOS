@@ -241,6 +241,59 @@
       background: transparent; color: #000000; border: none; padding: 10px 15px; font-size: 22px; font-weight: bold; cursor: pointer; font-family: sans-serif;
     }
     .bsod-btn-off:hover { opacity: 0.7; }
+
+    /* ============================================================
+       ===============  10 MEJORAS AÑADIDAS  =======================
+       (Bloque nuevo — no modifica ni elimina el CSS anterior)
+       ============================================================ */
+
+    /* --- MEJORA 1: Indicador de batería simulado en la bandeja --- */
+    .battery-indicator { cursor: pointer; font-size: 13px; user-select: none; transition: color 0.2s; }
+    .battery-indicator:hover { opacity: 0.8; }
+
+    /* --- MEJORA 2: Modo claro/oscuro persistente --- */
+    body.light-mode { --theme-bg: rgba(245, 245, 248, 0.92); --window-bg: #ffffff; }
+    body.light-mode #desktop-widget,
+    body.light-mode .icon,
+    body.light-mode #taskbar,
+    body.light-mode #taskbar *,
+    body.light-mode #start-menu,
+    body.light-mode #start-menu *,
+    body.light-mode #emoji-menu,
+    body.light-mode #emoji-menu *,
+    body.light-mode .window-header,
+    body.light-mode .window-body,
+    body.light-mode .notif-card,
+    body.light-mode #power-menu,
+    body.light-mode #power-menu *,
+    body.light-mode #context-menu,
+    body.left-mode #context-menu * { color: #17171c; text-shadow: none; }
+    body.light-mode .window-body { background: #f4f4f7; }
+    body.light-mode .app-btn, body.light-mode .store-card button { color: #ffffff; }
+    body.light-mode .terminal-out, body.light-mode .terminal-input { color: #087f23; }
+    body.light-mode #cmd-out, body.light-mode #cmd-input { color: #17171c !important; }
+    body.light-mode .store-card, body.light-mode .exp-item, body.light-mode #explorer-body div { background: rgba(0,0,0,0.06); }
+    body.light-mode ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); }
+    #tray-menu .light-toggle-btn { cursor: pointer; font-size: 18px; text-align: center; }
+
+    /* --- MEJORA 3: Paleta de comandos (Ctrl/Cmd + K) --- */
+    #cmdpalette-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 500000; align-items: flex-start; justify-content: center; padding-top: 12vh; backdrop-filter: blur(4px); }
+    #cmdpalette-overlay.active { display: flex; }
+    #cmdpalette-box { width: 460px; max-width: 90vw; background: var(--window-bg); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; box-shadow: 0 20px 45px rgba(0,0,0,0.6); overflow: hidden; }
+    #cmdpalette-input { width: 100%; background: rgba(255,255,255,0.06); border: none; border-bottom: 1px solid rgba(255,255,255,0.12); color: white; padding: 14px 16px; font-size: 15px; outline: none; }
+    #cmdpalette-results { max-height: 320px; overflow-y: auto; }
+    .cmdpalette-item { display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: white; font-size: 13px; cursor: pointer; }
+    .cmdpalette-item:hover, .cmdpalette-item.cmdpalette-active { background: var(--accent-color); }
+    .cmdpalette-hint { padding: 8px 16px; font-size: 11px; opacity: 0.5; color: white; border-top: 1px solid rgba(255,255,255,0.1); }
+
+    /* --- MEJORA 6: Ícono de Papelera de reciclaje en el escritorio --- */
+    #recyclebin-desktop-icon { position: absolute; bottom: 58px; right: 14px; z-index: 2; }
+
+    /* --- MEJORA 10: Widget de escritorio (reloj + fecha) --- */
+    #desktop-widget { position: absolute; top: 18px; right: 18px; text-align: right; color: white; text-shadow: 0 2px 8px rgba(0,0,0,0.7); pointer-events: none; z-index: 1; user-select: none; }
+    #widget-time { font-size: 44px; font-weight: 200; line-height: 1; letter-spacing: 1px; }
+    #widget-date { font-size: 13px; opacity: 0.85; text-transform: capitalize; margin-top: 4px; }
+    @media (max-width: 640px) { #desktop-widget { display: none; } }
   </style>
 </head>
 <body>
@@ -1683,6 +1736,380 @@
       const bsod = document.getElementById('bsod-screen');
       if (bsod) bsod.classList.remove('active');
     }
+
+    /* ==========================================================================
+       ==========================  10 MEJORAS AÑADIDAS  ==========================
+       Bloque 100% nuevo, agregado al final. No modifica ni borra ninguna línea
+       ni función del código anterior; solo añade funciones, listeners y
+       elementos nuevos, o extiende (sin romper) apps/getAppContent/editionLimits.
+       ========================================================================== */
+
+    // --- Extiende de forma no destructiva la app router para nuevas apps ---
+    // (guarda la función original y la usa como "fallback" para cualquier id
+    //  que no reconozca, así todo el comportamiento previo sigue intacto)
+    (function() {
+      const originalGetAppContent = getAppContent;
+      window.getAppContent = function(id) {
+        if (id === 'taskmgr') {
+          return `
+            <div style="display:flex; flex-direction:column; height:100%; gap:8px;">
+              <div class="app-toolbar">
+                <button class="app-btn" onclick="document.getElementById('body-taskmgr').innerHTML = getAppContent('taskmgr')">🔄 Actualizar</button>
+                <span style="font-size:11px; opacity:0.7; margin-left:auto;">Memoria: ${davidKernel.allocatedMemoryMB} MB / ${davidKernel.maxMemoryMB} MB</span>
+              </div>
+              <div style="flex:1; overflow-y:auto; font-size:12px;">
+                <table style="width:100%; border-collapse:collapse;">
+                  <tr style="text-align:left; opacity:0.6;"><th style="padding:4px 0;">Proceso</th><th>PID</th><th>Memoria</th><th></th></tr>
+                  ${davidKernel.processes.map(p => `
+                    <tr style="border-top:1px solid #333;">
+                      <td style="padding:6px 0;">${p.name}</td>
+                      <td>${p.pid}</td>
+                      <td>${p.memory} MB</td>
+                      <td><button class="app-btn" style="padding:2px 8px; font-size:11px;" onclick="endTask(${p.pid})">Finalizar tarea</button></td>
+                    </tr>`).join('')}
+                </table>
+              </div>
+            </div>`;
+        }
+        if (id === 'recyclebin') {
+          const trash = JSON.parse(localStorage.getItem('davidos-trash') || '["captura_antigua.png","informe_borrador.docx","tarea_vieja.txt"]');
+          return `
+            <div style="display:flex; flex-direction:column; height:100%; gap:10px;">
+              <div class="app-toolbar">
+                <button class="app-btn" onclick="emptyRecycleBin()">🗑️ Vaciar papelera</button>
+                <span style="font-size:11px; opacity:0.7; margin-left:auto;">${trash.length} elemento(s)</span>
+              </div>
+              <div style="flex:1; overflow-y:auto;">
+                ${trash.length ? trash.map(f => `<div class="exp-item">🗎 <span>${f}</span></div>`).join('') : '<div style="opacity:0.6; text-align:center; padding:30px;">La papelera está vacía.</div>'}
+              </div>
+            </div>`;
+        }
+        return originalGetAppContent(id);
+      };
+    })();
+
+    // Registra las nuevas apps en el sistema (sin tocar el array original,
+    // solo se le agregan elementos nuevos) y las habilita en todas las ediciones
+    if (!apps.some(a => a.id === 'taskmgr')) apps.push({ id: 'taskmgr', name: 'Administrador de tareas', icon: '📊' });
+    if (!apps.some(a => a.id === 'recyclebin')) apps.push({ id: 'recyclebin', name: 'Papelera de reciclaje', icon: '🗑️' });
+    ['Starter', 'Home', 'Professional', 'Ultimate'].forEach(ed => {
+      if (editionLimits[ed] && !editionLimits[ed].includes('recyclebin')) editionLimits[ed].push('recyclebin');
+    });
+    if (editionLimits['Ultimate'] && !editionLimits['Ultimate'].includes('taskmgr')) editionLimits['Ultimate'].push('taskmgr');
+    if (editionLimits['Professional'] && !editionLimits['Professional'].includes('taskmgr')) editionLimits['Professional'].push('taskmgr');
+
+    // --- MEJORA 6 (parte 2): finalizar procesos desde el Administrador de tareas
+    function endTask(pid) {
+      const proc = davidKernel.processes.find(p => p.pid === pid);
+      if (!proc) return;
+      const winEl = document.getElementById('win-' + proc.appId);
+      if (winEl) closeWin(winEl.id); else davidKernel.killProcess(pid);
+      const body = document.getElementById('body-taskmgr');
+      if (body) body.innerHTML = getAppContent('taskmgr');
+      showNotification(`⚙️ Proceso "${proc.name}" finalizado`);
+    }
+
+    // --- MEJORA 6 (parte 3): vaciar la papelera de reciclaje
+    function emptyRecycleBin() {
+      localStorage.setItem('davidos-trash', '[]');
+      const body = document.getElementById('body-recyclebin');
+      if (body) body.innerHTML = getAppContent('recyclebin');
+      showNotification('🗑️ Papelera de reciclaje vaciada correctamente');
+    }
+
+    /* --- MEJORA 1: Indicador de batería simulado --- */
+    let davidBattery = { level: parseInt(localStorage.getItem('davidos-battery') || '100', 10), charging: localStorage.getItem('davidos-charging') === 'true' };
+    function renderBatteryIndicator() {
+      let el = document.getElementById('battery-indicator');
+      if (!el) {
+        el = document.createElement('span');
+        el.id = 'battery-indicator';
+        el.className = 'battery-indicator';
+        el.title = 'Clic para simular carga/descarga de batería';
+        el.onclick = toggleBatteryCharging;
+        const wifiEl = document.getElementById('wifi-display');
+        if (wifiEl && wifiEl.parentNode) wifiEl.parentNode.insertBefore(el, wifiEl);
+      }
+      const icon = davidBattery.charging ? '🔌' : (davidBattery.level > 60 ? '🔋' : davidBattery.level > 20 ? '🪫' : '🪫');
+      el.innerText = `${icon} ${davidBattery.level}%`;
+      el.style.color = (davidBattery.level <= 15 && !davidBattery.charging) ? '#ff5f56' : '';
+    }
+    function toggleBatteryCharging(e) {
+      if (e) e.stopPropagation();
+      davidBattery.charging = !davidBattery.charging;
+      localStorage.setItem('davidos-charging', davidBattery.charging);
+      showToast(davidBattery.charging ? '🔌 Cargando batería (simulado)' : '🔋 Desconectado del cargador');
+      renderBatteryIndicator();
+    }
+    setInterval(() => {
+      davidBattery.level = davidBattery.charging ? Math.min(100, davidBattery.level + 2) : Math.max(0, davidBattery.level - 1);
+      localStorage.setItem('davidos-battery', davidBattery.level);
+      renderBatteryIndicator();
+      if (davidBattery.level === 15 && !davidBattery.charging) showNotification('🪫 Batería baja (15%). Conecta el cargador.');
+    }, 25000);
+    renderBatteryIndicator();
+
+    /* --- MEJORA 2: Modo claro/oscuro persistente --- */
+    function toggleLightMode(e) {
+      if (e) e.stopPropagation();
+      document.body.classList.toggle('light-mode');
+      const isLight = document.body.classList.contains('light-mode');
+      localStorage.setItem('davidos-lightmode', isLight);
+      showToast(isLight ? '☀️ Modo claro activado' : '🌙 Modo oscuro activado');
+    }
+    (function initLightModeToggle() {
+      if (localStorage.getItem('davidos-lightmode') === 'true') document.body.classList.add('light-mode');
+      const trayMenu = document.getElementById('tray-menu');
+      if (trayMenu && !document.getElementById('light-mode-toggle-btn')) {
+        const btn = document.createElement('span');
+        btn.id = 'light-mode-toggle-btn';
+        btn.className = 'light-toggle-btn';
+        btn.title = 'Modo claro / oscuro';
+        btn.innerText = '🌗';
+        btn.onclick = toggleLightMode;
+        trayMenu.appendChild(btn);
+      }
+    })();
+
+    /* --- MEJORA 3: Paleta de comandos (Ctrl/Cmd + K) --- */
+    (function initCommandPalette() {
+      const overlay = document.createElement('div');
+      overlay.id = 'cmdpalette-overlay';
+      overlay.innerHTML = `
+        <div id="cmdpalette-box">
+          <input type="text" id="cmdpalette-input" placeholder="🔎 Escribe el nombre de una app y presiona Enter..." autocomplete="off">
+          <div id="cmdpalette-results"></div>
+          <div class="cmdpalette-hint">↑↓ para navegar · Enter para abrir · Esc para cerrar</div>
+        </div>`;
+      document.body.appendChild(overlay);
+      overlay.addEventListener('mousedown', (e) => { if (e.target === overlay) closeCommandPalette(); });
+
+      const input = document.getElementById('cmdpalette-input');
+      input.addEventListener('input', () => renderCommandPaletteResults(input.value));
+      input.addEventListener('keydown', (e) => {
+        const items = Array.from(document.querySelectorAll('.cmdpalette-item'));
+        let idx = items.findIndex(i => i.classList.contains('cmdpalette-active'));
+        if (e.key === 'ArrowDown') { e.preventDefault(); idx = Math.min(items.length - 1, idx + 1); items.forEach(i => i.classList.remove('cmdpalette-active')); if (items[idx]) items[idx].classList.add('cmdpalette-active'); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); idx = Math.max(0, idx - 1); items.forEach(i => i.classList.remove('cmdpalette-active')); if (items[idx]) items[idx].classList.add('cmdpalette-active'); }
+        else if (e.key === 'Enter') { e.preventDefault(); const active = items[idx] || items[0]; if (active) active.click(); }
+        else if (e.key === 'Escape') { closeCommandPalette(); }
+      });
+    })();
+
+    function renderCommandPaletteResults(query) {
+      const q = (query || '').toLowerCase().trim();
+      const results = document.getElementById('cmdpalette-results');
+      const list = apps.filter(a => a.name.toLowerCase().includes(q)).slice(0, 8);
+      if (!list.length) { results.innerHTML = `<div class="cmdpalette-item" style="opacity:0.6; cursor:default;">Sin resultados para "${query}"</div>`; return; }
+      results.innerHTML = list.map((a, i) => `<div class="cmdpalette-item ${i === 0 ? 'cmdpalette-active' : ''}" onclick="openApp('${a.id}'); closeCommandPalette();"><span>${a.icon}</span><span>${a.name}</span></div>`).join('');
+    }
+
+    function openCommandPalette() {
+      const overlay = document.getElementById('cmdpalette-overlay');
+      if (!overlay) return;
+      overlay.classList.add('active');
+      const input = document.getElementById('cmdpalette-input');
+      input.value = '';
+      renderCommandPaletteResults('');
+      setTimeout(() => input.focus(), 30);
+    }
+
+    function closeCommandPalette() {
+      const overlay = document.getElementById('cmdpalette-overlay');
+      if (overlay) overlay.classList.remove('active');
+    }
+
+    /* --- MEJORA 4 y 5: Atajos de teclado avanzados para ventanas ---
+       Alt+Tab: cambia entre ventanas abiertas
+       Ctrl+Q: cierra la ventana activa
+       Ctrl+M: minimiza la ventana activa
+       Ctrl+Flecha Izq/Der: ajusta (snap) la ventana activa a medio monitor
+       Ctrl+Flecha Arriba: maximiza la ventana activa
+       Ctrl+K / Cmd+K: abre la paleta de comandos                            */
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
+        e.preventDefault();
+        const overlay = document.getElementById('cmdpalette-overlay');
+        if (overlay && overlay.classList.contains('active')) closeCommandPalette(); else openCommandPalette();
+        return;
+      }
+
+      const overlay = document.getElementById('cmdpalette-overlay');
+      if (overlay && overlay.classList.contains('active')) return;
+
+      if (e.altKey && e.key === 'Tab') {
+        if (!openWindowsOrder.length) return;
+        e.preventDefault();
+        let idx = openWindowsOrder.findIndex(w => w.id === window.__activeWinId);
+        if (idx === -1) idx = 0;
+        const nextIdx = e.shiftKey ? (idx - 1 + openWindowsOrder.length) % openWindowsOrder.length : (idx + 1) % openWindowsOrder.length;
+        const nextWin = openWindowsOrder[nextIdx];
+        const el = document.getElementById(nextWin.id);
+        if (el) { el.style.display = 'flex'; focusWindow(nextWin.id); window.__activeWinId = nextWin.id; renderTaskbarRunning(); }
+        return;
+      }
+
+      if (!window.__activeWinId || !document.getElementById(window.__activeWinId)) return;
+
+      if (e.ctrlKey && (e.key === 'q' || e.key === 'Q')) { e.preventDefault(); closeWin(window.__activeWinId); window.__activeWinId = null; }
+      else if (e.ctrlKey && (e.key === 'm' || e.key === 'M')) { e.preventDefault(); minimizeWin(window.__activeWinId); }
+      else if (e.ctrlKey && e.key === 'ArrowLeft') { e.preventDefault(); snapWindowToSide(window.__activeWinId, 'left'); }
+      else if (e.ctrlKey && e.key === 'ArrowRight') { e.preventDefault(); snapWindowToSide(window.__activeWinId, 'right'); }
+      else if (e.ctrlKey && e.key === 'ArrowUp') { e.preventDefault(); maximizeWin(window.__activeWinId); }
+    });
+
+    function snapWindowToSide(id, side) {
+      const win = document.getElementById(id);
+      if (!win) return;
+      win.classList.remove('maximized');
+      win.style.top = '0px';
+      win.style.left = side === 'left' ? '0px' : '50vw';
+      win.style.width = '50vw';
+      win.style.height = 'calc(100vh - 48px)';
+    }
+
+    // Rastrea qué ventana está activa (para los atajos de arriba) sin tocar
+    // las funciones originales: escucha clics en el contenedor y en la taskbar
+    const __windowsContainerEl = document.getElementById('windows-container');
+    if (__windowsContainerEl) {
+      __windowsContainerEl.addEventListener('mousedown', (e) => {
+        const w = e.target.closest('.window');
+        if (w) window.__activeWinId = w.id;
+      }, true);
+    }
+    const __taskbarRunningEl = document.getElementById('taskbar-running');
+    if (__taskbarRunningEl) {
+      __taskbarRunningEl.addEventListener('click', (e) => {
+        const btn = e.target.closest('.taskbar-app-btn');
+        if (btn) window.__activeWinId = btn.id.replace('taskbtn-', '');
+      });
+    }
+
+    /* --- MEJORA 8: Efectos de sonido del sistema (abrir/cerrar ventana y notificación) --- */
+    let __davidAudioCtx = null;
+    function playSystemBeep(freq, duration) {
+      try {
+        const volSlider = document.getElementById('volume-slider');
+        const vol = volSlider ? parseInt(volSlider.value, 10) : 70;
+        if (!vol) return;
+        if (!__davidAudioCtx) __davidAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = __davidAudioCtx.createOscillator();
+        const gain = __davidAudioCtx.createGain();
+        osc.frequency.value = freq;
+        gain.gain.value = Math.min(0.05, (vol / 100) * 0.05);
+        osc.connect(gain);
+        gain.connect(__davidAudioCtx.destination);
+        osc.start();
+        osc.stop(__davidAudioCtx.currentTime + (duration || 0.08));
+      } catch (err) { /* Web Audio no disponible: se ignora silenciosamente */ }
+    }
+
+    // Observa la creación/cierre de ventanas para reproducir sonidos y
+    // además aprovecha el mismo observer para: fijar la ventana activa
+    // recién abierta (mejora 4/5) y enriquecer la ventana "Acerca de" (mejora 10)
+    if (__windowsContainerEl) {
+      const __winObserver = new MutationObserver((mutations) => {
+        mutations.forEach((m) => {
+          m.addedNodes.forEach((n) => {
+            if (n.nodeType === 1 && n.classList && n.classList.contains('window')) {
+              playSystemBeep(880, 0.06);
+              window.__activeWinId = n.id;
+              if (n.id === 'win-about') {
+                const body = n.querySelector('.window-body');
+                if (body && !body.querySelector('.uptime-extra-info')) {
+                  const upSec = Math.floor((Date.now() - sessionStart) / 1000);
+                  const mins = Math.floor(upSec / 60);
+                  const secs = upSec % 60;
+                  const upEl = document.createElement('span');
+                  upEl.className = 'uptime-extra-info';
+                  upEl.style.cssText = 'font-size:11px; opacity:0.5;';
+                  upEl.innerText = `Tiempo de sesión activa: ${mins}m ${secs}s`;
+                  body.appendChild(upEl);
+                }
+              }
+            }
+          });
+          m.removedNodes.forEach((n) => {
+            if (n.nodeType === 1 && n.classList && n.classList.contains('window')) playSystemBeep(440, 0.08);
+          });
+        });
+      });
+      __winObserver.observe(__windowsContainerEl, { childList: true });
+    }
+    const __notifStackEl = document.getElementById('notif-stack');
+    if (__notifStackEl) {
+      const __notifObserver = new MutationObserver((mutations) => {
+        mutations.forEach((m) => {
+          m.addedNodes.forEach((n) => {
+            if (n.nodeType === 1 && n.classList && n.classList.contains('notif-card')) playSystemBeep(660, 0.05);
+          });
+        });
+      });
+      __notifObserver.observe(__notifStackEl, { childList: true });
+    }
+
+    /* --- MEJORA 9: Historial de búsquedas recientes en la barra de tareas --- */
+    let davidSearchHistory = JSON.parse(localStorage.getItem('davidos-searchhistory') || '[]');
+    function renderSearchHistoryDatalist() {
+      let dl = document.getElementById('search-history-list');
+      if (!dl) {
+        dl = document.createElement('datalist');
+        dl.id = 'search-history-list';
+        document.body.appendChild(dl);
+        const input = document.querySelector('.taskbar-search');
+        if (input) input.setAttribute('list', 'search-history-list');
+      }
+      dl.innerHTML = davidSearchHistory.map(q => `<option value="${q}"></option>`).join('');
+    }
+    renderSearchHistoryDatalist();
+    (function initSearchHistoryTracking() {
+      const input = document.querySelector('.taskbar-search');
+      if (!input) return;
+      input.addEventListener('change', (e) => {
+        const val = e.target.value.trim();
+        if (val && !davidSearchHistory.includes(val)) {
+          davidSearchHistory = [val, ...davidSearchHistory].slice(0, 8);
+          localStorage.setItem('davidos-searchhistory', JSON.stringify(davidSearchHistory));
+          renderSearchHistoryDatalist();
+        }
+      });
+    })();
+
+    /* --- MEJORA 6 (parte 1): Icono de acceso directo a la Papelera en el escritorio --- */
+    (function initRecycleBinDesktopIcon() {
+      const desktopEl = document.getElementById('desktop');
+      if (!desktopEl || document.getElementById('recyclebin-desktop-icon')) return;
+      const bin = document.createElement('div');
+      bin.id = 'recyclebin-desktop-icon';
+      bin.className = 'icon';
+      bin.tabIndex = 0;
+      bin.setAttribute('role', 'button');
+      bin.setAttribute('aria-label', 'Papelera de reciclaje');
+      bin.innerHTML = `<div class="icon-img">🗑️</div><div class="icon-name">Papelera</div>`;
+      bin.onclick = () => openApp('recyclebin');
+      bin.onkeydown = (e) => { if (e.key === 'Enter') openApp('recyclebin'); };
+      desktopEl.appendChild(bin);
+    })();
+
+    /* --- MEJORA 10: Widget de escritorio (reloj grande + fecha) --- */
+    (function initDesktopWidget() {
+      const desktopEl = document.getElementById('desktop');
+      if (!desktopEl || document.getElementById('desktop-widget')) return;
+      const widget = document.createElement('div');
+      widget.id = 'desktop-widget';
+      widget.innerHTML = `<div id="widget-time"></div><div id="widget-date"></div>`;
+      desktopEl.appendChild(widget);
+      function updateDesktopWidget() {
+        const t = document.getElementById('widget-time');
+        const d = document.getElementById('widget-date');
+        if (!t || !d) return;
+        const now = new Date();
+        t.innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        d.innerText = now.toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long' });
+      }
+      updateDesktopWidget();
+      setInterval(updateDesktopWidget, 1000);
+    })();
   </script>
 </body>
 </html>
