@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>davidOS Engine v1.2</title>
+<style>
+:root{--accent:#0078d4;--accent-2:#4aa3ff;--bg-1:#0a0a14;--bg-2:#1a1a2e;--bg-3:#16213e;--surface:#15171e;--surface-2:#0f1015;--border:rgba(255,255,255,.08);--border-hi:rgba(255,255,255,.18);--text:#e8eaf0;--text-dim:rgba(232,234,240,.6);--shadow:0 20px 50px rgba(0,0,0,.55);--shadow-hi:0 28px 70px rgba(0,0,0,.7);--radius:10px;}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,sans-serif;}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;color:var(--text);user-select:none;-webkit-font-smoothing:antialiased;}
+
+#boot{position:fixed;inset:0;background:#000;z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;transition:opacity .5s;}
+#boot.hide{opacity:0;pointer-events:none;}
+.boot-logo{width:88px;height:88px;border-radius:20px;background:linear-gradient(135deg,var(--accent),#7b2ff7);display:flex;align-items:center;justify-content:center;font-size:44px;box-shadow:0 20px 50px rgba(0,120,212,.4);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.06);}}
+.boot-title{font-size:20px;font-weight:600;}
+.boot-sub{font-size:12px;color:var(--text-dim);font-family:ui-monospace,monospace;}
+.boot-bar{width:260px;height:3px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;}
+.boot-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width .25s;}
+
+#desktop{position:fixed;inset:0;display:none;background:radial-gradient(1200px 800px at 20% 10%,#1e2a45 0%,transparent 55%),radial-gradient(900px 700px at 80% 90%,#2a0f4a 0%,transparent 55%),linear-gradient(135deg,var(--bg-1),var(--bg-2) 60%,var(--bg-3));overflow:hidden;}
+#desktop.on{display:block;}
+
+#icons{position:absolute;inset:0;padding:16px;display:flex;flex-direction:column;flex-wrap:wrap;gap:6px;align-content:flex-start;height:calc(100% - 56px);}
+.icon{width:84px;height:92px;padding:8px 4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border-radius:8px;cursor:pointer;transition:background .15s,transform .1s;text-align:center;}
+.icon:hover{background:rgba(255,255,255,.08);}
+.icon:active{transform:scale(.96);}
+.icon.selected{background:rgba(0,120,212,.25);outline:1px solid rgba(0,120,212,.5);}
+.icon .glyph{font-size:32px;line-height:1;filter:drop-shadow(0 3px 6px rgba(0,0,0,.5));}
+.icon .label{font-size:11.5px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.8);max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+.window{position:absolute;min-width:340px;min-height:220px;width:640px;height:440px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);display:flex;flex-direction:column;overflow:hidden;animation:winIn .2s cubic-bezier(.2,.9,.3,1.1);transition:box-shadow .2s,border-color .2s;}
+@keyframes winIn{from{opacity:0;transform:scale(.95) translateY(8px);}to{opacity:1;transform:scale(1) translateY(0);}}
+.window.active{border-color:rgba(0,120,212,.55);box-shadow:var(--shadow-hi),0 0 0 1px rgba(0,120,212,.35);}
+.window.closing{opacity:0;transform:scale(.94);transition:opacity .15s,transform .15s;}
+.window.maximized{top:0!important;left:0!important;width:100%!important;height:calc(100% - 56px)!important;border-radius:0;border-left:0;border-right:0;border-top:0;}
+.window.minimized{display:none;}
+.window.snapped-left{top:0!important;left:0!important;width:50%!important;height:calc(100% - 56px)!important;border-radius:0;}
+.window.snapped-right{top:0!important;left:50%!important;width:50%!important;height:calc(100% - 56px)!important;border-radius:0;}
+
+.titlebar{height:38px;display:flex;align-items:center;justify-content:space-between;padding:0 10px 0 14px;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(0,0,0,.15));border-bottom:1px solid var(--border);cursor:grab;font-size:13px;font-weight:500;gap:10px;flex-shrink:0;}
+.titlebar:active{cursor:grabbing;}
+.titlebar .title{display:flex;align-items:center;gap:9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;pointer-events:none;}
+.titlebar .title .t-ico{font-size:15px;line-height:1;}
+.titlebar .title .t-name{overflow:hidden;text-overflow:ellipsis;}
+.ctrl{display:flex;gap:2px;flex-shrink:0;}
+.ctrl button{width:32px;height:26px;border:0;border-radius:5px;cursor:pointer;background:transparent;color:rgba(255,255,255,.75);font-size:12px;line-height:1;display:flex;align-items:center;justify-content:center;transition:background .12s,color .12s;}
+.ctrl button:hover{background:rgba(255,255,255,.12);color:#fff;}
+.ctrl .close:hover{background:#e81123;color:#fff;}
+
+.toolbar{display:flex;gap:6px;padding:8px 12px;background:rgba(0,0,0,.18);border-bottom:1px solid var(--border);align-items:center;flex-wrap:wrap;flex-shrink:0;}
+.toolbar .tb-sep{width:1px;height:18px;background:var(--border);margin:0 4px;}
+.tool-btn{padding:5px 11px;border-radius:5px;border:1px solid transparent;background:transparent;color:rgba(255,255,255,.85);cursor:pointer;font-size:12px;display:flex;align-items:center;gap:6px;transition:background .12s,border-color .12s;}
+.tool-btn:hover{background:rgba(255,255,255,.08);}
+.tool-btn.primary{background:var(--accent);color:#fff;}
+.tool-btn.primary:hover{background:var(--accent-2);}
+
+.content{flex:1;overflow:auto;padding:14px;background:var(--surface-2);color:var(--text);font-size:13px;line-height:1.5;}
+.content::-webkit-scrollbar{width:10px;height:10px;}
+.content::-webkit-scrollbar-track{background:transparent;}
+.content::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:6px;}
+.content::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.28);}
+.content.no-pad{padding:0;}
+
+.statusbar{padding:5px 12px;background:rgba(0,0,0,.2);border-top:1px solid var(--border);font-size:11px;color:var(--text-dim);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;font-family:ui-monospace,monospace;gap:10px;}
+.statusbar span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+.rh{position:absolute;z-index:5;}
+.rh-n{top:0;left:8px;right:8px;height:5px;cursor:n-resize;}
+.rh-s{bottom:0;left:8px;right:8px;height:5px;cursor:s-resize;}
+.rh-e{top:8px;bottom:8px;right:0;width:5px;cursor:e-resize;}
+.rh-w{top:8px;bottom:8px;left:0;width:5px;cursor:w-resize;}
+.rh-ne{top:0;right:0;width:14px;height:14px;cursor:ne-resize;}
+.rh-nw{top:0;left:0;width:14px;height:14px;cursor:nw-resize;}
+.rh-se{bottom:0;right:0;width:14px;height:14px;cursor:se-resize;}
+.rh-sw{bottom:0;left:0;width:14px;height:14px;cursor:sw-resize;}
+.window.maximized .rh{display:none;}
+
+#taskbar{position:absolute;bottom:0;left:0;right:0;height:56px;background:rgba(12,14,20,.72);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 12px;z-index:8000;}
+.tb-left,.tb-right{display:flex;align-items:center;gap:8px;}
+.tb-btn{width:40px;height:40px;border-radius:8px;border:0;cursor:pointer;background:transparent;color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;transition:background .15s,transform .1s;}
+.tb-btn:hover{background:rgba(255,255,255,.1);}
+.tb-btn:active{transform:scale(.94);}
+.tb-btn.accent{background:linear-gradient(135deg,var(--accent),#7b2ff7);box-shadow:0 4px 14px rgba(0,120,212,.35);}
+
+#runningApps{display:flex;gap:6px;margin-left:6px;overflow-x:auto;max-width:50vw;}
+#runningApps::-webkit-scrollbar{height:0;}
+.run-btn{height:36px;padding:0 12px;border-radius:7px;border:1px solid transparent;background:rgba(255,255,255,.05);color:#fff;cursor:pointer;font-size:12.5px;display:flex;align-items:center;gap:7px;white-space:nowrap;transition:background .15s,border-color .15s;}
+.run-btn:hover{background:rgba(255,255,255,.12);}
+.run-btn.focused{background:rgba(0,120,212,.22);border-color:rgba(0,120,212,.55);}
+.run-btn .dot{width:6px;height:6px;border-radius:50%;background:var(--accent-2);}
+.run-btn.min .dot{background:rgba(255,255,255,.3);}
+
+.clock{display:flex;flex-direction:column;align-items:flex-end;line-height:1.15;padding:6px 10px;border-radius:6px;cursor:pointer;}
+.clock:hover{background:rgba(255,255,255,.06);}
+.clock .time{font-size:13.5px;font-weight:600;}
+.clock .date{font-size:10.5px;color:var(--text-dim);}
+.tray{display:flex;align-items:center;gap:4px;padding:6px 10px;border-radius:6px;}
+.tray span{font-size:12px;}
+
+#startMenu{position:absolute;bottom:64px;left:12px;width:440px;max-height:540px;background:rgba(14,16,24,.94);backdrop-filter:blur(24px);border:1px solid var(--border-hi);border-radius:12px;box-shadow:var(--shadow);z-index:8100;display:flex;flex-direction:column;overflow:hidden;opacity:0;transform:translateY(8px);pointer-events:none;transition:opacity .18s,transform .18s;}
+#startMenu.open{opacity:1;transform:translateY(0);pointer-events:auto;}
+.sm-head{padding:14px 16px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.sm-head b{font-size:13.5px;}
+.sm-head span{font-size:11px;color:var(--text-dim);}
+.sm-search{margin:10px 14px 4px;padding:8px 12px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid var(--border);color:#fff;outline:none;font-size:12.5px;width:calc(100% - 28px);}
+.sm-search:focus{border-color:rgba(0,120,212,.55);}
+.sm-grid{flex:1;overflow-y:auto;padding:8px 12px 12px;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+.sm-app{padding:12px 6px;border-radius:8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;transition:background .12s;}
+.sm-app:hover{background:rgba(255,255,255,.08);}
+.sm-app .g{font-size:24px;}
+.sm-app .n{font-size:11px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;}
+.sm-foot{padding:10px 14px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--text-dim);}
+.sm-foot button{padding:6px 12px;border-radius:6px;border:1px solid rgba(232,17,35,.4);background:rgba(232,17,35,.12);color:#ff8a92;cursor:pointer;font-size:11.5px;}
+.sm-foot button:hover{background:rgba(232,17,35,.25);}
+
+#notifs{position:fixed;top:16px;right:16px;z-index:9000;display:flex;flex-direction:column;gap:8px;align-items:flex-end;}
+.notif{min-width:240px;max-width:320px;padding:11px 14px;background:rgba(20,22,30,.94);backdrop-filter:blur(18px);border:1px solid var(--border-hi);border-left:3px solid var(--accent);border-radius:9px;box-shadow:0 12px 30px rgba(0,0,0,.5);font-size:12.5px;line-height:1.4;animation:nfIn .25s;}
+.notif.info{border-left-color:var(--accent);}
+.notif.success{border-left-color:#27c93f;}
+.notif.warn{border-left-color:#ffbd2e;}
+.notif.error{border-left-color:#ff5f56;}
+.notif strong{display:block;font-size:12.5px;margin-bottom:2px;}
+@keyframes nfIn{from{opacity:0;transform:translateX(30px);}to{opacity:1;transform:translateX(0);}}
+.notif.out{opacity:0;transform:translateX(30px);transition:opacity .25s,transform .25s;}
+
+#ctxMenu{position:fixed;z-index:9500;min-width:200px;background:rgba(16,18,26,.96);backdrop-filter:blur(20px);border:1px solid var(--border-hi);border-radius:8px;padding:5px;box-shadow:var(--shadow);display:none;}
+#ctxMenu.on{display:block;}
+.ctx-item{padding:8px 12px;border-radius:5px;font-size:12.5px;cursor:pointer;display:flex;align-items:center;gap:9px;color:var(--text);transition:background .1s;}
+.ctx-item:hover{background:var(--accent);}
+.ctx-item.disabled{opacity:.4;cursor:default;}
+.ctx-item.disabled:hover{background:transparent;}
+.ctx-sep{height:1px;background:var(--border);margin:4px 0;}
+
+.app-h1{font-size:16px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.app-h2{font-size:12px;font-weight:600;margin:14px 0 6px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;}
+.app-p{font-size:12.5px;color:var(--text-dim);line-height:1.6;margin-bottom:8px;}
+.kv{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:12.5px;}
+.kv span{color:var(--text-dim);}
+.kv b{color:var(--text);font-weight:500;font-family:ui-monospace,monospace;}
+.btn{padding:7px 14px;border-radius:6px;border:1px solid var(--border-hi);background:rgba(255,255,255,.06);color:#fff;cursor:pointer;font-size:12px;transition:background .12s,border-color .12s;}
+.btn:hover{background:rgba(255,255,255,.13);}
+.btn.primary{background:var(--accent);border-color:var(--accent);}
+.btn.primary:hover{background:var(--accent-2);}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+textarea.ta{width:100%;padding:10px;border-radius:6px;background:rgba(0,0,0,.35);border:1px solid var(--border);color:#fff;outline:none;resize:none;font-family:ui-monospace,monospace;font-size:12.5px;line-height:1.55;}
+textarea.ta:focus{border-color:var(--accent);}
+
+.term{height:100%;background:#07080c;font-family:ui-monospace,monospace;font-size:12.5px;color:#7dffb0;padding:12px;overflow-y:auto;line-height:1.5;}
+.term .in{color:#fff;}
+.term .err{color:#ff8a92;}
+.term .warn{color:#ffbd2e;}
+.term-input{width:100%;background:transparent;border:0;outline:none;color:#7dffb0;font-family:ui-monospace,monospace;font-size:12.5px;padding:2px 0;}
+
+.calc-pad{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;flex:1;}
+.calc-btn{padding:14px 6px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,.05);color:#fff;cursor:pointer;font-size:16px;font-weight:500;transition:background .12s,transform .08s;}
+.calc-btn:hover{background:rgba(255,255,255,.12);}
+.calc-btn:active{transform:scale(.96);}
+.calc-btn.op{background:var(--accent);border-color:var(--accent);}
+.calc-btn.eq{background:#27c93f;color:#000;border-color:#27c93f;}
+.calc-disp{background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:8px;padding:16px 18px;text-align:right;min-height:80px;display:flex;flex-direction:column;justify-content:center;}
+.calc-sub{font-size:11.5px;color:var(--text-dim);min-height:16px;font-family:ui-monospace,monospace;}
+.calc-main{font-size:32px;font-weight:600;overflow:hidden;text-overflow:ellipsis;font-family:ui-monospace,monospace;}
+
+.file-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;cursor:pointer;font-size:12.5px;transition:background .12s;}
+.file-row:hover{background:rgba(255,255,255,.06);}
+.file-row.selected{background:rgba(0,120,212,.22);}
+.file-row .fico{font-size:16px;}
+.file-row .fname{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+.about-hero{text-align:center;padding:20px 0;}
+.about-logo{width:80px;height:80px;margin:0 auto 14px;border-radius:20px;background:linear-gradient(135deg,var(--accent),#7b2ff7);display:flex;align-items:center;justify-content:center;font-size:40px;box-shadow:0 14px 40px rgba(0,120,212,.35);}
+
+.paint-tools{display:flex;gap:6px;align-items:center;padding:6px 10px;background:rgba(0,0,0,.2);border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.paint-tools input[type="color"]{width:34px;height:28px;border:1px solid var(--border-hi);border-radius:5px;background:transparent;cursor:pointer;padding:2px;}
+.paint-tools input[type="range"]{width:100px;accent-color:var(--accent);}
+.paint-canvas-wrap{flex:1;display:flex;align-items:center;justify-content:center;background:#2a2a2a;padding:10px;}
+#paintCanvas{background:#fff;border-radius:6px;cursor:crosshair;box-shadow:0 4px 20px rgba(0,0,0,.5);}
+
+@media (max-width:640px){#startMenu{width:calc(100vw - 24px);left:12px;}#runningApps{max-width:30vw;}.clock .date{display:none;}}
+</style>
+</head>
+<body>
+
+<div id="boot">
+  <div class="boot-logo">🚪</div>
+  <div class="boot-title">davidOS Engine</div>
+  <div class="boot-sub" id="bootSub">inicializando kernel...</div>
+  <div class="boot-bar"><div class="boot-fill" id="bootFill"></div></div>
+</div>
+
+<div id="desktop">
+  <div id="icons"></div>
+
+  <div id="startMenu">
+    <div class="sm-head"><b>Aplicaciones</b><span id="appCount">—</span></div>
+    <input type="text" id="smSearch" class="sm-search" placeholder="🔍 Buscar aplicación...">
+    <div class="sm-grid" id="smGrid"></div>
+    <div class="sm-foot">
+      <span id="userTag">davidOS Engine v1.2</span>
+      <button id="shutdownBtn">⏻ Apagar</button>
+    </div>
+  </div>
+
+  <div id="taskbar">
+    <div class="tb-left">
+      <button class="tb-btn accent" id="startBtn" title="Menú Inicio">🚪</button>
+      <div id="runningApps"></div>
+    </div>
+    <div class="tb-right">
+      <div class="tray" title="Estado del sistema">
+        <span id="trayCpu">⚙️</span>
+        <span id="trayMem">💾</span>
+      </div>
+      <div class="clock" id="clock" title="Fecha y hora">
+        <div class="time" id="clockTime">00:00</div>
+        <div class="date" id="clockDate">—</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="notifs"></div>
+<div id="ctxMenu"></div>
+
+<script>
+/* ============================================================================
+   davidOS Engine v1.2 — todas las apps funcionales
+   ========================================================================== */
+const davidOS = (() => {
+  'use strict';
+
+  /* ---- Event Bus ---- */
+  const _listeners = {};
+  const on = (evt, fn) => { (_listeners[evt] ||= []).push(fn); return () => off(evt, fn); };
+  const off = (evt, fn) => { const l = _listeners[evt]; if (!l) return; const i = l.indexOf(fn); if (i >= 0) l.splice(i, 1); };
+  const emit = (evt, data) => { (_listeners[evt] || []).forEach(fn => { try { fn(data); } catch(e){ console.error('[davidOS]', e); } }); };
+
+  /* ---- Kernel ---- */
+  const kernel = {
+    version: '1.2.0', build: '2026.CODEPEN.R3',
+    processes: [], nextPid: 1000,
+    memoryUsedMB: 64, memoryMaxMB: 8192,
+    spawn(appId, name, memoryMB) {
+      const p = { pid: this.nextPid++, appId, name, memory: memoryMB || (20 + Math.floor(Math.random()*40)), startedAt: Date.now() };
+      this.processes.push(p); this.memoryUsedMB += p.memory;
+      emit('kernel:spawn', p); return p;
+    },
+    kill(appId) {
+      const i = this.processes.findIndex(p => p.appId === appId);
+      if (i < 0) return false;
+      const p = this.processes[i];
+      this.memoryUsedMB = Math.max(0, this.memoryUsedMB - p.memory);
+      this.processes.splice(i, 1);
+      emit('kernel:kill', p); return true;
+    },
+    stats() {
+      return { version: this.version, build: this.build, processes: this.processes.length, memoryUsedMB: this.memoryUsedMB, memoryMaxMB: this.memoryMaxMB, uptime: Date.now() - BOOT_TIME };
+    }
+  };
+
+  /* ---- VFS ---- */
+  const fsTree = {
+    '/': { type: 'dir', children: ['home','system','tmp'] },
+    '/home': { type: 'dir', children: ['david'] },
+    '/home/david': { type: 'dir', children: ['readme.txt','notas.md'] },
+    '/home/david/readme.txt': { type: 'file', content: 'Bienvenido a davidOS Engine.\n\nEste es un motor de SO web en un solo archivo.\nPrueba el terminal y escribe "help".\n' },
+    '/home/david/notas.md': { type: 'file', content: '# Notas\n\n- Probar la API pública\n- Registrar una app con davidOS.registerApp\n- Abrir el terminal\n' },
+    '/system': { type: 'dir', children: ['kernel.bin','config.json'] },
+    '/system/kernel.bin': { type: 'file', content: '[binary data]' },
+    '/system/config.json': { type: 'file', content: '{\n  "theme": "dark",\n  "accent": "#0078d4",\n  "user": "david"\n}' },
+    '/tmp': { type: 'dir', children: [] }
+  };
+  const fs = {
+    ls(path) { const n = fsTree[path]; return (n && n.type === 'dir') ? n.children.slice() : null; },
+    isDir(path) { const n = fsTree[path]; return !!(n && n.type === 'dir'); },
+    read(path) { const n = fsTree[path]; return (n && n.type === 'file') ? n.content : null; },
+    write(path, content) {
+      const parts = path.split('/').filter(Boolean); const name = parts.pop(); const parent = '/' + parts.join('/');
+      if (!fsTree[parent]) fsTree[parent] = { type: 'dir', children: [] };
+      fsTree[parent].children ||= [];
+      if (!fsTree[parent].children.includes(name)) fsTree[parent].children.push(name);
+      fsTree[path] = { type: 'file', content: String(content) };
+      emit('fs:write', { path }); return true;
+    },
+    remove(path) {
+      const parts = path.split('/').filter(Boolean); const name = parts.pop(); const parent = '/' + parts.join('/');
+      if (!fsTree[path]) return false;
+      delete fsTree[path];
+      if (fsTree[parent]?.children) fsTree[parent].children = fsTree[parent].children.filter(c => c !== name);
+      emit('fs:remove', { path }); return true;
+    }
+  };
+
+  /* ---- App Registry ---- */
+  const apps = new Map();
+  function registerApp(def) {
+    if (!def.id || !def.name || !def.render) { console.error('[davidOS] registerApp requiere id, name y render'); return false; }
+    apps.set(def.id, {
+      id: def.id, name: def.name, icon: def.icon || '📦',
+      description: def.description || '',
+      width: def.width || 640, height: def.height || 440,
+      minWidth: def.minWidth || 340, minHeight: def.minHeight || 220,
+      toolbar: def.toolbar || null,
+      statusbar: def.statusbar || null,
+      noPad: !!def.noPad,
+      showInStart: def.showInStart !== false,
+      render: def.render,
+      mount: def.mount || null
+    });
+    emit('app:registered', def.id); renderDesktopIcons(); renderStartMenu(); return true;
+  }
+  function unregisterApp(id) { if (apps.delete(id)) { emit('app:unregistered', id); renderDesktopIcons(); renderStartMenu(); } }
+  function getApp(id) { return apps.get(id); }
+  function listApps() { return Array.from(apps.values()); }
+
+  /* ---- Window Manager ---- */
+  let zIndex = 100;
+  const openWindows = new Map();
+  let activeWinId = null;
+  const winContainer = () => document.getElementById('desktop');
+
+  function openApp(appId) {
+    const def = apps.get(appId);
+    if (!def) { notify('App no encontrada: ' + appId, 'error'); return; }
+    if (openWindows.has(appId)) {
+      const w = openWindows.get(appId);
+      w.el.classList.remove('minimized');
+      focusWindow(appId); return w;
+    }
+
+    const winId = 'win-' + appId;
+    const el = document.createElement('div');
+    el.className = 'window'; el.id = winId;
+    const cascade = (openWindows.size % 6) * 26;
+    el.style.top = (60 + cascade) + 'px';
+    el.style.left = (80 + cascade) + 'px';
+    el.style.width = def.width + 'px';
+    el.style.height = def.height + 'px';
+    el.style.minWidth = def.minWidth + 'px';
+    el.style.minHeight = def.minHeight + 'px';
+    el.style.zIndex = ++zIndex;
+
+    const toolbarHTML = def.toolbar ? `<div class="toolbar">${typeof def.toolbar === 'function' ? def.toolbar({ appId }) : def.toolbar}</div>` : '';
+    const statusHTML = def.statusbar ? `<div class="statusbar">${typeof def.statusbar === 'function' ? def.statusbar({ appId, kernel }) : def.statusbar}</div>` : '';
+    const contentClass = 'content' + (def.noPad ? ' no-pad' : '');
+
+    el.innerHTML = `
+      <div class="titlebar">
+        <div class="title"><span class="t-ico">${def.icon}</span><span class="t-name">${def.name}</span></div>
+        <div class="ctrl">
+          <button data-act="min" title="Minimizar">—</button>
+          <button data-act="max" title="Maximizar">□</button>
+          <button data-act="close" class="close" title="Cerrar">✕</button>
+        </div>
+      </div>
+      ${toolbarHTML}
+      <div class="${contentClass}" id="body-${appId}"></div>
+      ${statusHTML}
+      <div class="rh rh-n" data-rh="n"></div>
+      <div class="rh rh-s" data-rh="s"></div>
+      <div class="rh rh-e" data-rh="e"></div>
+      <div class="rh rh-w" data-rh="w"></div>
+      <div class="rh rh-ne" data-rh="ne"></div>
+      <div class="rh rh-nw" data-rh="nw"></div>
+      <div class="rh rh-se" data-rh="se"></div>
+      <div class="rh rh-sw" data-rh="sw"></div>
+    `;
+    winContainer().appendChild(el);
+
+    const bodyEl = el.querySelector('.content');
+    const ctx = {
+      root: bodyEl, appId, winEl: el,
+      fs, kernel, on, off, emit, notify, openApp,
+      closeWin: () => closeWindow(appId),
+      setTitle: (t) => { const n = el.querySelector('.t-name'); if (n) n.textContent = t; },
+      setStatus: (s) => { const sb = el.querySelector('.statusbar'); if (sb) sb.innerHTML = s; }
+    };
+
+    try {
+      const result = def.render(ctx);
+      if (typeof result === 'string') bodyEl.innerHTML = result;
+    } catch (e) {
+      bodyEl.innerHTML = `<div style="color:#ff8a92">Error al renderizar: ${e.message}</div>`;
+      console.error('[davidOS] render error:', e);
+    }
+
+    // Mount callback (after DOM is ready)
+    if (typeof def.mount === 'function') {
+      try { def.mount(ctx); } catch (e) { console.error('[davidOS] mount error:', e); }
+    }
+
+    // Controls
+    el.querySelectorAll('.ctrl button').forEach(b => {
+      b.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        const act = b.dataset.act;
+        if (act === 'close') closeWindow(appId);
+        else if (act === 'min') { el.classList.add('minimized'); renderTaskbar(); }
+        else if (act === 'max') { el.classList.toggle('maximized'); el.classList.remove('snapped-left','snapped-right'); }
+      });
+    });
+
+    el.addEventListener('mousedown', () => focusWindow(appId), true);
+
+    // Drag
+    el.querySelector('.titlebar').addEventListener('mousedown', (e) => {
+      if (e.target.closest('.ctrl')) return;
+      if (el.classList.contains('maximized')) return;
+      e.preventDefault();
+      const startX = e.clientX, startY = e.clientY;
+      const startL = el.offsetLeft, startT = el.offsetTop;
+      el.style.transition = 'none';
+      const move = (ev) => {
+        el.style.left = Math.max(0, startL + ev.clientX - startX) + 'px';
+        el.style.top = Math.max(0, startT + ev.clientY - startY) + 'px';
+      };
+      const up = () => { el.style.transition = ''; document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', up); };
+      document.addEventListener('mousemove', move);
+      document.addEventListener('mouseup', up);
+    });
+
+    // Double click maximize
+    el.querySelector('.titlebar').addEventListener('dblclick', (e) => {
+      if (e.target.closest('.ctrl')) return;
+      el.classList.toggle('maximized');
+    });
+
+    // Resize
+    el.querySelectorAll('[data-rh]').forEach(h => {
+      h.addEventListener('mousedown', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        if (el.classList.contains('maximized')) return;
+        const dir = h.dataset.rh;
+        const startX = e.clientX, startY = e.clientY;
+        const startW = el.offsetWidth, startH = el.offsetHeight;
+        const startL = el.offsetLeft, startT = el.offsetTop;
+        const minW = def.minWidth, minH = def.minHeight;
+        const move = (ev) => {
+          const dx = ev.clientX - startX, dy = ev.clientY - startY;
+          if (dir.includes('e')) el.style.width = Math.max(minW, startW + dx) + 'px';
+          if (dir.includes('s')) el.style.height = Math.max(minH, startH + dy) + 'px';
+          if (dir.includes('w')) { const nw = Math.max(minW, startW - dx); el.style.width = nw + 'px'; el.style.left = (startL + (startW - nw)) + 'px'; }
+          if (dir.includes('n')) { const nh = Math.max(minH, startH - dy); el.style.height = nh + 'px'; el.style.top = (startT + (startH - nh)) + 'px'; }
+        };
+        const up = () => { document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', up); };
+        document.addEventListener('mousemove', move);
+        document.addEventListener('mouseup', up);
+      });
+    });
+
+    kernel.spawn(appId, def.name);
+    openWindows.set(appId, { id: winId, appId, el, def });
+    focusWindow(appId);
+    renderTaskbar();
+    emit('window:open', { appId });
+    return openWindows.get(appId);
+  }
+
+  function closeWindow(appId) {
+    const w = openWindows.get(appId);
+    if (!w) return;
+    emit('window:closing', { appId });
+    w.el.classList.add('closing');
+    setTimeout(() => w.el.remove(), 160);
+    openWindows.delete(appId);
+    kernel.kill(appId);
+    renderTaskbar();
+    emit('window:close', { appId });
+  }
+
+  function focusWindow(appId) {
+    const w = openWindows.get(appId);
+    if (!w) return;
+    w.el.style.zIndex = ++zIndex;
+    openWindows.forEach(o => o.el.classList.remove('active'));
+    w.el.classList.add('active');
+    activeWinId = w.id;
+    renderTaskbar();
+  }
+
+  function toggleMinimize(appId) {
+    const w = openWindows.get(appId);
+    if (!w) return;
+    if (w.el.classList.contains('minimized') || activeWinId !== w.id) {
+      w.el.classList.remove('minimized'); focusWindow(appId);
+    } else { w.el.classList.add('minimized'); renderTaskbar(); }
+  }
+
+  function renderTaskbar() {
+    const bar = document.getElementById('runningApps');
+    if (!bar) return;
+    bar.innerHTML = '';
+    openWindows.forEach((w, appId) => {
+      const btn = document.createElement('button');
+      const isMin = w.el.classList.contains('minimized');
+      btn.className = 'run-btn' + (activeWinId === w.id && !isMin ? ' focused' : '') + (isMin ? ' min' : '');
+      btn.innerHTML = `<span class="dot"></span><span>${w.def.icon} ${w.def.name}</span>`;
+      btn.addEventListener('click', () => toggleMinimize(appId));
+      btn.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        showCtxMenu(e.clientX, e.clientY, [
+          { icon: '📌', label: 'Enfocar', action: () => focusWindow(appId) },
+          { icon: '➖', label: 'Minimizar', action: () => { w.el.classList.add('minimized'); renderTaskbar(); } },
+          { icon: '🔲', label: 'Maximizar', action: () => w.el.classList.toggle('maximized') },
+          { sep: true },
+          { icon: '❌', label: 'Cerrar', action: () => closeWindow(appId) }
+        ]);
+      });
+      bar.appendChild(btn);
+    });
+  }
+
+  function notify(msg, type) {
+    const host = document.getElementById('notifs');
+    if (!host) { console.log('[davidOS]', msg); return; }
+    const el = document.createElement('div');
+    el.className = 'notif ' + (type || 'info');
+    el.innerHTML = `<strong>davidOS</strong>${msg}`;
+    host.appendChild(el);
+    setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 300); }, 3800);
+    emit('notify', { msg, type });
+  }
+
+  function renderDesktopIcons() {
+    const grid = document.getElementById('icons');
+    if (!grid) return;
+    grid.innerHTML = '';
+    listApps().forEach(app => {
+      const el = document.createElement('div');
+      el.className = 'icon';
+      el.innerHTML = `<div class="glyph">${app.icon}</div><div class="label">${app.name}</div>`;
+      el.addEventListener('dblclick', () => openApp(app.id));
+      el.addEventListener('click', () => {
+        document.querySelectorAll('.icon').forEach(i => i.classList.remove('selected'));
+        el.classList.add('selected');
+      });
+      el.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        document.querySelectorAll('.icon').forEach(i => i.classList.remove('selected'));
+        el.classList.add('selected');
+        showCtxMenu(e.clientX, e.clientY, [
+          { icon: '▶️', label: 'Abrir', action: () => openApp(app.id) },
+          { icon: '📋', label: 'Copiar ID', action: () => { navigator.clipboard?.writeText(app.id); notify('ID copiado: ' + app.id); } },
+          { sep: true },
+          { icon: '⚙️', label: 'Propiedades', action: () => notify(`App: ${app.name}\nID: ${app.id}\nTamaño: ${app.width}×${app.height}`) }
+        ]);
+      });
+      grid.appendChild(el);
+    });
+  }
+
+  function renderStartMenu() {
+    const grid = document.getElementById('smGrid');
+    const badge = document.getElementById('appCount');
+    if (!grid) return;
+    grid.innerHTML = '';
+    const list = listApps().filter(a => a.showInStart);
+    if (badge) badge.textContent = list.length + ' app(s)';
+    list.forEach(app => {
+      const el = document.createElement('div');
+      el.className = 'sm-app';
+      el.innerHTML = `<div class="g">${app.icon}</div><div class="n">${app.name}</div>`;
+      el.addEventListener('click', () => { openApp(app.id); closeStartMenu(); });
+      grid.appendChild(el);
+    });
+  }
+  function openStartMenu() { document.getElementById('startMenu')?.classList.add('open'); setTimeout(() => document.getElementById('smSearch')?.focus(), 30); }
+  function closeStartMenu() { document.getElementById('startMenu')?.classList.remove('open'); }
+  function toggleStartMenu() { const m = document.getElementById('startMenu'); m?.classList.contains('open') ? closeStartMenu() : openStartMenu(); }
+
+  let ctxOpen = false;
+  function showCtxMenu(x, y, items) {
+    const menu = document.getElementById('ctxMenu');
+    if (!menu) return;
+    menu.innerHTML = items.map(it => it.sep ? '<div class="ctx-sep"></div>' : `<div class="ctx-item${it.disabled?' disabled':''}"><span style="width:16px;display:inline-block;text-align:center;">${it.icon || ''}</span><span>${it.label}</span></div>`).join('');
+    const realItems = items.filter(it => !it.sep);
+    menu.querySelectorAll('.ctx-item').forEach((el, i) => el.addEventListener('click', () => {
+      if (realItems[i]?.disabled) return;
+      realItems[i]?.action?.(); hideCtxMenu();
+    }));
+    menu.style.left = Math.min(x, innerWidth - 220) + 'px';
+    menu.style.top = Math.min(y, innerHeight - 260) + 'px';
+    menu.classList.add('on');
+    ctxOpen = true;
+  }
+  function hideCtxMenu() { document.getElementById('ctxMenu')?.classList.remove('on'); ctxOpen = false; }
+
+  function updateClock() {
+    const now = new Date();
+    const tEl = document.getElementById('clockTime');
+    const dEl = document.getElementById('clockDate');
+    if (tEl) tEl.textContent = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+    if (dEl) dEl.textContent = now.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+  function updateTray() {
+    const s = kernel.stats();
+    const cpu = document.getElementById('trayCpu');
+    const mem = document.getElementById('trayMem');
+    if (cpu) cpu.textContent = '⚙️ ' + s.processes + 'p';
+    if (mem) mem.textContent = '💾 ' + s.memoryUsedMB + 'MB';
+  }
+
+  function setupShortcuts() {
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Meta' || e.key === 'OS') { e.preventDefault(); toggleStartMenu(); return; }
+      if (e.altKey && (e.key === 'k' || e.key === 'K')) { e.preventDefault(); openStartMenu(); document.getElementById('smSearch')?.focus(); return; }
+      if (e.altKey && (e.key === 't' || e.key === 'T')) { e.preventDefault(); if (apps.has('terminal')) openApp('terminal'); return; }
+      if (e.key === 'Escape') { closeStartMenu(); hideCtxMenu(); }
+      if (!activeWinId) return;
+      const w = openWindows.get(activeWinId.replace('win-', ''));
+      if (!w) return;
+      if (e.altKey && e.key === 'F4') { e.preventDefault(); closeWindow(w.appId); }
+      if (e.ctrlKey && e.key === 'ArrowLeft') { e.preventDefault(); w.el.classList.remove('maximized','snapped-right'); w.el.classList.add('snapped-left'); }
+      if (e.ctrlKey && e.key === 'ArrowRight') { e.preventDefault(); w.el.classList.remove('maximized','snapped-left'); w.el.classList.add('snapped-right'); }
+      if (e.ctrlKey && e.key === 'ArrowUp') { e.preventDefault(); w.el.classList.toggle('maximized'); }
+    });
+  }
+
+  const BOOT_TIME = Date.now();
+  const BOOT_LOGS = ['POST: CPU OK, RAM 8192 MB OK','Inicializando davidKernel v1.2...','Montando VFS virtual...','Arrancando Window Manager...','Registrando apps...','davidOS Engine listo.'];
+  function boot() {
+    const fill = document.getElementById('bootFill');
+    const sub = document.getElementById('bootSub');
+    let i = 0;
+    const step = () => {
+      if (i < BOOT_LOGS.length) {
+        sub.textContent = BOOT_LOGS[i];
+        fill.style.width = Math.round(((i + 1) / BOOT_LOGS.length) * 100) + '%';
+        i++; setTimeout(step, 260);
+      } else {
+        setTimeout(() => {
+          document.getElementById('boot').classList.add('hide');
+          document.getElementById('desktop').classList.add('on');
+          startSystem();
+        }, 380);
+      }
+    };
+    step();
+  }
+
+  function startSystem() {
+    renderDesktopIcons(); renderStartMenu(); updateClock(); updateTray();
+    setInterval(updateClock, 1000);
+    setInterval(updateTray, 2000);
+
+    document.getElementById('startBtn').addEventListener('click', toggleStartMenu);
+    document.getElementById('shutdownBtn').addEventListener('click', () => { notify('Apagando davidOS...', 'warn'); setTimeout(() => location.reload(), 900); });
+    document.getElementById('smSearch').addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase();
+      document.querySelectorAll('.sm-app').forEach(el => { el.style.display = el.textContent.toLowerCase().includes(q) ? '' : 'none'; });
+    });
+    document.getElementById('clock').addEventListener('click', () => notify(new Date().toLocaleString('es-ES', { dateStyle: 'full', timeStyle: 'short' })));
+
+    document.addEventListener('contextmenu', (e) => {
+      if (e.target.closest('.window') || e.target.closest('#taskbar')) return;
+      e.preventDefault();
+      showCtxMenu(e.clientX, e.clientY, [
+        { icon: '🖥️', label: 'Actualizar', action: () => { renderDesktopIcons(); notify('Escritorio actualizado'); } },
+        { icon: '📝', label: 'Nueva nota', action: () => openApp('notepad') },
+        { sep: true },
+        { icon: 'ℹ️', label: 'Acerca de davidOS Engine', action: () => openApp('about') }
+      ]);
+    });
+
+    document.addEventListener('click', (e) => {
+      if (ctxOpen && !e.target.closest('#ctxMenu')) hideCtxMenu();
+      if (!e.target.closest('#startMenu') && !e.target.closest('#startBtn')) closeStartMenu();
+      if (!e.target.closest('.icon')) document.querySelectorAll('.icon').forEach(i => i.classList.remove('selected'));
+    });
+
+    setupShortcuts();
+    emit('system:ready');
+    notify('davidOS Engine iniciado correctamente', 'success');
+    console.log('%c davidOS Engine v1.2 — listo ', 'background:#0078d4;color:white;padding:4px 10px;border-radius:5px;font-weight:bold;');
+    console.log('Prueba: davidOS.help()');
+  }
+
+  return {
+    kernel, fs,
+    registerApp, unregisterApp, getApp, listApps,
+    openApp, closeWindow, focusWindow, toggleMinimize,
+    get openWindows() { return Array.from(openWindows.values()); },
+    on, off, emit, notify, openStartMenu, closeStartMenu,
+    version: kernel.version,
+    help() {
+      console.log(`%c davidOS Engine v${kernel.version} — API `, 'background:#7b2ff7;color:#fff;padding:4px 10px;border-radius:5px;font-weight:bold;');
+      console.table([
+        { método: 'davidOS.registerApp({id,name,icon,render,mount,toolbar,statusbar})', desc: 'Registra una app' },
+        { método: 'davidOS.openApp(id)', desc: 'Abre una ventana' },
+        { método: 'davidOS.closeWindow(id)', desc: 'Cierra ventana' },
+        { método: 'davidOS.notify(msg, tipo)', desc: 'Notificación (info/success/warn/error)' },
+        { método: 'davidOS.fs.read(path)', desc: 'Lee archivo' },
+        { método: 'davidOS.fs.write(path, c)', desc: 'Escribe archivo' },
+        { método: 'davidOS.fs.ls(path)', desc: 'Lista directorio' },
+        { método: 'davidOS.kernel.stats()', desc: 'Stats del kernel' },
+        { método: 'davidOS.on(evt, fn)', desc: 'Escucha evento' },
+      ]);
+    },
+    boot
+  };
+})();
+
+/* ============================================================================
+   APPS
+   ========================================================================== */
+
+/* ---------- ℹ️ Acerca de ---------- */
+davidOS.registerApp({
+  id: 'about', name: 'Acerca de', icon: 'ℹ️', width: 500, height: 500,
+  toolbar: `<button class="tool-btn" data-act="hi">👋 Saludo</button>
+            <div class="tb-sep"></div>
+            <button class="tool-btn" data-act="term">💻 Abrir Terminal</button>
+            <button class="tool-btn" data-act="mon">📊 Abrir Monitor</button>`,
+  statusbar: () => {
+    const s = davidOS.kernel.stats();
+    return `<span>v${s.version} · ${s.build}</span><span>${s.processes} procesos</span>`;
+  },
+  render() {
+    return `
+      <div class="about-hero">
+        <div class="about-logo">🚪</div>
+        <div style="font-size:18px;font-weight:600;">davidOS Engine</div>
+        <div style="font-size:12px;color:var(--text-dim);margin-top:4px;">Web Operating System Kernel</div>
+      </div>
+      <div class="app-h2">Información</div>
+      <div class="kv"><span>Versión</span><b>${davidOS.kernel.version}</b></div>
+      <div class="kv"><span>Build</span><b>${davidOS.kernel.build}</b></div>
+      <div class="kv"><span>Apps registradas</span><b>${davidOS.listApps().length}</b></div>
+      <div class="kv"><span>Procesos activos</span><b>${davidOS.kernel.stats().processes}</b></div>
+      <div class="kv"><span>Ventanas abiertas</span><b>${davidOS.openWindows.length}</b></div>
+      <div class="app-h2">API pública</div>
+      <div class="app-p">Abre la consola del navegador y ejecuta <code style="background:rgba(255,255,255,.07);padding:1px 6px;border-radius:4px;font-family:ui-monospace,monospace;">davidOS.help()</code> para ver todos los métodos disponibles.</div>
+    `;
+  },
+  mount(ctx) {
+    const el = ctx.winEl;
+    el.querySelector('[data-act="hi"]').onclick = () => davidOS.notify('¡Hola desde Acerca de! 👋', 'success');
+    el.querySelector('[data-act="term"]').onclick = () => davidOS.openApp('terminal');
+    el.querySelector('[data-act="mon"]').onclick = () => davidOS.openApp('sysmon');
+  }
+});
+
+/* ---------- 💻 Terminal ---------- */
+davidOS.registerApp({
+  id: 'terminal', name: 'Terminal', icon: '💻', width: 720, height: 460, noPad: true,
+  toolbar: `<button class="tool-btn" data-act="clear">🧹 Limpiar</button>
+            <div class="tb-sep"></div>
+            <span style="font-size:11px;color:var(--text-dim);">bash · davidOS Engine</span>`,
+  statusbar: `<span>david@engine:~$</span><span>UTF-8 · Cols 80 · Rows 24</span>`,
+  render() {
+    return `<div class="term" id="termRoot"></div>`;
+  },
+  mount(ctx) {
+    const wrap = ctx.winEl.querySelector('#termRoot');
+    const print = (txt, cls) => {
+      const d = document.createElement('div');
+      if (cls) d.className = cls;
+      d.innerHTML = txt.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\n/g,'<br>');
+      wrap.insertBefore(d, line);
+      wrap.scrollTop = wrap.scrollHeight;
+    };
+    const line = document.createElement('div');
+    line.style.display = 'flex';
+    line.style.gap = '6px';
+    line.innerHTML = '<span style="color:#4aa3ff;font-weight:600;">david@engine</span><span style="color:#7dffb0">:~$</span> ';
+    const input = document.createElement('input');
+    input.className = 'term-input';
+    input.style.flex = '1';
+    input.autocomplete = 'off';
+    line.appendChild(input);
+    wrap.appendChild(line);
+
+    print(`davidOS Engine v${davidOS.kernel.version} (${davidOS.kernel.build})`);
+    print('Escribe <b>help</b> para ver los comandos disponibles.\n');
+
+    const CMDS = {
+      help() {
+        print(`Comandos disponibles:
+  help               Muestra esta ayuda
+  clear              Limpia la pantalla
+  ls [ruta]          Lista el directorio (por defecto /)
+  cat <archivo>      Muestra el contenido de un archivo
+  echo <texto>       Imprime texto
+  whoami             Nombre de usuario
+  uptime             Tiempo encendido
+  date               Fecha y hora actual
+  ps                 Procesos del kernel
+  stats              Estadísticas del sistema
+  apps               Lista las apps registradas
+  open <appId>       Abre una app
+  notify <texto>     Muestra una notificación
+  write <r> <txt>    Escribe un archivo
+  reset              Reinicia el sistema`);
+      },
+      clear() { wrap.querySelectorAll('div').forEach(d => { if (d !== line) d.remove(); }); wrap.insertBefore(line, null); input.focus(); },
+      ls(arg) {
+        const items = davidOS.fs.ls(arg || '/');
+        if (!items) return print(`No existe: ${arg || '/'}`, 'err');
+        if (!items.length) return print('(vacío)');
+        items.forEach(it => print('  ' + it));
+      },
+      cat(arg) {
+        if (!arg) return print('Uso: cat <archivo>', 'err');
+        const t = davidOS.fs.read(arg);
+        if (t == null) return print(`Archivo no encontrado: ${arg}`, 'err');
+        print(t);
+      },
+      echo(arg) { print(arg || ''); },
+      whoami() { print('david'); },
+      uptime() { const s = davidOS.kernel.stats(); const sec = Math.floor(s.uptime/1000); print(`${Math.floor(sec/60)}m ${sec%60}s`); },
+      date() { print(new Date().toLocaleString('es-ES')); },
+      ps() {
+        const procs = davidOS.kernel.processes;
+        if (!procs.length) return print('(sin procesos)');
+        print('  PID   NOMBRE                 MEM');
+        print('  ' + '-'.repeat(34));
+        procs.forEach(p => print(`  ${String(p.pid).padEnd(5)} ${p.name.padEnd(22)} ${p.memory}MB`));
+      },
+      stats() {
+        const s = davidOS.kernel.stats();
+        print(`Kernel:      v${s.version} (${s.build})`);
+        print(`Procesos:    ${s.processes}`);
+        print(`Ventanas:    ${davidOS.openWindows.length}`);
+        print(`RAM:         ${s.memoryUsedMB} / ${s.memoryMaxMB} MB`);
+      },
+      apps() {
+        davidOS.listApps().forEach(a => print(`  ${a.icon}  ${a.id.padEnd(14)} ${a.name}`));
+      },
+      open(arg) {
+        if (!arg) return print('Uso: open <appId>', 'err');
+        if (!davidOS.getApp(arg)) return print(`App no encontrada: ${arg}`, 'err');
+        davidOS.openApp(arg); print(`Abriendo ${arg}...`);
+      },
+      notify(arg) { davidOS.notify(arg || 'Desde la terminal', 'info'); print('Notificación enviada.'); },
+      write(rest) {
+        const [path, ...txt] = rest.split(' ');
+        if (!path) return print('Uso: write <ruta> <texto>', 'err');
+        davidOS.fs.write(path, txt.join(' '));
+        print(`Escrito: ${path}`);
+      },
+      reset() { print('Reiniciando...'); setTimeout(() => location.reload(), 500); }
+    };
+
+    const exec = (raw) => {
+      const cmd = raw.trim();
+      if (!cmd) return;
+      print(`<span style="color:#4aa3ff;font-weight:600;">david@engine</span><span style="color:#7dffb0">:~$</span> ${cmd.replace(/</g,'&lt;')}`, 'in');
+      const [name, ...rest] = cmd.split(/\s+/);
+      const fn = CMDS[name];
+      if (fn) fn(rest.join(' '));
+      else print(`Comando desconocido: ${name}. Escribe "help".`, 'err');
+    };
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { exec(input.value); input.value = ''; }
+      else if (e.key === 'ArrowUp') {
+        // simple history
+        if (!input.dataset.hist) input.dataset.hist = JSON.stringify([]);
+      }
+    });
+
+    ctx.winEl.querySelector('[data-act="clear"]').onclick = () => CMDS.clear();
+    setTimeout(() => input.focus(), 60);
+  }
+});
+
+/* ---------- 📝 Bloc de notas ---------- */
+davidOS.registerApp({
+  id: 'notepad', name: 'Bloc de notas', icon: '📝', width: 620, height: 480,
+  toolbar: `<button class="tool-btn" data-act="new">📄 Nuevo</button>
+            <button class="tool-btn" data-act="open">📂 Abrir</button>
+            <button class="tool-btn primary" data-act="save">💾 Guardar</button>
+            <div class="tb-sep"></div>
+            <span id="npStats" style="font-size:11px;color:var(--text-dim);"></span>`,
+  statusbar: `<span id="npPath">/tmp/notepad.txt</span><span>UTF-8</span>`,
+  render() {
+    const saved = davidOS.fs.read('/tmp/notepad.txt') || '';
+    return `<textarea class="ta" id="npText" style="height:100%;min-height:200px;">${saved.replace(/</g,'&lt;')}</textarea>`;
+  },
+  mount(ctx) {
+    const ta = ctx.winEl.querySelector('#npText');
+    const stats = ctx.winEl.querySelector('#npStats');
+    const path = ctx.winEl.querySelector('#npPath');
+    const updateStats = () => {
+      const txt = ta.value;
+      const chars = txt.length;
+      const words = txt.trim() ? txt.trim().split(/\s+/).length : 0;
+      const lines = txt ? txt.split('\n').length : 0;
+      if (stats) stats.textContent = `${chars} caracteres · ${words} palabras · ${lines} líneas`;
+    };
+    updateStats();
+    ta.addEventListener('input', updateStats);
+
+    ctx.winEl.querySelector('[data-act="save"]').onclick = () => {
+      davidOS.fs.write('/tmp/notepad.txt', ta.value);
+      davidOS.notify('💾 Nota guardada en /tmp/notepad.txt', 'success');
+    };
+    ctx.winEl.querySelector('[data-act="open"]').onclick = () => {
+      const files = Object.keys(davidOS.fs.ls('/tmp') || []).length ? davidOS.fs.ls('/tmp') : [];
+      const list = (files || []).filter(f => f.endsWith('.txt') || f.endsWith('.md'));
+      if (!list.length) {
+        ta.value = davidOS.fs.read('/tmp/notepad.txt') || '';
+      } else {
+        const name = prompt('Abrir archivo de /tmp:\n' + list.join('\n') + '\n\nEscribe el nombre:');
+        if (name) {
+          ta.value = davidOS.fs.read('/tmp/' + name) || davidOS.fs.read('/home/david/' + name) || '';
+        }
+      }
+      updateStats();
+    };
+    ctx.winEl.querySelector('[data-act="new"]').onclick = () => {
+      ta.value = '';
+      updateStats();
+      ta.focus();
+    };
+
+    // Auto-guardado silencioso cada 3 segundos si hay cambios
+    let lastSaved = ta.value;
+    setInterval(() => {
+      if (ta.value !== lastSaved) {
+        davidOS.fs.write('/tmp/notepad.txt', ta.value);
+        lastSaved = ta.value;
+      }
+    }, 3000);
+  }
+});
+
+/* ---------- 📊 Monitor del sistema ---------- */
+davidOS.registerApp({
+  id: 'sysmon', name: 'Monitor', icon: '📊', width: 540, height: 500,
+  toolbar: `<button class="tool-btn" data-act="refresh">🔄 Refrescar ahora</button>
+            <div class="tb-sep"></div>
+            <span style="font-size:11px;color:var(--text-dim);">Auto-refresh: 1s</span>`,
+  statusbar: () => {
+    const s = davidOS.kernel.stats();
+    return `<span>RAM: ${s.memoryUsedMB} / ${s.memoryMaxMB} MB</span><span>Procesos: ${s.processes}</span>`;
+  },
+  render() {
+    return `<div id="monBody"></div>`;
+  },
+  mount(ctx) {
+    const el = ctx.winEl.querySelector('#monBody');
+    let timerId = null;
+    const render = () => {
+      const s = davidOS.kernel.stats();
+      const pct = Math.min(100, Math.round(s.memoryUsedMB / s.memoryMaxMB * 100));
+      const sec = Math.floor(s.uptime / 1000);
+      el.innerHTML = `
+        <div class="app-h1">📊 Monitor del sistema</div>
+        <div class="kv"><span>Kernel</span><b>v${s.version} · ${s.build}</b></div>
+        <div class="kv"><span>Procesos activos</span><b>${s.processes}</b></div>
+        <div class="kv"><span>Ventanas abiertas</span><b>${davidOS.openWindows.length}</b></div>
+        <div class="kv"><span>RAM usada</span><b>${s.memoryUsedMB} / ${s.memoryMaxMB} MB</b></div>
+        <div class="kv"><span>Uptime</span><b>${Math.floor(sec/60)}m ${sec%60}s</b></div>
+
+        <div class="app-h2">Uso de memoria</div>
+        <div style="height:10px;background:rgba(255,255,255,.08);border-radius:5px;overflow:hidden;">
+          <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width .5s;"></div>
+        </div>
+        <div style="text-align:right;font-size:11px;color:var(--text-dim);margin-top:4px;">${pct}%</div>
+
+        <div class="app-h2">Procesos activos</div>
+        <div style="font-size:11.5px;font-family:ui-monospace,monospace;max-height:180px;overflow:auto;background:rgba(0,0,0,.25);border-radius:6px;padding:8px;">
+          ${davidOS.kernel.processes.length
+            ? davidOS.kernel.processes.map(p => `<div style="padding:4px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:8px;"><span style="overflow:hidden;text-overflow:ellipsis;">PID ${p.pid} · ${p.name}</span><span style="color:var(--accent-2);flex-shrink:0;">${p.memory}MB</span></div>`).join('')
+            : '<div style="opacity:.5;text-align:center;padding:10px;">Sin procesos</div>'}
+        </div>
+      `;
+    };
+    render();
+    timerId = setInterval(render, 1000);
+
+    ctx.winEl.querySelector('[data-act="refresh"]').onclick = render;
+
+    davidOS.on('window:close', function h(e) {
+      if (e.appId === 'sysmon') { clearInterval(timerId); davidOS.off('window:close', h); }
+    });
+    davidOS.on('window:open', render);
+    davidOS.on('window:close', render);
+  }
+});
+
+/* ---------- 🧮 Calculadora ---------- */
+davidOS.registerApp({
+  id: 'calc', name: 'Calculadora', icon: '🧮', width: 340, height: 500, minWidth: 300, minHeight: 440,
+  statusbar: `<span>Estándar</span><span>davidOS Calc v1.2</span>`,
+  render() {
+    return `
+      <div style="display:flex;flex-direction:column;height:100%;gap:10px;">
+        <div class="calc-disp">
+          <div class="calc-sub" id="calcSub"></div>
+          <div class="calc-main" id="calcDisp">0</div>
+        </div>
+        <div class="calc-pad" id="calcPad"></div>
+      </div>
+    `;
+  },
+  mount(ctx) {
+    const pad = ctx.winEl.querySelector('#calcPad');
+    const disp = ctx.winEl.querySelector('#calcDisp');
+    const sub = ctx.winEl.querySelector('#calcSub');
+    let expr = '';
+
+    const evaluate = (s) => {
+      const safe = s.replace(/÷/g,'/').replace(/×/g,'*').replace(/−/g,'-').replace(/\^/g,'**');
+      if (!/^[\d+\-*/(). %]+$/.test(safe)) throw new Error('invalid');
+      return Function('"use strict"; return (' + safe + ')')();
+    };
+
+    const handle = (k) => {
+      if (k === 'C') { expr = ''; disp.textContent = '0'; sub.textContent = ''; return; }
+      if (k === '⌫') { expr = expr.slice(0, -1); disp.textContent = expr || '0'; return; }
+      if (k === '=') {
+        try {
+          const r = evaluate(expr);
+          sub.textContent = expr + ' =';
+          disp.textContent = r;
+          expr = String(r);
+        } catch { disp.textContent = 'Error'; expr = ''; }
+        return;
+      }
+      if (k === '√') {
+        try { const r = Math.sqrt(evaluate(expr)); sub.textContent = '√(' + expr + ')'; expr = String(r); disp.textContent = r; }
+        catch { disp.textContent = 'Error'; expr = ''; }
+        return;
+      }
+      if (k === '%') {
+        try { const r = evaluate(expr) / 100; sub.textContent = expr + '%'; expr = String(r); disp.textContent = r; }
+        catch {}
+        return;
+      }
+      // Number or operator
+      expr += k;
+      disp.textContent = expr;
+    };
+
+    const keys = ['C','⌫','%','÷','7','8','9','×','4','5','6','−','1','2','3','+','0','.','√','='];
+    keys.forEach(k => {
+      const b = document.createElement('button');
+      b.className = 'calc-btn';
+      b.textContent = k;
+      if ('÷×−+'.includes(k)) b.classList.add('op');
+      if (k === '=') b.classList.add('eq');
+      b.addEventListener('click', () => handle(k));
+      pad.appendChild(b);
+    });
+
+    // Keyboard support
+    const keyHandler = (e) => {
+      if (!ctx.winEl.classList.contains('active')) return;
+      if (/^[0-9]$/.test(e.key)) handle(e.key);
+      else if (e.key === '.') handle('.');
+      else if (e.key === '+') handle('+');
+      else if (e.key === '-') handle('−');
+      else if (e.key === '*') handle('×');
+      else if (e.key === '/') { e.preventDefault(); handle('÷'); }
+      else if (e.key === 'Enter' || e.key === '=') { e.preventDefault(); handle('='); }
+      else if (e.key === 'Backspace') handle('⌫');
+      else if (e.key === 'Escape' || e.key.toLowerCase() === 'c') handle('C');
+    };
+    document.addEventListener('keydown', keyHandler);
+    davidOS.on('window:close', function h(ev) {
+      if (ev.appId === 'calc') { document.removeEventListener('keydown', keyHandler); davidOS.off('window:close', h); }
+    });
+  }
+});
+
+/* ---------- 📁 Explorador de archivos ---------- */
+davidOS.registerApp({
+  id: 'files', name: 'Archivos', icon: '📁', width: 640, height: 460,
+  toolbar: `<button class="tool-btn" data-act="up">⬆ Atrás</button>
+            <button class="tool-btn" data-act="home">🏠 Inicio</button>
+            <button class="tool-btn" data-act="root">🌳 Raíz</button>
+            <div class="tb-sep"></div>
+            <span id="fsPathLabel" style="font-size:11px;color:var(--accent-2);font-family:ui-monospace,monospace;"></span>`,
+  statusbar: `<span id="fsCount">0 elementos</span><span>VFS davidOS</span>`,
+  render() {
+    return `<div id="fsList" style="padding:4px;"></div>`;
+  },
+  mount(ctx) {
+    let path = '/home/david';
+    const list = ctx.winEl.querySelector('#fsList');
+    const pathLabel = ctx.winEl.querySelector('#fsPathLabel');
+    const countLabel = ctx.winEl.querySelector('#fsCount');
+
+    const render = () => {
+      const items = davidOS.fs.ls(path) || [];
+      if (pathLabel) pathLabel.textContent = path;
+      if (countLabel) countLabel.textContent = items.length + ' elemento(s)';
+      if (!items.length) { list.innerHTML = '<div style="opacity:.5;padding:30px;text-align:center;">Carpeta vacía</div>'; return; }
+      list.innerHTML = items.map(name => {
+        const full = path === '/' ? '/' + name : path + '/' + name;
+        const isDir = davidOS.fs.isDir(full);
+        return `<div class="file-row" data-path="${full}" data-type="${isDir?'dir':'file'}">
+          <span class="fico">${isDir?'📁':'📄'}</span>
+          <span class="fname">${name}</span>
+          <span style="font-size:11px;color:var(--text-dim);">${isDir?'Carpeta':'Archivo'}</span>
+        </div>`;
+      }).join('');
+      list.querySelectorAll('.file-row').forEach(row => {
+        row.addEventListener('click', () => {
+          list.querySelectorAll('.file-row').forEach(r => r.classList.remove('selected'));
+          row.classList.add('selected');
+        });
+        row.addEventListener('dblclick', () => {
+          const p = row.dataset.path;
+          if (row.dataset.type === 'dir') { path = p; render(); }
+          else {
+            const content = davidOS.fs.read(p);
+            davidOS.notify(`📄 ${p}\n\n${(content||'').slice(0, 200)}${(content||'').length>200?'…':''}`);
+          }
+        });
+      });
+    };
+    render();
+
+    ctx.winEl.querySelector('[data-act="up"]').onclick = () => {
+      if (path === '/') return;
+      const parts = path.split('/').filter(Boolean); parts.pop();
+      path = '/' + parts.join('/');
+      render();
+    };
+    ctx.winEl.querySelector('[data-act="home"]').onclick = () => { path = '/home/david'; render(); };
+    ctx.winEl.querySelector('[data-act="root"]').onclick = () => { path = '/'; render(); };
+
+    davidOS.on('fs:write', render);
+    davidOS.on('fs:remove', render);
+  }
+});
+
+/* ---------- 🎨 Paint ---------- */
+davidOS.registerApp({
+  id: 'paint', name: 'Paint', icon: '🎨', width: 700, height: 520, noPad: true,
+  toolbar: `<button class="tool-btn" data-act="clear">🗑️ Limpiar</button>
+            <button class="tool-btn" data-act="save">💾 Guardar PNG</button>
+            <div class="tb-sep"></div>
+            <label style="font-size:11px;color:var(--text-dim);display:flex;align-items:center;gap:6px;">Color <input type="color" id="paintColor" value="#0078d4" style="width:34px;height:26px;border:1px solid var(--border-hi);border-radius:5px;background:transparent;cursor:pointer;padding:2px;"></label>
+            <label style="font-size:11px;color:var(--text-dim);display:flex;align-items:center;gap:6px;">Grosor <input type="range" id="paintSize" min="1" max="30" value="4" style="width:100px;accent-color:var(--accent);"></label>`,
+  statusbar: `<span>Pincel</span><span id="paintInfo">x: 0, y: 0</span>`,
+  render() {
+    return `
+      <div class="paint-canvas-wrap">
+        <canvas id="paintCanvas" width="800" height="500"></canvas>
+      </div>
+    `;
+  },
+  mount(ctx) {
+    const canvas = ctx.winEl.querySelector('#paintCanvas');
+    const canvasWrap = ctx.winEl.querySelector('.paint-canvas-wrap');
+    const colorInput = ctx.winEl.querySelector('#paintColor');
+    const sizeInput = ctx.winEl.querySelector('#paintSize');
+    const info = ctx.winEl.querySelector('#paintInfo');
+    const c2d = canvas.getContext('2d');
+
+    // Ajustar canvas al contenedor
+    const resize = () => {
+      const rect = canvasWrap.getBoundingClientRect();
+      const w = Math.max(200, Math.floor(rect.width - 20));
+      const h = Math.max(150, Math.floor(rect.height - 20));
+      // Preservar contenido
+      const snap = c2d.getImageData(0, 0, canvas.width, canvas.height);
+      canvas.width = w; canvas.height = h;
+      c2d.putImageData(snap, 0, 0);
+      c2d.fillStyle = '#fff';
+      // Redibujar fondo
+      c2d.fillRect(0, 0, canvas.width, canvas.height);
+      c2d.putImageData(snap, 0, 0);
+    };
+    resize();
+    // Rellenar fondo blanco inicial
+    c2d.fillStyle = '#fff';
+    c2d.fillRect(0, 0, canvas.width, canvas.height);
+    window.addEventListener('resize', resize);
+
+    let painting = false, lastX = 0, lastY = 0;
+    const getPos = (e) => {
+      const rect = canvas.getBoundingClientRect();
+      return {
+        x: (e.clientX - rect.left) * (canvas.width / rect.width),
+        y: (e.clientY - rect.top) * (canvas.height / rect.height)
+      };
+    };
+    const start = (e) => {
+      painting = true;
+      const p = getPos(e); lastX = p.x; lastY = p.y;
+      c2d.beginPath();
+      c2d.arc(p.x, p.y, sizeInput.value / 2, 0, Math.PI*2);
+      c2d.fillStyle = colorInput.value;
+      c2d.fill();
+    };
+    const draw = (e) => {
+      const p = getPos(e);
+      if (info) info.textContent = `x: ${Math.round(p.x)}, y: ${Math.round(p.y)}`;
+      if (!painting) return;
+      c2d.strokeStyle = colorInput.value;
+      c2d.lineWidth = sizeInput.value;
+      c2d.lineCap = 'round';
+      c2d.lineJoin = 'round';
+      c2d.beginPath();
+      c2d.moveTo(lastX, lastY);
+      c2d.lineTo(p.x, p.y);
+      c2d.stroke();
+      lastX = p.x; lastY = p.y;
+    };
+    const end = () => { painting = false; };
+
+    canvas.addEventListener('mousedown', start);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', end);
+    canvas.addEventListener('mouseleave', end);
+
+    ctx.winEl.querySelector('[data-act="clear"]').onclick = () => {
+      c2d.fillStyle = '#fff';
+      c2d.fillRect(0, 0, canvas.width, canvas.height);
+    };
+    ctx.winEl.querySelector('[data-act="save"]').onclick = () => {
+      const a = document.createElement('a');
+      a.download = 'davidOS-paint-' + Date.now() + '.png';
+      a.href = canvas.toDataURL('image/png');
+      a.click();
+      davidOS.notify('💾 Imagen descargada', 'success');
+    };
+
+    davidOS.on('window:close', function h(e) {
+      if (e.appId === 'paint') { window.removeEventListener('resize', resize); davidOS.off('window:close', h); }
+    });
+  }
+});
+
+/* ---------- 🔔 Recordatorios / Sistema de notas ---------- */
+davidOS.registerApp({
+  id: 'tasks', name: 'Tareas', icon: '✅', width: 500, height: 460,
+  toolbar: `<button class="tool-btn primary" data-act="add">➕ Añadir tarea</button>
+            <button class="tool-btn" data-act="clear-done">🧹 Limpiar completadas</button>`,
+  statusbar: () => {
+    const n = (davidOS.fs.read('/tmp/tasks.json') ? JSON.parse(davidOS.fs.read('/tmp/tasks.json')) : []).length;
+    return `<span>${n} tareas</span><span>davidOS Tasks</span>`;
+  },
+  render() {
+    return `<div id="taskList"></div>`;
+  },
+  mount(ctx) {
+    const list = ctx.winEl.querySelector('#taskList');
+    let tasks = [];
+    try { tasks = JSON.parse(davidOS.fs.read('/tmp/tasks.json') || '[]'); } catch {}
+    const persist = () => davidOS.fs.write('/tmp/tasks.json', JSON.stringify(tasks));
+
+    const render = () => {
+      if (!tasks.length) {
+        list.innerHTML = '<div style="opacity:.5;padding:30px;text-align:center;">Sin tareas. Añade una con el botón de arriba.</div>';
+        return;
+      }
+      list.innerHTML = tasks.map((tk, i) => `
+        <div class="file-row" data-i="${i}">
+          <input type="checkbox" ${tk.done?'checked':''} data-i="${i}" class="tk-check" style="cursor:pointer;">
+          <span class="fname" style="text-decoration:${tk.done?'line-through':'none'};opacity:${tk.done?0.5:1};">${tk.text}</span>
+          <span style="font-size:11px;color:var(--text-dim);">${new Date(tk.createdAt).toLocaleDateString('es-ES')}</span>
+          <button class="btn" data-del="${i}" style="padding:3px 8px;font-size:11px;">✕</button>
+        </div>
+      `).join('');
+      list.querySelectorAll('.tk-check').forEach(chk => {
+        chk.addEventListener('change', () => {
+          tasks[+chk.dataset.i].done = chk.checked;
+          persist(); render();
+        });
+      });
+      list.querySelectorAll('[data-del]').forEach(b => {
+        b.addEventListener('click', () => {
+          tasks.splice(+b.dataset.del, 1);
+          persist(); render();
+        });
+      });
+    };
+    render();
+
+    ctx.winEl.querySelector('[data-act="add"]').onclick = () => {
+      const txt = prompt('Nueva tarea:');
+      if (!txt) return;
+      tasks.push({ text: txt, done: false, createdAt: Date.now() });
+      persist(); render();
+      davidOS.notify('✅ Tarea añadida', 'success');
+    };
+    ctx.winEl.querySelector('[data-act="clear-done"]').onclick = () => {
+      tasks = tasks.filter(t => !t.done);
+      persist(); render();
+    };
+  }
+});
+
+/* ============================================================================
+   ARRANQUE
+   ========================================================================== */
+davidOS.boot();
+</script>
+</body>
+</html>
