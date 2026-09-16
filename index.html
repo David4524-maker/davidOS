@@ -195,10 +195,6 @@
     .bsod-btn-off { background: transparent; color: #000000; border: none; padding: 10px 15px; font-size: 22px; font-weight: bold; cursor: pointer; font-family: sans-serif; }
     .bsod-btn-off:hover { opacity: 0.7; }
 
-    /* ============================================================
-       ===============  10 MEJORAS AÑADIDAS  =======================
-       ============================================================ */
-
     .battery-indicator { cursor: pointer; font-size: 13px; user-select: none; transition: color 0.2s; }
     .battery-indicator:hover { opacity: 0.8; }
 
@@ -242,9 +238,6 @@
     #widget-date { font-size: 13px; opacity: 0.85; text-transform: capitalize; margin-top: 4px; }
     @media (max-width: 640px) { #desktop-widget { display: none; } }
 
-    /* ============================================================
-       ===============  CSS DE LAS 70 MEJORAS v2  =================
-       ============================================================ */
     .accent-swatch { width: 26px; height: 26px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; display:inline-block; }
     .accent-swatch.active { border-color: #fff; box-shadow: 0 0 0 2px var(--accent-color); }
 
@@ -309,7 +302,6 @@
 </head>
 <body>
 
-  <!-- BIOS POST SCREEN -->
   <div id="post-screen">
     <div>
       <div>davidOS BIOS (C) 2026 David Corp. Release 3.0</div>
@@ -321,7 +313,6 @@
     <div style="color:#ffff00;">Press [F2] or [DEL] to enter davidOS BIOS Setup Utility</div>
   </div>
 
-  <!-- BIOS SETUP UTILITY MENU -->
   <div id="bios-screen">
     <div class="bios-header">davidOS BIOS Setup Utility - Version 3.0.1</div>
     <div class="bios-container">
@@ -340,20 +331,17 @@
     </div>
   </div>
 
-  <!-- BOOT SCREEN -->
   <div id="boot-screen" style="display:none;">
     <div class="boot-door">🚪</div>
     <div class="boot-loader-track"><div class="boot-loader-bar"></div></div>
     <div id="boot-percent" style="margin-top:12px; font-size:12px; opacity:0.6;">Cargando davidKernel v3.0... 0%</div>
   </div>
 
-  <!-- SHUTDOWN / RESTART SCREEN -->
   <div id="shutdown-screen">
     <div class="boot-door" style="animation:pulse 1s infinite;">🚪</div>
     <div id="shutdown-text" style="font-size:15px; opacity:0.8;">Cerrando davidOS...</div>
   </div>
 
-  <!-- BSOD SCREEN -->
   <div id="bsod-screen">
     <div class="bsod-bg-lines">
       <div class="bsod-line" style="left: 8%; height: 60%;"></div>
@@ -394,10 +382,8 @@
     </div>
   </div>
 
-  <!-- NOTIFICATION STACK -->
   <div id="notif-stack"></div>
 
-  <!-- LOCK SCREEN (MEJORA 34/35/65) -->
   <div id="lock-screen">
     <div class="login-avatar">🔒</div>
     <div style="font-size:14px; opacity:0.8;">Pantalla bloqueada — <span id="lock-user">Usuario David</span></div>
@@ -406,10 +392,8 @@
     <div style="font-size:11px; opacity:0.5;">Contraseña por defecto: (vacía) · Presiona Enter</div>
   </div>
 
-  <!-- MAINTENANCE BANNER (MEJORA 67) -->
   <div id="maintenance-banner">🔧 Aviso de mantenimiento programado</div>
 
-  <!-- DESKTOP CONTEXT MENU -->
   <div id="context-menu">
     <div class="ctx-item" onclick="ctxAction('refresh')">🔄 Actualizar escritorio</div>
     <div class="ctx-item" onclick="ctxAction('wallpaper')">🖼️ Cambiar fondo</div>
@@ -424,7 +408,6 @@
     <div class="ctx-item" onclick="ctxAction('settings')">⚙️ Ajustes</div>
   </div>
 
-  <!-- LOGIN SCREEN -->
   <div id="login-screen" style="display: none;">
     <div class="login-box" id="login-box">
       <div class="login-avatar">👤</div>
@@ -445,11 +428,9 @@
     </div>
   </div>
 
-  <!-- MAIN DESKTOP -->
   <div id="desktop">
     <div class="desktop-icons" id="desktop-grid"></div>
 
-    <!-- START MENU -->
     <div id="start-menu">
       <div style="font-weight: bold; border-bottom: 1px solid #333; padding-bottom: 8px; display:flex; justify-content:space-between; align-items:center;">
         <span id="start-menu-title">Aplicaciones de davidOS</span>
@@ -463,7 +444,6 @@
       </div>
     </div>
 
-    <!-- POWER MENU -->
     <div id="power-menu">
       <div class="ctx-item" onclick="powerAction('sleep')">🌙 Suspender</div>
       <div class="ctx-item" onclick="powerAction('restart')">🔄 Reiniciar</div>
@@ -474,7 +454,6 @@
       <div class="ctx-item" onclick="window.__lockScreen && window.__lockScreen()">🔒 Bloquear</div>
     </div>
 
-    <!-- EMOJI MENU -->
     <div id="emoji-menu">
       <div style="font-weight: bold; border-bottom: 1px solid #333; padding-bottom: 8px; display:flex; justify-content:space-between; align-items:center;">
         <span>Panel de Emojis 😀</span>
@@ -485,11 +464,10 @@
       <div class="emoji-grid" id="emoji-grid"></div>
     </div>
 
-    <!-- QUICK SETTINGS PANEL (MEJORA 6 + varias) -->
     <div id="quick-settings">
       <div style="display:flex; justify-content:space-between; align-items:center;">
         <b style="font-size:13px;">Ajustes rápidos</b>
-        <span style="font-size:11px; opacity:0.6;">davidOS ${new Date().getFullYear?.()||2026}</span>
+        <span style="font-size:11px; opacity:0.6;">davidOS 2026</span>
       </div>
       <div class="qs-grid">
         <div class="qs-tile" id="qs-wifi" onclick="window.__toggleQS('wifi')"><span class="qs-ico">📶</span>Wi-Fi</div>
@@ -504,7 +482,6 @@
       <div class="tray-slider-row">🪟 <input type="range" id="qs-opacity" min="40" max="100" value="100" oninput="window.__setWinOpacity(this.value)"></div>
     </div>
 
-    <!-- NOTIFICATION CENTER (MEJORA 32) -->
     <div id="notif-center">
       <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #333; padding-bottom:8px;">
         <b style="font-size:13px;">🔔 Centro de notificaciones</b>
@@ -513,13 +490,10 @@
       <div id="notif-history-list" style="overflow-y:auto; flex:1;"></div>
     </div>
 
-    <!-- TOAST NOTIFICATION -->
     <div id="toast-msg">Emoji copiado al portapapeles!</div>
 
-    <!-- WINDOWS CONTAINER -->
     <div id="windows-container"></div>
 
-    <!-- TASKBAR -->
     <div id="taskbar">
       <div class="taskbar-left">
         <button class="start-btn" onclick="toggleStartMenu()" title="Menú Inicio">🚪</button>
@@ -2037,7 +2011,6 @@
       const LSg = (k,d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v===null?d:v; } catch(e){ return d; } };
       const LSs = (k,v) => localStorage.setItem(k, JSON.stringify(v));
 
-      // --- Estado persistente ---
       window.__showSeconds   = LSg('dv-seconds', false);
       window.__showIcons     = LSg('dv-showicons', true);
       window.__iconSize      = LSg('dv-iconsize', 32);
@@ -2048,36 +2021,23 @@
       window.__alwaysOnTop   = {};
       window.__lockPass      = LSg('dv-lockpass', '');
 
-      // ============ 1-5: Atajos avanzados de teclado ============
       document.addEventListener('keydown', (e) => {
         const activeWin = window.__activeWinId && document.getElementById(window.__activeWinId);
-        // 1) Alt+F4 cierra ventana activa
-        if (e.altKey && e.key === 'F4' && activeWin) {
-          e.preventDefault(); closeWin(activeWin.id); window.__activeWinId = null; return;
-        }
-        // 2) Tecla Meta/Win abre menú inicio
-        if (e.key === 'Meta' || e.key === 'OS') {
-          e.preventDefault(); toggleStartMenu(); return;
-        }
-        // 3) Win+D muestra escritorio
-        if (e.metaKey && (e.key === 'd' || e.key === 'D')) {
-          e.preventDefault(); window.__showDesktop(); return;
-        }
-        // 4-5) Ctrl+Shift+flechas → snap esquinas / restaurar
+        if (e.altKey && e.key === 'F4' && activeWin) { e.preventDefault(); closeWin(activeWin.id); window.__activeWinId = null; return; }
+        if (e.key === 'Meta' || e.key === 'OS') { e.preventDefault(); toggleStartMenu(); return; }
+        if (e.metaKey && (e.key === 'd' || e.key === 'D')) { e.preventDefault(); window.__showDesktop(); return; }
         if (e.ctrlKey && e.shiftKey && activeWin) {
           const w = activeWin;
           if (e.key === 'ArrowLeft')  { e.preventDefault(); w.classList.remove('maximized'); w.style.top='0'; w.style.left='0'; w.style.width='50vw'; w.style.height='50vh'; }
           if (e.key === 'ArrowRight') { e.preventDefault(); w.classList.remove('maximized'); w.style.top='0'; w.style.left='50vw'; w.style.width='50vw'; w.style.height='50vh'; }
           if (e.key === 'ArrowDown')  { e.preventDefault(); w.classList.remove('maximized'); w.style.top=''; w.style.left=''; w.style.width='680px'; w.style.height='450px'; }
         }
-        // 51) Ctrl+Shift+Arriba/Abajo controla volumen
         if (e.ctrlKey && e.shiftKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
           e.preventDefault();
           const cur = parseInt(document.getElementById('volume-slider').value,10);
           setVolume(Math.max(0, Math.min(100, cur + (e.key==='ArrowUp'?10:-10))));
           showToast(`🔊 Volumen: ${document.getElementById('volume-slider').value}%`);
         }
-        // 9) Zoom Ctrl + = / - / 0
         if (e.ctrlKey && (e.key === '=' || e.key === '+' || e.key === '-' || e.key === '0')) {
           e.preventDefault();
           if (e.key === '0') window.__zoom = 100;
@@ -2085,23 +2045,19 @@
           document.body.style.zoom = window.__zoom + '%';
           showToast(`🔍 Zoom: ${window.__zoom}%`);
         }
-        // 58) Teclas 1-9 abren las primeras 9 apps fijadas
         if (!e.ctrlKey && !e.altKey && !e.metaKey && /^[1-9]$/.test(e.key) && document.activeElement === document.body) {
           const id = pinnedApps[parseInt(e.key,10)-1];
           if (id) { openApp(id); }
         }
-        // 43) Ctrl+/ muestra ayuda de atajos
         if (e.ctrlKey && e.key === '/') { e.preventDefault(); openApp('shortcuts'); }
       });
 
-      // 6) Botón mostrar escritorio
       window.__showDesktop = function(){
         document.querySelectorAll('.window').forEach(w => w.style.display='none');
         renderTaskbarRunning();
         showToast('🖥️ Escritorio mostrado');
       };
 
-      // 7) Selector de color de acento
       window.__setAccent = function(color){
         document.documentElement.style.setProperty('--accent-color', color);
         LSs('dv-accent', color);
@@ -2113,7 +2069,6 @@
         document.documentElement.style.setProperty('--accent-color', c);
       })();
 
-      // 8) Modo noche automático (19:00 - 07:00)
       function checkNightAuto(){
         if (!window.__nightAuto) return;
         const h = new Date().getHours();
@@ -2126,30 +2081,25 @@
       checkNightAuto();
       window.__toggleNightAuto = function(v){ window.__nightAuto = v; LSs('dv-nightauto', v); checkNightAuto(); showToast(v?'🌗 Modo noche automático ON':'🌗 Modo noche automático OFF'); };
 
-      // 10) Tamaño de iconos
       window.__setIconSize = function(v){
         window.__iconSize = parseInt(v,10); LSs('dv-iconsize', window.__iconSize);
         document.querySelectorAll('.icon-img').forEach(el => el.style.fontSize = window.__iconSize + 'px');
       };
 
-      // 11) Mostrar/ocultar iconos
       window.__toggleIcons = function(v){
         window.__showIcons = v; LSs('dv-showicons', v);
         renderIcons();
         showToast(v?'👁️ Iconos visibles':'🙈 Iconos ocultos');
       };
 
-      // 13) Transparencia de ventanas
       window.__setWinOpacity = function(v){
         document.documentElement.style.setProperty('--win-opacity', (v/100).toFixed(2));
         LSs('dv-winopacity', v);
       };
       window.__setWinOpacity(LSg('dv-winopacity', 100));
 
-      // 14) Reloj con segundos
       window.__toggleSeconds = function(v){ window.__showSeconds = v; LSs('dv-seconds', v); updateClock(); };
 
-      // ============ 6, 31, 32, 45, 66, 68: Panel rápido y notificaciones ============
       const qs = document.getElementById('quick-settings');
       const nc = document.getElementById('notif-center');
 
@@ -2170,7 +2120,6 @@
         if (!e.target.closest('#notif-center') && !e.target.closest('#taskbar')) nc.classList.remove('active');
       });
 
-      // 31) No molestar
       const tileDnd = document.getElementById('qs-dnd');
       function syncQSTiles(){
         tileDnd.classList.toggle('active', window.__dnd);
@@ -2203,7 +2152,6 @@
       };
       syncQSTiles();
 
-      // 32) Historial de notificaciones
       window.__pushNotifHistory = function(msg){
         window.__notifHistory.unshift({ text: msg, time: new Date().toLocaleTimeString() });
         window.__notifHistory = window.__notifHistory.slice(0, 40);
@@ -2217,7 +2165,6 @@
       };
       window.__clearNotifHistory = function(){ window.__notifHistory = []; LSs('dv-notifhist', []); window.__renderNotifHistory(); };
 
-      // 30) Uptime en bandeja
       setInterval(() => {
         const el = document.getElementById('uptime-display');
         if (!el) return;
@@ -2226,7 +2173,6 @@
         el.innerText = `⏱️ ${h}h ${m}m`;
       }, 1000);
 
-      // 34/35/65) Bloqueo de pantalla manual y automático
       window.__lockScreen = function(){
         document.getElementById('lock-screen').classList.add('active');
         document.getElementById('lock-user').innerText = activeUser;
@@ -2250,13 +2196,11 @@
       ['mousemove','keydown','click','scroll'].forEach(ev => document.addEventListener(ev, resetIdle));
       resetIdle();
 
-      // 51/52/53: Volumen y brillo con teclas + captura de pantalla
       window.__captureScreen = function(){
         showToast('📸 Captura guardada (simulada)');
         window.__pushClipboard('[Screenshot ' + new Date().toLocaleTimeString() + ']');
       };
 
-      // 26/27/28/29: Notas rápidas, Calendario, To-do y Portapapeles
       window.__clipboardHistory = LSg('dv-cliphist', []);
       window.__pushClipboard = function(text){
         if (!text) return;
@@ -2267,7 +2211,6 @@
         const body = document.getElementById('body-clippy');
         if (body) body.innerHTML = getAppContent('clippy');
       };
-      // Interceptar copiado global
       document.addEventListener('copy', () => {
         setTimeout(() => {
           const sel = window.getSelection().toString();
@@ -2275,7 +2218,6 @@
         }, 50);
       });
 
-      // 17/18: Calculadora historial + científica
       window.__calcHistory = LSg('dv-calcHist', []);
       window.__pushCalcHistory = function(expr){
         window.__calcHistory.unshift(expr);
@@ -2295,7 +2237,6 @@
         alert('Historial de cálculo:\n\n' + window.__calcHistory.join('\n'));
       };
 
-      // 19/20/21/22: Bloc de notas: guardar, abrir, contar, autoguardado
       window.__notepadSave = function(){
         const text = document.getElementById('notepad-text').value;
         const name = prompt('Nombre del archivo:', 'nota_' + Date.now() + '.txt');
@@ -2329,7 +2270,6 @@
         if (el && localStorage.getItem('dv-notepad-autosave')) el.value = localStorage.getItem('dv-notepad-autosave');
       }, 2000);
 
-      // 28) Papelera: restaurar
       window.__restoreTrashItem = function(i){
         const trash = LSg('davidos-trash', []);
         const item = trash[i];
@@ -2344,7 +2284,6 @@
         window.__restoreTrashItem(0);
       };
 
-      // 40) Búsqueda en el explorador
       window.__filterExplorer = function(q){
         const list = document.getElementById('exp-list');
         if (!list) return;
@@ -2353,11 +2292,6 @@
         });
       };
 
-      // 38/39) Búsqueda y categorías de emojis
-      const emojiCats = {
-        '😀': 'caritas', '👍': 'manos', '🐶': 'animales', '🍕': 'comida',
-        '🚗': 'transporte', '⭐': 'símbolos', '📱': 'objetos', '❤️': 'corazones'
-      };
       window.__emojiSearch = function(q){
         const grid = document.getElementById('emoji-grid');
         if (!grid) return;
@@ -2389,7 +2323,6 @@
         });
       })();
 
-      // 44) Reproductor de música con Web Audio
       window.__musicState = { ctx:null, osc:null, playing:false, freq:440 };
       window.__musicPlay = function(freq){
         if (!window.__musicState.ctx) window.__musicState.ctx = new (window.AudioContext||window.webkitAudioContext)();
@@ -2409,7 +2342,6 @@
         window.__musicState.osc = null; window.__musicState.playing = false;
       };
 
-      // 42) Ayuda de atajos
       const SHORTCUTS = [
         ['Ctrl + K', 'Abrir paleta de comandos'],
         ['Ctrl + Alt + T', 'Abrir terminal'],
@@ -2431,7 +2363,6 @@
         ['Konami Code', 'Easter egg oculto']
       ];
 
-      // 46/47/48/49/50: Reloj mundial, RNG, dados, monedas, adivinar
       const WORLD_CITIES = [
         { name:'Madrid', tz:'Europe/Madrid' },
         { name:'Nueva York', tz:'America/New_York' },
@@ -2441,7 +2372,6 @@
         { name:'México D.F.', tz:'America/Mexico_City' }
       ];
 
-      // 55/56: Cascada y mosaico
       window.__cascadeWindows = function(){
         let i = 0;
         document.querySelectorAll('.window').forEach(w => {
@@ -2473,13 +2403,11 @@
         showToast('🧱 Ventanas en mosaico');
       };
 
-      // 54) Modo compacto taskbar
       window.__toggleCompact = function(){
         document.getElementById('taskbar').classList.toggle('taskbar-compact');
         showToast('📏 Modo compacto alternado');
       };
 
-      // 57) Anclar ventana siempre al frente
       window.__togglePinTop = function(id){
         const w = document.getElementById(id);
         if (!w) return;
@@ -2489,7 +2417,6 @@
         showNotification(window.__alwaysOnTop[id]?'📌 Ventana fijada arriba':'📌 Ventana liberada');
       };
 
-      // 60) Duplicar ventana
       window.__duplicateWindow = function(id){
         const w = document.getElementById(id);
         if (!w) return;
@@ -2499,7 +2426,6 @@
         showNotification('📑 Ventana duplicada (reabierta)');
       };
 
-      // 59/60: Menú contextual en icono de escritorio
       window.__iconContextMenu = function(e, appId){
         e.preventDefault(); e.stopPropagation();
         const menu = document.getElementById('context-menu');
@@ -2515,7 +2441,6 @@
         menu.classList.add('active');
       };
 
-      // 61/62/63/64: Persistencia de posición y sesión
       window.__saveWindowPos = function(id){
         const w = document.getElementById(id);
         if (!w) return;
@@ -2543,9 +2468,6 @@
         LSs('dv-session', opened);
       };
 
-      // 60b) Duplicar + abrir en nueva ventana (ya cubierto arriba)
-
-      // 43) Añadir contenido al wrapper de apps nuevas
       const origGetApp2 = window.getAppContent;
       window.getAppContent = function(id){
         switch(id){
@@ -2670,7 +2592,6 @@
         return origGetApp2(id);
       };
 
-      // Registrar las nuevas apps en el catálogo
       const NEW_APPS = [
         { id:'stopwatch', name:'Cronómetro', icon:'⏱️' },
         { id:'pomodoro', name:'Pomodoro', icon:'🍅' },
@@ -2688,14 +2609,11 @@
         { id:'shortcuts', name:'Atajos de teclado', icon:'⌨️' }
       ];
       NEW_APPS.forEach(a => { if (!apps.some(x => x.id === a.id)) apps.push(a); });
-      // Habilitar todas las nuevas apps en todas las ediciones
       Object.keys(editionLimits).forEach(ed => {
         if (ed === 'Pro') return;
         NEW_APPS.forEach(a => { if (!editionLimits[ed].includes(a.id)) editionLimits[ed].push(a.id); });
       });
 
-      // ============ IMPLEMENTACIÓN DE LAS NUEVAS APPS ============
-      // Cronómetro
       let swState = { t:0, running:false, interval:null };
       window.__swStart = function(){
         if (swState.running) return;
@@ -2712,7 +2630,6 @@
       window.__swPause = function(){ swState.running=false; clearInterval(swState.interval); };
       window.__swReset = function(){ swState.t=0; swState.running=false; clearInterval(swState.interval); const el=document.getElementById('sw-display'); if(el) el.innerText='00:00:00'; };
 
-      // Pomodoro
       let pomState = { t:0, running:false, interval:null };
       window.__pomStart = function(min){
         pomState.t = min*60; pomState.running = true;
@@ -2737,7 +2654,6 @@
         document.getElementById('focus-chip').classList.remove('show');
       };
 
-      // Conversor de unidades
       const unitFactors = { m:1, km:1000, cm:0.01, in:0.0254, ft:0.3048, mi:1609.34 };
       window.__unitConvert = function(){
         const v = parseFloat(document.getElementById('uc-val').value) || 0;
@@ -2747,7 +2663,6 @@
         document.getElementById('uc-result').innerText = `${v} ${f} = ${r.toFixed(4)} ${t}`;
       };
 
-      // Generador de contraseñas
       window.__genPass = function(){
         const len = parseInt(document.getElementById('pg-range').value,10);
         let chars = 'abcdefghijklmnopqrstuvwxyz';
@@ -2760,7 +2675,6 @@
         window.__pushClipboard(out);
       };
 
-      // Calendario
       function renderCalendar(){
         const grid = document.getElementById('cal-grid');
         const title = document.getElementById('cal-title');
@@ -2781,7 +2695,6 @@
       }
       setInterval(() => { if (document.getElementById('cal-grid')) renderCalendar(); }, 2000);
 
-      // Lista de tareas
       window.__todos = LSg('dv-todos', []);
       function renderTodos(){
         const list = document.getElementById('todo-list');
@@ -2804,7 +2717,6 @@
       window.__toggleTodo = function(i){ window.__todos[i].done = !window.__todos[i].done; LSs('dv-todos', window.__todos); renderTodos(); };
       window.__delTodo = function(i){ window.__todos.splice(i,1); LSs('dv-todos', window.__todos); renderTodos(); };
 
-      // Reloj mundial: actualización
       setInterval(() => {
         document.querySelectorAll('.wc-time').forEach(el => {
           const tz = el.dataset.tz;
@@ -2824,7 +2736,6 @@
         });
       }, 1000);
 
-      // Dados
       window.__rollDice = function(){
         const d1 = Math.floor(Math.random()*6)+1;
         const d2 = Math.floor(Math.random()*6)+1;
@@ -2833,7 +2744,6 @@
         document.getElementById('dice-result').innerText = `D1: ${d1} · D2: ${d2} · Total: ${d1+d2}`;
       };
 
-      // Adivinar número
       let guessNum = Math.floor(Math.random()*100)+1;
       let guessTries = 0;
       window.__resetGuess = function(){ guessNum = Math.floor(Math.random()*100)+1; guessTries = 0; document.getElementById('gg-result').innerText = 'Juego reiniciado'; };
@@ -2846,7 +2756,6 @@
         else document.getElementById('gg-result').innerText = '⬇️ Más bajo';
       };
 
-      // Sticky notes
       window.__createSticky = function(){
         const desktop = document.getElementById('desktop');
         if (!desktop) return;
@@ -2861,7 +2770,6 @@
           </div>
           <textarea placeholder="Escribe aquí..."></textarea>`;
         const ta = note.querySelector('textarea');
-        const saved = localStorage.getItem('dv-sticky-'+Date.now());
         const header = note.querySelector('.sticky-note-header');
         header.addEventListener('mousedown', (e) => {
           if (e.target.innerText === '✕') return;
@@ -2877,7 +2785,6 @@
         desktop.appendChild(note);
       };
 
-      // Konami code easter egg (69)
       const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
       let konamiIdx = 0;
       document.addEventListener('keydown', (e) => {
@@ -2888,7 +2795,6 @@
             document.body.classList.add('konami-flash');
             setTimeout(() => document.body.classList.remove('konami-flash'), 2000);
             showNotification('🎉 ¡KONAMI CODE ACTIVADO! Bienvenido al nivel secreto de davidOS.');
-            // Unlock hidden achievements
             if (!apps.some(a => a.id === 'achievements')) {
               apps.push({ id:'achievements', name:'Logros', icon:'🏆' });
               renderIcons();
@@ -2897,7 +2803,6 @@
         } else { konamiIdx = 0; }
       });
 
-      // 67) Aviso de mantenimiento cada hora
       setInterval(() => {
         const b = document.getElementById('maintenance-banner');
         if (!b) return;
@@ -2905,7 +2810,6 @@
         setTimeout(() => b.classList.remove('show'), 8000);
       }, 60*60*1000);
 
-      // 62/64: Botones contextuales
       window.__windowContextMenu = function(e, id){
         e.preventDefault();
         const menu = document.getElementById('context-menu');
@@ -2923,7 +2827,6 @@
         menu.classList.add('active');
       };
 
-      // Render de apps nuevas iniciales
       setTimeout(() => {
         const su = document.getElementById('shortcuts');
         if (su) su.innerHTML = SHORTCUTS.map(([k,v]) => `<div class="help-shortcut"><span>${v}</span><kbd>${k}</kbd></div>`).join('');
@@ -2931,44 +2834,34 @@
         renderCalendar();
       }, 1500);
 
-      // 41) Papelera persistente por defecto si no existe
       if (!localStorage.getItem('davidos-trash')) {
         LSs('davidos-trash', ['captura_antigua.png','informe_borrador.docx','tarea_vieja.txt']);
       }
 
-      // 33) Extender el título de la batería
       setTimeout(() => {
         const bi = document.getElementById('battery-indicator');
         if (bi) bi.title = 'Batería simulada — clic para alternar carga';
       }, 1000);
 
-      // 35) Auto-bloqueo persistente
       window.__autoLockEnabled = LSg('dv-autolock', true);
 
-      // 12) Aplicar fondo guardado
       const savedBg = localStorage.getItem('davidos-wallpaper');
       if (savedBg) document.documentElement.style.setProperty('--bg-wallpaper', savedBg);
 
-      // 25) Pantalla de bloqueo cerrada por click fuera
       document.getElementById('lock-screen').addEventListener('click', (e) => {
         if (e.target.id === 'lock-screen') document.getElementById('lock-password').focus();
       });
 
-      // 68) Ahorro de energía
       if (window.__energySaver) {
         document.getElementById('desktop').style.filter = 'brightness(75%)';
       }
 
-      // 66) Aviso de batería crítica con descarga
       setInterval(() => {
         if (davidBattery.level <= 5 && !davidBattery.charging) {
           showNotification('🪫 ¡BATERÍA CRÍTICA! Conecta el cargador inmediatamente.');
         }
       }, 60000);
 
-      // 5) Restaurar posición de ventanas al abrir (hook)
-      const origOpen = window.openApp;
-      // No reemplazamos openApp para no romper nada; en su lugar observamos.
       const posObserver = new MutationObserver((mutations) => {
         mutations.forEach(m => {
           m.addedNodes.forEach(n => {
@@ -2981,7 +2874,6 @@
       const wcEl = document.getElementById('windows-container');
       if (wcEl) posObserver.observe(wcEl, { childList: true });
 
-      // 63) Restaurar sesión previa (opcional, tras 3 segundos)
       setTimeout(() => {
         const session = LSg('dv-session', []);
         if (session.length && confirm('¿Restaurar las ventanas de la sesión anterior?')) {
@@ -2989,27 +2881,22 @@
         }
       }, 3500);
 
-      // 55/56 atajos rápidos ya integrados en menú contextual
-      // 57: cerrar menú si se hace click fuera
       document.addEventListener('click', (e) => {
         if (!e.target.closest('#context-menu')) {
           document.getElementById('context-menu').classList.remove('active');
         }
       });
 
-      // Toast de bienvenida de las 70 mejoras
       setTimeout(() => {
         showNotification('🎉 davidOS v3.1: ¡70 mejoras nuevas activadas!');
       }, 5000);
 
-      // 24) Atajo Alt+T para abrir terminal
       document.addEventListener('keydown', (e) => {
         if (e.altKey && (e.key === 't' || e.key === 'T')) {
           e.preventDefault(); openApp('terminal');
         }
       });
 
-      // 34) Ctrl+L bloquea la pantalla
       document.addEventListener('keydown', (e) => {
         if (e.ctrlKey && (e.key === 'l' || e.key === 'L') && document.activeElement === document.body) {
           e.preventDefault(); window.__lockScreen();
@@ -3017,6 +2904,651 @@
       });
 
       console.log('%c davidOS v3.1 — 70 mejoras activadas ', 'background:#0078d4; color:white; padding:4px 8px; border-radius:4px;');
+    })();
+
+    /* ==========================================================================
+       ============  WINDOWS PROPIAS PARA APPS v3 (10 apps)  ====================
+       ========================================================================== */
+    (function(){
+      'use strict';
+      const LSg = (k,d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v===null?d:v; } catch(e){ return d; } };
+      const LSs = (k,v) => localStorage.setItem(k, JSON.stringify(v));
+      function fmtTime(s){ const m = Math.floor(s/60); const sec = Math.floor(s%60); return `${m}:${String(sec).padStart(2,'0')}`; }
+      window.__formatTime = fmtTime;
+
+      const ACHIEVEMENTS = [
+        { id:'first-boot',    icon:'🚀', name:'Primer arranque',   desc:'Iniciaste davidOS por primera vez' },
+        { id:'opened-5',      icon:'🪟', name:'Multitarea',        desc:'Abrir 5 ventanas a la vez' },
+        { id:'terminal-user', icon:'💻', name:'Usuario avanzado',  desc:'Usar la terminal' },
+        { id:'pomodoro',      icon:'🍅', name:'Enfocado',          desc:'Completar un Pomodoro' },
+        { id:'konami',        icon:'🎮', name:'Konami Master',     desc:'Introduce el código Konami' },
+        { id:'custom-accent', icon:'🎨', name:'Diseñador',         desc:'Cambiar el color de acento' },
+        { id:'lock-user',     icon:'🔒', name:'Seguridad',         desc:'Bloquear la pantalla' },
+        { id:'bsod',          icon:'💥', name:'Vivir al límite',   desc:'Provocar un BSOD' },
+        { id:'calc-user',     icon:'🧮', name:'Matemático',        desc:'Usar la calculadora' },
+        { id:'excel-user',    icon:'📊', name:'Contador',          desc:'Escribir en Excel' },
+        { id:'word-user',     icon:'📝', name:'Escritor',          desc:'Guardar un documento' },
+        { id:'ai-chat',       icon:'✨', name:'Amigo de la IA',    desc:'Chatear con Gemini AI' }
+      ];
+      window.__unlockedAchievements = LSg('dv-achievements', ['first-boot']);
+      window.__unlockAchievement = function(id){
+        if (!window.__unlockedAchievements.includes(id)) {
+          window.__unlockedAchievements.push(id);
+          LSs('dv-achievements', window.__unlockedAchievements);
+          const a = ACHIEVEMENTS.find(x => x.id === id);
+          if (a) showNotification(`🏆 Logro desbloqueado: ${a.name}`);
+        }
+      };
+
+      window.__ezpackQueue = [];
+      window.__ezpackLog = [];
+      window.__excelData = LSg('dv-excel', {});
+      window.__wordContent = LSg('dv-word', '');
+      window.__pptSlides = LSg('dv-ppt', [{ title:'Bienvenido a davidOS', body:'Presentación generada con davidOS PowerPoint.\n\nUsa las flechas ◀ ▶ para navegar entre diapositivas.' }]);
+      window.__pptCurrent = 0;
+      window.__geminiMessages = LSg('dv-gemini', [
+        { role:'ai', text:'¡Hola! Soy Gemini AI en davidOS. ¿En qué puedo ayudarte hoy?' }
+      ]);
+      window.__mediaPlaylist = LSg('dv-media', [
+        { name:'Pista 1 — Amanecer',       dur:180 },
+        { name:'Pista 2 — Atardecer',      dur:240 },
+        { name:'Pista 3 — Noche estrellada', dur:210 },
+        { name:'Pista 4 — Lofi Chill',      dur:300 }
+      ]);
+      window.__mediaIndex = 0;
+      window.__mediaPlaying = false;
+      window.__mediaTimer = null;
+      window.__mediaElapsed = 0;
+
+      const origGetApp4 = window.getAppContent;
+      window.getAppContent = function(id){
+        switch(id){
+
+          case 'achievements': {
+            const un = window.__unlockedAchievements;
+            const pct = (un.length / ACHIEVEMENTS.length * 100).toFixed(0);
+            return `
+              <div style="padding:14px; display:flex; flex-direction:column; gap:12px; height:100%;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <b>🏆 Logros</b>
+                  <span style="font-size:11px; opacity:0.6;">${un.length} / ${ACHIEVEMENTS.length} desbloqueados</span>
+                </div>
+                <div style="height:6px; background:rgba(255,255,255,0.1); border-radius:3px; overflow:hidden;">
+                  <div style="height:100%; background:var(--accent-color); width:${pct}%; transition:width 0.3s;"></div>
+                </div>
+                <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(190px,1fr)); gap:8px; overflow-y:auto;">
+                  ${ACHIEVEMENTS.map(a => {
+                    const ok = un.includes(a.id);
+                    return `<div style="background:rgba(255,255,255,${ok?0.08:0.03}); padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,${ok?0.15:0.05}); opacity:${ok?1:0.55};">
+                      <div style="font-size:26px;">${ok ? a.icon : '🔒'}</div>
+                      <b style="font-size:12px;">${a.name}</b>
+                      <div style="font-size:11px; opacity:0.7; margin-top:4px;">${a.desc}</div>
+                    </div>`;
+                  }).join('')}
+                </div>
+                <button class="app-btn" style="background:rgba(255,95,86,0.15); color:#ff8a80; align-self:flex-start;" onclick="window.__resetAchievements()">🔄 Reiniciar logros</button>
+              </div>`;
+          }
+
+          case 'ezpack': return `
+            <div style="padding:14px; display:flex; flex-direction:column; gap:12px; height:100%;">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <div style="font-size:32px;">📦</div>
+                <div><b>EZPack AI</b><div style="font-size:11px; opacity:0.7;">Compresión inteligente potenciada por IA</div></div>
+              </div>
+              <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <button class="app-btn" onclick="window.__ezpackAdd()">➕ Añadir archivo</button>
+                <button class="app-btn" onclick="window.__ezpackCompress()">🗜️ Comprimir (IA)</button>
+                <button class="app-btn" onclick="window.__ezpackExtract()">📂 Extraer</button>
+                <button class="app-btn" style="background:rgba(255,255,255,0.1);" onclick="window.__ezpackClear()">🗑️ Limpiar</button>
+              </div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div style="background:rgba(255,255,255,0.04); padding:10px; border-radius:8px; min-height:120px;">
+                  <b style="font-size:12px;">📁 Cola de entrada</b>
+                  <div id="ezpack-queue" style="font-size:11px; margin-top:6px;">${window.__ezpackQueue.length ? window.__ezpackQueue.map(f => `<div>• ${f}</div>`).join('') : '<span style="opacity:0.5">Sin archivos</span>'}</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.04); padding:10px; border-radius:8px; min-height:120px;">
+                  <b style="font-size:12px;">📜 Registro</b>
+                  <div id="ezpack-log" style="font-size:11px; margin-top:6px; font-family:monospace;">${window.__ezpackLog.join('<br>') || '<span style="opacity:0.5">Esperando...</span>'}</div>
+                </div>
+              </div>
+              <div id="ezpack-progress-wrap" style="display:none;">
+                <div style="font-size:11px; margin-bottom:4px;" id="ezpack-progress-text">Comprimiendo...</div>
+                <div class="perf-bar"><div class="perf-bar-fill" id="ezpack-bar" style="width:0%"></div></div>
+              </div>
+            </div>`;
+
+          case 'control': return `
+            <div style="padding:14px; display:flex; flex-direction:column; gap:12px; height:100%; overflow-y:auto;">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <div style="font-size:32px;">🎛️</div>
+                <div><b>Panel de Control</b><div style="font-size:11px; opacity:0.7;">Administración del sistema davidOS</div></div>
+              </div>
+              <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(170px,1fr)); gap:8px;">
+                ${[
+                  ['🖥️ Sistema', 'sysinfo'],
+                  ['⚙️ Ajustes', 'settings'],
+                  ['📊 Rendimiento', 'perfmon'],
+                  ['🛡️ Seguridad', 'secure'],
+                  ['👤 Usuarios', 'users'],
+                  ['🌐 Red', 'network'],
+                  ['🖨️ Dispositivos', 'devices'],
+                  ['🔄 Actualizaciones', 'updates'],
+                  ['📦 Programas', 'store'],
+                  ['📅 Fecha/Hora', 'datetime'],
+                  ['⌨️ Atajos', 'shortcuts'],
+                  ['🏆 Logros', 'achievements']
+                ].map(([name, app]) => `
+                  <button class="qs-tile" style="flex-direction:row; justify-content:flex-start; gap:8px; padding:12px; font-size:12px;" onclick="window.__controlOpen('${app}')">
+                    <span style="font-size:18px;">${name.split(' ')[0]}</span><span>${name.split(' ').slice(1).join(' ')}</span>
+                  </button>
+                `).join('')}
+              </div>
+            </div>`;
+
+          case 'excel': {
+            const cols = ['A','B','C','D','E','F'];
+            const rows = 20;
+            let html = '<table style="border-collapse:collapse; font-size:12px;"><tr style="background:rgba(255,255,255,0.08);"><th style="border:1px solid #444; padding:3px 8px;"></th>';
+            cols.forEach(c => html += `<th style="border:1px solid #444; padding:3px 12px;">${c}</th>`);
+            html += '</tr>';
+            for (let r = 1; r <= rows; r++) {
+              html += `<tr><td style="border:1px solid #444; padding:3px 8px; background:rgba(255,255,255,0.05); text-align:center; font-weight:bold;">${r}</td>`;
+              cols.forEach(c => {
+                const key = c + r;
+                const val = (window.__excelData[key] || '').replace(/"/g,'&quot;');
+                html += `<td style="border:1px solid #444; padding:0;"><input data-cell="${key}" value="${val}" style="width:72px; background:transparent; border:none; color:white; padding:4px 6px; outline:none; font-family:monospace; font-size:12px;" onchange="window.__excelSet('${key}', this.value)"></td>`;
+              });
+              html += '</tr>';
+            }
+            html += '</table>';
+            return `
+              <div style="display:flex; flex-direction:column; height:100%;">
+                <div class="app-toolbar">
+                  <b style="font-size:12px;">📊 Hoja1</b>
+                  <input type="text" id="excel-formula" placeholder="Fórmula: =SUMA(A1:A5)" class="login-input" style="flex:1; font-family:monospace; text-align:left; padding:4px 10px; font-size:12px;" onkeypress="if(event.key==='Enter') window.__excelFormula(this.value)">
+                  <button class="app-btn" onclick="window.__excelSave()">💾 Guardar</button>
+                  <button class="app-btn" style="background:rgba(255,255,255,0.1);" onclick="window.__excelClear()">🧹 Limpiar</button>
+                </div>
+                <div style="flex:1; overflow:auto;">${html}</div>
+                <div style="font-size:11px; opacity:0.6; padding:4px;">Celdas con datos: ${Object.keys(window.__excelData).length}</div>
+              </div>`;
+          }
+
+          case 'word': return `
+            <div style="display:flex; flex-direction:column; height:100%;">
+              <div class="app-toolbar">
+                <button class="app-btn" style="font-weight:bold;" onclick="window.__wordFmt('bold')"><b>B</b></button>
+                <button class="app-btn" style="font-style:italic;" onclick="window.__wordFmt('italic')"><i>I</i></button>
+                <button class="app-btn" style="text-decoration:underline;" onclick="window.__wordFmt('underline')"><u>U</u></button>
+                <select class="login-input" style="padding:2px 6px; font-size:11px; color:white;" onchange="window.__wordFmt('fontSize', this.value)">
+                  <option value="2">Pequeño</option>
+                  <option value="3" selected>Normal</option>
+                  <option value="5">Grande</option>
+                  <option value="7">Título</option>
+                </select>
+                <input type="color" onchange="window.__wordFmt('foreColor', this.value)" style="width:30px; height:26px; border:none; background:transparent;">
+                <button class="app-btn" style="background:rgba(255,255,255,0.1); margin-left:auto;" onclick="window.__wordSave()">💾 Guardar</button>
+                <button class="app-btn" style="background:rgba(255,255,255,0.1);" onclick="window.__wordPrint()">🖨️</button>
+              </div>
+              <div id="word-editor" contenteditable="true" spellcheck="false"
+                   style="flex:1; background:white; color:#000; padding:24px; outline:none; overflow-y:auto; font-family:'Georgia',serif; font-size:14px; border-radius:4px;"
+                   oninput="window.__wordAutoSave(this.innerHTML)">${window.__wordContent || '<h1 style="font-family:Georgia; color:#1a1a1a;">Documento nuevo</h1><p style="color:#333;">Empieza a escribir aquí…</p>'}</div>
+              <div style="font-size:11px; opacity:0.6; padding:4px;" id="word-stats">Palabras: 0</div>
+            </div>`;
+
+          case 'powerpoint': {
+            const slides = window.__pptSlides;
+            const cur = slides[window.__pptCurrent] || { title:'', body:'' };
+            return `
+              <div style="display:flex; flex-direction:column; height:100%;">
+                <div class="app-toolbar">
+                  <button class="app-btn" onclick="window.__pptAdd()">➕ Nueva</button>
+                  <button class="app-btn" style="background:rgba(255,95,86,0.4);" onclick="window.__pptDel()">🗑️ Eliminar</button>
+                  <span style="margin-left:auto; font-size:11px;">Diapositiva ${window.__pptCurrent + 1} / ${slides.length}</span>
+                  <button class="app-btn" onclick="window.__pptPrev()">◀</button>
+                  <button class="app-btn" onclick="window.__pptNext()">▶</button>
+                  <button class="app-btn" style="background:#27c93f; color:black;" onclick="window.__pptPresent()">▶ Presentar</button>
+                </div>
+                <div style="flex:1; display:flex; gap:10px; overflow:hidden;">
+                  <div style="width:130px; overflow-y:auto; background:rgba(255,255,255,0.03); border-radius:6px; padding:6px;">
+                    ${slides.map((s,i) => `
+                      <div onclick="window.__pptGo(${i})" style="cursor:pointer; padding:6px; border-radius:4px; margin-bottom:4px; font-size:10px; ${i===window.__pptCurrent?'background:var(--accent-color); color:white;':''}">
+                        <b>${i+1}</b> ${(s.title||'…').substring(0,14)}
+                      </div>
+                    `).join('')}
+                  </div>
+                  <div style="flex:1; background:white; color:#000; padding:30px; border-radius:6px; display:flex; flex-direction:column; gap:12px; box-shadow:inset 0 0 0 1px #ccc;">
+                    <input type="text" value="${(cur.title||'').replace(/"/g,'&quot;')}" placeholder="Título de la diapositiva"
+                      style="font-size:26px; font-weight:bold; border:none; outline:none; background:transparent; width:100%; color:#1a1a1a; font-family:'Segoe UI',sans-serif;"
+                      oninput="window.__pptUpdate('title', this.value)">
+                    <textarea placeholder="Contenido de la diapositiva…"
+                      style="flex:1; font-size:14px; border:none; outline:none; background:transparent; resize:none; color:#333; font-family:'Segoe UI',sans-serif; line-height:1.5;"
+                      oninput="window.__pptUpdate('body', this.value)">${cur.body||''}</textarea>
+                  </div>
+                </div>
+              </div>`;
+          }
+
+          case 'gemini': {
+            const msgs = window.__geminiMessages;
+            return `
+              <div style="display:flex; flex-direction:column; height:100%; background:linear-gradient(180deg,#101625,#0a0e18);">
+                <div style="padding:10px 14px; border-bottom:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; gap:8px;">
+                  <span style="font-size:22px;">✨</span>
+                  <div><b style="font-size:13px;">Gemini AI</b><div style="font-size:10px; opacity:0.6;">Modelo davidOS-G1 · Respuestas simuladas</div></div>
+                </div>
+                <div id="gemini-chat" style="flex:1; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:10px;">
+                  ${msgs.map(m => `
+                    <div style="display:flex; gap:8px; ${m.role==='user'?'justify-content:flex-end;':''}">
+                      ${m.role==='ai' ? '<div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#4285f4,#a855f7);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">✨</div>' : ''}
+                      <div style="max-width:75%; padding:8px 12px; border-radius:10px; font-size:13px; line-height:1.45; white-space:pre-wrap; ${m.role==='user'?'background:var(--accent-color); color:white;':'background:rgba(255,255,255,0.06);'}">${m.text}</div>
+                      ${m.role==='user' ? '<div style="width:28px;height:28px;border-radius:50%;background:var(--accent-color);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">👤</div>' : ''}
+                    </div>
+                  `).join('')}
+                </div>
+                <div style="padding:10px; border-top:1px solid rgba(255,255,255,0.08); display:flex; gap:6px;">
+                  <input type="text" id="gemini-input" placeholder="Escribe tu pregunta…" class="login-input" style="flex:1; text-align:left; font-size:12px;" onkeypress="if(event.key==='Enter') window.__geminiSend()">
+                  <button class="app-btn" onclick="window.__geminiSend()">Enviar ➤</button>
+                  <button class="app-btn" style="background:rgba(255,255,255,0.1);" onclick="window.__geminiClear()">🗑️</button>
+                </div>
+              </div>`;
+          }
+
+          case 'youtube': {
+            const videos = [
+              { t:'Cómo crear davidOS en HTML',    ch:'David Dev',    v:'1.2M', dur:'12:34' },
+              { t:'Top 10 trucos de JavaScript',    ch:'Code Master',  v:'450K', dur:'8:21' },
+              { t:'Web Audio API en 5 minutos',     ch:'SoundLab',     v:'88K',  dur:'5:02' },
+              { t:'CSS Moderno 2026',               ch:'CSS Wizards',  v:'230K', dur:'15:47' },
+              { t:'Lo-fi para programar',           ch:'Chill Beats',  v:'3.4M', dur:'1:02:14' },
+              { t:'Review: Nueva GPU 2026',         ch:'TechReview',   v:'720K', dur:'18:33' },
+              { t:'Historia de los SO',             ch:'TechHistoria', v:'1.5M', dur:'22:10' },
+              { t:'Pixel Art Tutorial',             ch:'PixelPro',     v:'330K', dur:'10:05' }
+            ];
+            return `
+              <div style="display:flex; flex-direction:column; height:100%; background:#0f0f0f;">
+                <div style="padding:10px; border-bottom:1px solid #222; display:flex; align-items:center; gap:10px;">
+                  <span style="font-size:20px; color:#ff0000;">▶</span><b>YouTube</b>
+                  <input type="text" placeholder="🔍 Buscar en YouTube…" class="login-input" style="flex:1; text-align:left; font-size:12px; max-width:300px; padding:4px 12px; background:rgba(255,255,255,0.06);">
+                </div>
+                <div style="flex:1; overflow-y:auto; padding:12px; display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; align-content:start;">
+                  ${videos.map((v,i) => `
+                    <div style="cursor:pointer;" onclick="window.__ytPlay(${i})">
+                      <div style="background:linear-gradient(135deg,#2b2b2b,#4a4a4a); height:110px; border-radius:8px; display:flex; align-items:center; justify-content:center; position:relative; color:white; font-size:30px;">▶<span style="position:absolute; bottom:6px; right:6px; background:rgba(0,0,0,0.8); padding:1px 5px; border-radius:3px; font-size:10px;">${v.dur}</span></div>
+                      <div style="font-size:12px; font-weight:bold; margin-top:6px; line-height:1.3; color:#fff;">${v.t}</div>
+                      <div style="font-size:11px; opacity:0.6; color:#aaa;">${v.ch} · ${v.v} vistas</div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>`;
+          }
+
+          case 'run': return `
+            <div style="padding:16px; display:flex; flex-direction:column; gap:14px; height:100%;">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <span style="font-size:28px;">🏃</span>
+                <div><b>Ejecutar</b><div style="font-size:11px; opacity:0.7;">Escribe el nombre de una app o un comando</div></div>
+              </div>
+              <div style="display:flex; gap:6px;">
+                <input type="text" id="run-input" placeholder="Ej: calc, notepad, cmd, terminal, run, help" class="login-input" style="flex:1; text-align:left; font-family:monospace; font-size:13px;" onkeypress="if(event.key==='Enter') window.__runExec()" autofocus>
+                <button class="app-btn" onclick="window.__runExec()">Aceptar</button>
+                <button class="app-btn" style="background:rgba(255,255,255,0.1);" onclick="closeWin('win-run')">Cancelar</button>
+              </div>
+              <div style="font-size:11px; opacity:0.7;">
+                <b>Historial reciente:</b>
+                <div id="run-history-list" style="margin-top:4px;">${(LSg('dv-runhist',[])).map(c => `<div style="cursor:pointer; padding:3px 6px; border-radius:3px;" onclick="document.getElementById('run-input').value='${c}'" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">• ${c}</div>`).join('') || '<span style="opacity:0.5">Vacío</span>'}</div>
+              </div>
+              <div style="font-size:11px; opacity:0.55; border-top:1px solid rgba(255,255,255,0.08); padding-top:8px;">
+                💡 Ejemplos: <code>calc</code> · <code>notepad</code> · <code>cmd</code> · <code>terminal</code> · <code>explorer</code> · <code>settings</code> · <code>taskmgr</code> · <code>sysinfo</code> · <code>help</code> · <code>bsod</code>
+              </div>
+            </div>`;
+
+          case 'media': {
+            const pl = window.__mediaPlaylist;
+            const cur = pl[window.__mediaIndex] || { name:'—', dur:0 };
+            return `
+              <div style="display:flex; flex-direction:column; height:100%; padding:14px; gap:12px; background:linear-gradient(135deg,#1a1a2e,#16213e);">
+                <div style="flex:1; display:flex; gap:14px; overflow:hidden;">
+                  <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;">
+                    <div style="width:130px; height:130px; border-radius:10px; background:linear-gradient(135deg,#e91e63,#9c27b0); display:flex; align-items:center; justify-content:center; font-size:60px; color:white; box-shadow:0 10px 30px rgba(0,0,0,0.55);">🎵</div>
+                    <b id="media-title" style="font-size:14px; text-align:center;">${cur.name}</b>
+                    <div id="media-time" style="font-size:11px; opacity:0.7;">00:00 / ${fmtTime(cur.dur)}</div>
+                    <div style="width:100%; max-width:280px; height:4px; background:rgba(255,255,255,0.15); border-radius:2px; overflow:hidden;">
+                      <div id="media-progress" style="height:100%; background:var(--accent-color); width:0%; transition:width 1s linear;"></div>
+                    </div>
+                    <div style="display:flex; gap:10px; align-items:center; margin-top:6px;">
+                      <button class="app-btn" style="background:transparent; font-size:16px;" onclick="window.__mediaPrev()">⏮</button>
+                      <button class="app-btn" style="font-size:20px; padding:10px 18px; border-radius:50%;" id="media-play-btn" onclick="window.__mediaToggle()">${window.__mediaPlaying?'⏸':'▶'}</button>
+                      <button class="app-btn" style="background:transparent; font-size:16px;" onclick="window.__mediaNext()">⏭</button>
+                    </div>
+                    <div style="display:flex; gap:6px;">
+                      <button class="app-btn" style="font-size:11px; background:rgba(255,255,255,0.1);" onclick="window.__mediaVol(-10)">🔉 -</button>
+                      <button class="app-btn" style="font-size:11px; background:rgba(255,255,255,0.1);" onclick="window.__mediaVol(10)">🔊 +</button>
+                    </div>
+                  </div>
+                  <div style="width:210px; background:rgba(0,0,0,0.3); border-radius:8px; padding:10px; overflow-y:auto; flex-shrink:0;">
+                    <b style="font-size:12px;">📻 Playlist</b>
+                    <div style="margin-top:6px;">
+                      ${pl.map((s,i) => `
+                        <div onclick="window.__mediaPlay(${i})" style="cursor:pointer; padding:6px 8px; border-radius:5px; font-size:11px; margin-bottom:2px; ${i===window.__mediaIndex?'background:var(--accent-color);':''}">
+                          ${i===window.__mediaIndex && window.__mediaPlaying ? '▶ ' : ''}${s.name}
+                          <div style="opacity:0.6; font-size:10px;">${fmtTime(s.dur)}</div>
+                        </div>
+                      `).join('')}
+                    </div>
+                  </div>
+                </div>
+              </div>`;
+          }
+        }
+        return origGetApp4(id);
+      };
+
+      window.__resetAchievements = function(){
+        window.__unlockedAchievements = ['first-boot'];
+        LSs('dv-achievements', window.__unlockedAchievements);
+        showToast('🏆 Logros reiniciados');
+        const b = document.getElementById('body-achievements');
+        if (b) b.innerHTML = getAppContent('achievements');
+      };
+
+      window.__ezpackAdd = function(){
+        const name = 'archivo_' + (window.__ezpackQueue.length+1) + '.dat';
+        window.__ezpackQueue.push(name);
+        window.__ezpackLog.push(`➕ Añadido: ${name}`);
+        if (window.__ezpackLog.length > 8) window.__ezpackLog.shift();
+        refreshEzpack();
+      };
+      window.__ezpackCompress = function(){
+        if (!window.__ezpackQueue.length) { showToast('📦 Cola vacía'); return; }
+        const wrap = document.getElementById('ezpack-progress-wrap');
+        const bar = document.getElementById('ezpack-bar');
+        const txt = document.getElementById('ezpack-progress-text');
+        if (!wrap) return;
+        wrap.style.display = 'block';
+        let p = 0;
+        const total = window.__ezpackQueue.length;
+        const sizeBefore = (Math.random()*4000+500).toFixed(0);
+        const sizeAfter = (sizeBefore * 0.42).toFixed(0);
+        const iv = setInterval(() => {
+          p += Math.random()*18 + 6;
+          if (p >= 100) {
+            p = 100; clearInterval(iv);
+            window.__ezpackLog.push(`🗜️ Comprimidos ${total} archivos (${sizeBefore} → ${sizeAfter} KB, -58%)`);
+            window.__ezpackLog.push(`✨ IA aplicada: ratio óptimo`);
+            window.__ezpackQueue = [];
+            setTimeout(() => { wrap.style.display='none'; bar.style.width='0%'; refreshEzpack(); }, 800);
+            showNotification('📦 Compresión IA completada');
+          }
+          bar.style.width = p + '%';
+          txt.innerText = `Comprimiendo con IA... ${p.toFixed(0)}%`;
+        }, 200);
+      };
+      window.__ezpackExtract = function(){
+        window.__ezpackLog.push('📂 Extrayendo archivos...');
+        if (window.__ezpackLog.length > 8) window.__ezpackLog.shift();
+        refreshEzpack();
+        setTimeout(() => {
+          window.__ezpackLog.push('✅ Extracción completada');
+          refreshEzpack();
+        }, 900);
+        showNotification('📂 Extrayendo paquete...');
+      };
+      window.__ezpackClear = function(){ window.__ezpackQueue = []; window.__ezpackLog = []; refreshEzpack(); };
+      function refreshEzpack(){
+        const q = document.getElementById('ezpack-queue');
+        const l = document.getElementById('ezpack-log');
+        if (q) q.innerHTML = window.__ezpackQueue.length ? window.__ezpackQueue.map(f => `<div>• ${f}</div>`).join('') : '<span style="opacity:0.5">Sin archivos</span>';
+        if (l) l.innerHTML = window.__ezpackLog.join('<br>') || '<span style="opacity:0.5">Esperando...</span>';
+      }
+
+      window.__controlOpen = function(app){
+        if (app === 'users') return showNotification(`👤 Usuario activo: ${activeUser}`);
+        if (app === 'network') return showNotification('🌐 Red: ' + document.getElementById('wifi-display').innerText);
+        if (app === 'devices') return showNotification('🖨️ 3 dispositivos conectados');
+        if (app === 'updates') return showNotification('🔄 El sistema está actualizado');
+        if (app === 'datetime') return showNotification('📅 ' + new Date().toLocaleString());
+        openApp(app);
+      };
+
+      window.__excelSet = function(cell, val){
+        if (val === '') delete window.__excelData[cell];
+        else window.__excelData[cell] = val;
+        window.__unlockAchievement('excel-user');
+      };
+      window.__excelSave = function(){ LSs('dv-excel', window.__excelData); showToast('💾 Hoja guardada'); };
+      window.__excelClear = function(){ window.__excelData = {}; LSs('dv-excel', {}); const b = document.getElementById('body-excel'); if (b) b.innerHTML = getAppContent('excel'); showToast('🧹 Hoja limpiada'); };
+      window.__excelFormula = function(f){
+        if (!f.startsWith('=')) return;
+        const m = f.match(/^=SUMA\(([A-F])(\d+):([A-F])(\d+)\)$/i);
+        if (m){
+          const cols = 'ABCDEF';
+          const c1 = cols.indexOf(m[1].toUpperCase()), r1 = parseInt(m[2]);
+          const c2 = cols.indexOf(m[3].toUpperCase()), r2 = parseInt(m[4]);
+          let sum = 0;
+          for (let c = Math.min(c1,c2); c <= Math.max(c1,c2); c++)
+            for (let r = Math.min(r1,r2); r <= Math.max(r1,r2); r++){
+              const v = parseFloat(window.__excelData[cols[c]+r]);
+              if (!isNaN(v)) sum += v;
+            }
+          showNotification(`= ${sum}`);
+          return;
+        }
+        showNotification('Fórmula no soportada (usa =SUMA(A1:A5))');
+      };
+
+      window.__wordFmt = function(cmd, val){
+        document.execCommand(cmd, false, val);
+        const ed = document.getElementById('word-editor');
+        if (ed) ed.focus();
+      };
+      window.__wordSave = function(){
+        window.__wordContent = document.getElementById('word-editor').innerHTML;
+        LSs('dv-word', window.__wordContent);
+        showToast('💾 Documento guardado');
+        window.__unlockAchievement('word-user');
+      };
+      window.__wordAutoSave = function(html){
+        clearTimeout(window.__wordTimer);
+        window.__wordTimer = setTimeout(() => {
+          window.__wordContent = html;
+          LSs('dv-word', html);
+          const st = document.getElementById('word-stats');
+          if (st){ const t = document.getElementById('word-editor').innerText; st.innerText = `Palabras: ${t.trim()?t.trim().split(/\s+/).length:0}`; }
+        }, 700);
+      };
+      window.__wordPrint = function(){ showToast('🖨️ Enviado a impresora (simulado)'); };
+
+      function refreshPPT(){ const b = document.getElementById('body-powerpoint'); if (b) b.innerHTML = getAppContent('powerpoint'); }
+      function savePPT(){ LSs('dv-ppt', window.__pptSlides); }
+      window.__pptAdd = function(){ window.__pptSlides.push({ title:'Nueva diapositiva', body:'' }); window.__pptCurrent = window.__pptSlides.length-1; savePPT(); refreshPPT(); };
+      window.__pptDel = function(){ if (window.__pptSlides.length <= 1) return; window.__pptSlides.splice(window.__pptCurrent,1); window.__pptCurrent = Math.max(0, window.__pptCurrent-1); savePPT(); refreshPPT(); };
+      window.__pptGo = function(i){ window.__pptCurrent = i; refreshPPT(); };
+      window.__pptPrev = function(){ window.__pptCurrent = Math.max(0, window.__pptCurrent-1); refreshPPT(); };
+      window.__pptNext = function(){ window.__pptCurrent = Math.min(window.__pptSlides.length-1, window.__pptCurrent+1); refreshPPT(); };
+      window.__pptUpdate = function(k,v){ window.__pptSlides[window.__pptCurrent][k] = v; savePPT(); };
+      window.__pptPresent = function(){ const s = window.__pptSlides[window.__pptCurrent]; showNotification(`▶ Presentando: ${s.title || 'Diapositiva '+(window.__pptCurrent+1)}`); };
+
+      function renderGemini(){
+        const c = document.getElementById('gemini-chat');
+        if (!c) return;
+        c.innerHTML = window.__geminiMessages.map(m => `
+          <div style="display:flex; gap:8px; ${m.role==='user'?'justify-content:flex-end;':''}">
+            ${m.role==='ai' ? '<div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#4285f4,#a855f7);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">✨</div>' : ''}
+            <div style="max-width:75%; padding:8px 12px; border-radius:10px; font-size:13px; line-height:1.45; white-space:pre-wrap; ${m.role==='user'?'background:var(--accent-color); color:white;':'background:rgba(255,255,255,0.06);'}">${m.text}</div>
+            ${m.role==='user' ? '<div style="width:28px;height:28px;border-radius:50%;background:var(--accent-color);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">👤</div>' : ''}
+          </div>
+        `).join('');
+        c.scrollTop = c.scrollHeight;
+      }
+      const GEMINI_REPLIES = [
+        'Interesante pregunta. En davidOS todo está construido con HTML, CSS y JavaScript puro.',
+        'Puedo ayudarte con eso. ¿Te gustaría saber más sobre el Kernel o el BIOS?',
+        '¡Buena idea! Recuerda que puedes usar Ctrl+K para abrir la paleta de comandos.',
+        'Eso depende del contexto. ¿Podrías darme más detalles?',
+        'Aquí tienes una sugerencia: prueba el Pomodoro 🍅 para concentrarte mejor.',
+        'davidOS tiene muchas apps interesantes. ¿Has probado el Administrador de tareas?',
+        'Genial. ¿Quieres que te explique cómo funciona el sistema de ventanas?',
+        'Esa es una excelente pregunta. En resumen: la simplicidad es la clave.'
+      ];
+      window.__geminiSend = function(){
+        const inp = document.getElementById('gemini-input');
+        if (!inp) return;
+        const txt = inp.value.trim(); if (!txt) return;
+        window.__geminiMessages.push({ role:'user', text: txt });
+        inp.value = '';
+        LSs('dv-gemini', window.__geminiMessages);
+        renderGemini();
+        window.__unlockAchievement('ai-chat');
+        setTimeout(() => {
+          const reply = GEMINI_REPLIES[Math.floor(Math.random()*GEMINI_REPLIES.length)];
+          window.__geminiMessages.push({ role:'ai', text: reply });
+          LSs('dv-gemini', window.__geminiMessages);
+          renderGemini();
+        }, 700 + Math.random()*600);
+      };
+      window.__geminiClear = function(){
+        window.__geminiMessages = [{ role:'ai', text:'¡Hola! Soy Gemini AI en davidOS. ¿En qué puedo ayudarte hoy?' }];
+        LSs('dv-gemini', window.__geminiMessages);
+        renderGemini();
+      };
+
+      window.__ytPlay = function(i){
+        const videos = ['Cómo crear davidOS en HTML','Top 10 trucos de JavaScript','Web Audio API en 5 minutos','CSS Moderno 2026','Lo-fi para programar','Review: Nueva GPU 2026','Historia de los SO','Pixel Art Tutorial'];
+        showNotification('▶ Reproduciendo: ' + (videos[i]||'video'));
+      };
+
+      window.__runExec = function(){
+        const inp = document.getElementById('run-input');
+        if (!inp) return;
+        const cmd = inp.value.trim().toLowerCase();
+        if (!cmd) return;
+        const hist = LSg('dv-runhist', []);
+        if (!hist.includes(cmd)) hist.unshift(cmd);
+        LSs('dv-runhist', hist.slice(0,10));
+        const app = apps.find(a => a.id === cmd || a.name.toLowerCase() === cmd);
+        if (app) { openApp(app.id); closeWin('win-run'); showToast(`🚀 Abriendo ${app.name}...`); return; }
+        if (cmd === 'help') { showToast('Apps: calc, notepad, cmd, terminal, explorer, settings, taskmgr, sysinfo'); return; }
+        if (cmd === 'bsod' || cmd === 'crash') { closeWin('win-run'); triggerBSOD(); return; }
+        showToast(`❌ No se encontró "${cmd}"`);
+      };
+
+      window.__mediaToggle = function(){
+        const playBtn = document.getElementById('media-play-btn');
+        if (window.__mediaPlaying) {
+          window.__mediaPlaying = false;
+          clearInterval(window.__mediaTimer);
+          if (playBtn) playBtn.innerText = '▶';
+          window.__musicStop && window.__musicStop();
+        } else {
+          window.__mediaPlaying = true;
+          if (playBtn) playBtn.innerText = '⏸';
+          window.__musicPlay && window.__musicPlay(440);
+          const cur = window.__mediaPlaylist[window.__mediaIndex];
+          const dur = cur ? cur.dur : 180;
+          clearInterval(window.__mediaTimer);
+          window.__mediaTimer = setInterval(() => {
+            window.__mediaElapsed++;
+            if (window.__mediaElapsed >= dur) { window.__mediaElapsed = 0; clearInterval(window.__mediaTimer); window.__mediaNext(); return; }
+            const tEl = document.getElementById('media-time');
+            const pEl = document.getElementById('media-progress');
+            if (tEl) tEl.innerText = `${fmtTime(window.__mediaElapsed)} / ${fmtTime(dur)}`;
+            if (pEl) pEl.style.width = ((window.__mediaElapsed/dur)*100).toFixed(1) + '%';
+          }, 1000);
+        }
+      };
+      window.__mediaPlay = function(i){
+        window.__mediaIndex = i;
+        window.__mediaElapsed = 0;
+        clearInterval(window.__mediaTimer);
+        window.__mediaPlaying = false;
+        window.__musicStop && window.__musicStop();
+        const b = document.getElementById('body-media');
+        if (b) b.innerHTML = getAppContent('media');
+        setTimeout(() => window.__mediaToggle(), 120);
+      };
+      window.__mediaNext = function(){ window.__mediaPlay((window.__mediaIndex + 1) % window.__mediaPlaylist.length); };
+      window.__mediaPrev = function(){ window.__mediaPlay((window.__mediaIndex - 1 + window.__mediaPlaylist.length) % window.__mediaPlaylist.length); };
+      window.__mediaVol = function(d){
+        const s = document.getElementById('volume-slider');
+        if (s) { setVolume(Math.max(0, Math.min(100, parseInt(s.value,10) + d))); showToast(`🔊 Volumen: ${s.value}%`); }
+      };
+
+      const _origCloseWin = window.closeWin;
+      window.closeWin = function(id){
+        if (id === 'win-media') {
+          clearInterval(window.__mediaTimer);
+          window.__mediaPlaying = false;
+          window.__musicStop && window.__musicStop();
+        }
+        return _origCloseWin.apply(this, arguments);
+      };
+
+      const APPS_FINALES = [
+        ['achievements','Logros','🏆'],
+        ['ezpack','EZPack AI','📦'],
+        ['control','Panel Control','🎛️'],
+        ['excel','Excel','📊'],
+        ['word','Word','📝'],
+        ['powerpoint','PowerPoint','📅'],
+        ['gemini','Gemini AI','✨'],
+        ['youtube','YouTube','▶️'],
+        ['run','Ejecutar','🏃'],
+        ['media','Reproductor','🎵']
+      ];
+      APPS_FINALES.forEach(([id,name,icon]) => {
+        if (!apps.some(a => a.id === id)) apps.push({ id, name, icon });
+      });
+      Object.keys(editionLimits).forEach(ed => {
+        if (ed === 'Pro') return;
+        APPS_FINALES.forEach(([id]) => {
+          if (!editionLimits[ed].includes(id)) editionLimits[ed].push(id);
+        });
+      });
+
+      const wcEl2 = document.getElementById('windows-container');
+      if (wcEl2) {
+        const obs = new MutationObserver(() => {
+          if (document.querySelectorAll('.window').length >= 5) window.__unlockAchievement('opened-5');
+        });
+        obs.observe(wcEl2, { childList: true });
+      }
+      document.addEventListener('keydown', (e) => {
+        if (document.activeElement && document.activeElement.id === 'term-input' && e.key === 'Enter') {
+          window.__unlockAchievement('terminal-user');
+        }
+      }, true);
+      document.addEventListener('click', (e) => {
+        if (e.target.closest('#win-calc')) window.__unlockAchievement('calc-user');
+      }, true);
+      const _origSetAccent = window.__setAccent;
+      if (_origSetAccent) window.__setAccent = function(c){ _origSetAccent(c); window.__unlockAchievement('custom-accent'); };
+      const _origLock = window.__lockScreen;
+      if (_origLock) window.__lockScreen = function(){ _origLock(); window.__unlockAchievement('lock-user'); };
+      const _origBSOD = window.triggerBSOD;
+      if (_origBSOD) window.triggerBSOD = function(){ _origBSOD(); window.__unlockAchievement('bsod'); };
+      (function(){
+        const KONAMI2 = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+        let idx = 0;
+        document.addEventListener('keydown', (e) => {
+          if (e.key.toLowerCase() === KONAMI2[idx].toLowerCase()) {
+            idx++;
+            if (idx === KONAMI2.length) { idx = 0; window.__unlockAchievement('konami'); }
+          } else { idx = 0; }
+        });
+      })();
+      const _origShowNotif = window.showNotification;
+      if (_origShowNotif) {
+        window.showNotification = function(msg){
+          if (typeof msg === 'string' && msg.indexOf('Pomodoro completado') !== -1) {
+            window.__unlockAchievement('pomodoro');
+          }
+          return _origShowNotif.apply(this, arguments);
+        };
+      }
+
+      console.log('%c davidOS v3.2 — 10 apps con ventanas propias cargadas ', 'background:#27c93f; color:white; padding:4px 8px; border-radius:4px;');
     })();
   </script>
 </body>
