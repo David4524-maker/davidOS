@@ -1,6 +1,26 @@
+# davidOS
+
+---
+
+Bienvenido a davidOS!! la ultima version fue la 3.1 y en esa version se añadio 70 mejoras, los trabajos que hagas en davidOS se guardan mediante `localStorage`
+a si qué puedes continuar tu trabajo si quieres
+
+# davidPhone
+
+---
+
+davidPhone fue davidOS pero version celular, a ver, se que le falta mucho por mejorar, pero se le van a añadir unas mejoritas
+
+# davidOS Engine
+
+---
+
+Es el motor de davidOS, usenlo si quieren
+
+---
 
 
-`Bienvenidos a davidOS!`                                        Estos son los requisitos minimos 
+### Requisitos minimos:
 
 Navegador web: Google Chrome, Mozilla Firefox, Microsoft Edge o Safari con soporte actualizado para HTML5 y JavaScript (ES6+).
 
@@ -15,5 +35,5 @@ Pantalla / Resolución: 1024 × 768 píxeles para una correcta disposición del 
 ---
 
 
-<img width="792" height="724" alt="Captura de pantalla 2026-09-12 142210" src="https://github.com/user-attachments/assets/fac2745a-30b6-4066-995d-40fbffe5457d" />
+<img width="1908" height="931" alt="Captura de pantalla 2026-09-16 155619" src="https://github.com/user-attachments/assets/c8ea9452-42c4-4ddb-9267-4d998c419912" />
 
