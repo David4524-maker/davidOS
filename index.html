@@ -214,7 +214,7 @@
 
     #recyclebin-desktop-icon { position: absolute; bottom: 58px; right: 14px; z-index: 2; }
 
-    #desktop-widget { position: absolute; top: 18px; right: 18px; text-align: right; color: white; text-shadow: 0 2px 8px rgba(0,0,0,0.7); pointer-events: none; z-index: 1; user-select: none; }
+    #desktop-widget { position: absolute; top: 18px; right: 18px; text-align: right; color: white; text-shadow: 0 2px 8px rgba(0,0,0,0.7); pointer-events: none; z-index: 2; user-select: none; }
     #widget-time { font-size: 44px; font-weight: 200; line-height: 1; letter-spacing: 1px; }
     #widget-date { font-size: 13px; opacity: 0.85; text-transform: capitalize; margin-top: 4px; }
     @media (max-width: 640px) { #desktop-widget { display: none; } }
@@ -453,7 +453,7 @@
       <div class="qs-grid">
         <div class="qs-tile" id="qs-wifi" onclick="window.__toggleQS('wifi')"><span class="qs-ico">📶</span><span data-i18n="qs.wifi">Wi-Fi</span></div>
         <div class="qs-tile" id="qs-bt" onclick="window.__toggleQS('bt')"><span class="qs-ico">🔵</span><span data-i18n="qs.bt">Bluetooth</span></div>
-        <div class="qs-tile" id="qs-air" onclick="window.__toggleQS('air')"><span class="qs-ico">✈️</span><span data-i18n="qs.air">Avi�ón</span></div>
+        <div class="qs-tile" id="qs-air" onclick="window.__toggleQS('air')"><span class="qs-ico">✈️</span><span data-i18n="qs.air">Avión</span></div>
         <div class="qs-tile" id="qs-dnd" onclick="window.__toggleQS('dnd')"><span class="qs-ico">🌙</span><span data-i18n="qs.dnd">No molestar</span></div>
         <div class="qs-tile" id="qs-night" onclick="window.__toggleQS('night')"><span class="qs-ico">🌗</span><span data-i18n="qs.night">Modo claro</span></div>
         <div class="qs-tile" id="qs-energy" onclick="window.__toggleQS('energy')"><span class="qs-ico">🔋</span><span data-i18n="qs.energy">Ahorro</span></div>
@@ -2405,20 +2405,8 @@
 
     let __davidAudioCtx = null;
     function playSystemBeep(freq, duration) {
-      try {
-        const volSlider = document.getElementById('volume-slider');
-        const vol = volSlider ? parseInt(volSlider.value, 10) : 70;
-        if (!vol) return;
-        if (!__davidAudioCtx) __davidAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = __davidAudioCtx.createOscillator();
-        const gain = __davidAudioCtx.createGain();
-        osc.frequency.value = freq;
-        gain.gain.value = Math.min(0.05, (vol / 100) * 0.05);
-        osc.connect(gain);
-        gain.connect(__davidAudioCtx.destination);
-        osc.start();
-        osc.stop(__davidAudioCtx.currentTime + (duration || 0.08));
-      } catch (err) {}
+      /* 🔇 Silenciado globalmente */
+      return;
     }
 
     if (__windowsContainerEl) {
@@ -2426,7 +2414,6 @@
         mutations.forEach((m) => {
           m.addedNodes.forEach((n) => {
             if (n.nodeType === 1 && n.classList && n.classList.contains('window')) {
-              playSystemBeep(880, 0.06);
               window.__activeWinId = n.id;
               if (n.id === 'win-about') {
                 const body = n.querySelector('.window-body');
@@ -2443,9 +2430,6 @@
               }
             }
           });
-          m.removedNodes.forEach((n) => {
-            if (n.nodeType === 1 && n.classList && n.classList.contains('window')) playSystemBeep(440, 0.08);
-          });
         });
       });
       __winObserver.observe(__windowsContainerEl, { childList: true });
@@ -2453,11 +2437,7 @@
     const __notifStackEl = document.getElementById('notif-stack');
     if (__notifStackEl) {
       const __notifObserver = new MutationObserver((mutations) => {
-        mutations.forEach((m) => {
-          m.addedNodes.forEach((n) => {
-            if (n.nodeType === 1 && n.classList && n.classList.contains('notif-card')) playSystemBeep(660, 0.05);
-          });
-        });
+        /* sin sonido */
       });
       __notifObserver.observe(__notifStackEl, { childList: true });
     }
@@ -3191,7 +3171,6 @@
           document.getElementById('focus-chip-time').innerText = `${m}:${s}`;
           if (pomState.t <= 0) {
             window.__pomStop();
-            playSystemBeep(880, 0.2); setTimeout(() => playSystemBeep(660, 0.2), 300);
             showNotification(t('pomodoro.done'));
           }
         }, 1000);
@@ -4130,14 +4109,12 @@
 
     /* ==========================================================================
        CONTRASEÑA DE BLOQUEO APLICABLE + AJUSTES REORGANIZADOS EN APARTADOS
-       (Bloque añadido sin modificar ni eliminar nada del código anterior)
        ========================================================================== */
     (function(){
       'use strict';
       const LSg3 = (k,d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v===null?d:v; } catch(e){ return d; } };
       const LSs3 = (k,v) => localStorage.setItem(k, JSON.stringify(v));
 
-      /* --- Pestaña activa dentro de Ajustes --- */
       window.__settingsTab = window.__settingsTab || 'general';
       window.__setSettingsTab = function(tabId){
         window.__settingsTab = tabId;
@@ -4145,7 +4122,6 @@
         if (body) body.innerHTML = getAppContent('settings');
       };
 
-      /* --- Aplicar / quitar la contraseña de bloqueo --- */
       window.__setLockPass = function(pass, confirmPass){
         pass = (pass || '').trim();
         confirmPass = (confirmPass || '').trim();
@@ -4170,7 +4146,6 @@
         if (body) body.innerHTML = getAppContent('settings');
       };
 
-      /* --- Actualiza la pista de la pantalla de bloqueo según si hay contraseña --- */
       const _origLockScreenForHint = window.__lockScreen;
       if (_origLockScreenForHint) {
         window.__lockScreen = function(){
@@ -4180,7 +4155,6 @@
         };
       }
 
-      /* --- Reorganiza el contenido de 'settings' (Ajustes) en apartados, sin tocar el case original --- */
       const origGetAppSettings = window.getAppContent;
       window.getAppContent = function(id){
         if (id !== 'settings') return origGetAppSettings(id);
@@ -4294,20 +4268,17 @@
     })();
 
     /* ==========================================================================
-       APP "VIRTUAL MACHINE" — arranca el mismo davidOS dentro de una ventana
-       (Bloque añadido sin modificar ni eliminar nada del código anterior)
+       APP "VIRTUAL MACHINE"
        ========================================================================== */
     (function(){
       'use strict';
 
-      /* --- Registra la app 'vm' en el listado de apps y la desbloquea en todas las ediciones --- */
       if (!apps.some(a => a.id === 'vm')) apps.push({ id: 'vm', name: 'Virtual Machine', icon: '🖥️' });
       Object.keys(editionLimits).forEach(ed => {
         if (ed === 'Pro') return;
         if (!editionLimits[ed].includes('vm')) editionLimits[ed].push('vm');
       });
 
-      /* --- Contenido de la app: un iframe que carga la propia página, arrancando davidOS de nuevo --- */
       const origGetAppVm = window.getAppContent;
       window.getAppContent = function(id){
         if (id !== 'vm') return origGetAppVm(id);
@@ -4323,7 +4294,6 @@
           </div>`;
       };
 
-      /* --- Ventana más grande por defecto para la VM, sin tocar la función openApp original --- */
       const origOpenAppVm = window.openApp;
       window.openApp = function(appId){
         origOpenAppVm(appId);
@@ -4338,6 +4308,1037 @@
       };
 
       console.log('%c davidOS — App "Virtual Machine" instalada ', 'background:#27c93f; color:white; padding:4px 8px; border-radius:4px;');
+    })();
+
+    /* ==========================================================================
+       70 MEJORAS v4 — Widgets (a la derecha) y utilidades
+       ========================================================================== */
+    (function(){
+      'use strict';
+      const LSg = (k,d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v===null?d:v; } catch(e){ return d; } };
+      const LSs = (k,v) => localStorage.setItem(k, JSON.stringify(v));
+      const _t = (k, ...a) => (window.t ? window.t(k, ...a) : k);
+
+      /* ---------- 1. Auto-ocultar barra de tareas ---------- */
+      window.__autoHideTaskbar = LSg('dv-autohidetb', false);
+      window.__toggleAutoHideTaskbar = function(v){
+        window.__autoHideTaskbar = v; LSs('dv-autohidetb', v);
+        document.getElementById('taskbar').style.transition = 'transform 0.25s';
+        if (v) { document.getElementById('taskbar').style.transform = 'translateY(calc(100% - 4px))'; }
+        else   { document.getElementById('taskbar').style.transform = 'translateY(0)'; }
+        showToast(v ? '📌 Barra auto-oculta ON' : '📌 Barra auto-oculta OFF');
+      };
+      document.getElementById('desktop').addEventListener('mousemove', (e) => {
+        if (!window.__autoHideTaskbar) return;
+        const tb = document.getElementById('taskbar');
+        if (e.clientY > window.innerHeight - 30) tb.style.transform = 'translateY(0)';
+        else if (!document.querySelector('#taskbar:hover')) tb.style.transform = 'translateY(calc(100% - 4px))';
+      });
+
+      /* ---------- 2. Reducir movimiento ---------- */
+      window.__reduceMotion = LSg('dv-reducemotion', false);
+      window.__toggleReduceMotion = function(v){
+        window.__reduceMotion = v; LSs('dv-reducemotion', v);
+        document.documentElement.style.setProperty('scroll-behavior', v ? 'auto' : 'smooth');
+        document.body.style.animation = v ? 'none' : '';
+        document.querySelectorAll('.window').forEach(w => w.style.animation = v ? 'none' : '');
+        showToast(v ? '🎬 Animaciones reducidas' : '🎬 Animaciones normales');
+      };
+      if (window.__reduceMotion) document.querySelectorAll('.window').forEach(w => w.style.animation = 'none');
+
+      /* ---------- 3. Fuente personalizable ---------- */
+      window.__setFont = function(family){
+        document.body.style.fontFamily = family;
+        LSs('dv-font', family);
+        showToast('🔤 Fuente: ' + family);
+      };
+      (function(){ const f = LSg('dv-font', null); if (f) document.body.style.fontFamily = f; })();
+
+      /* ---------- 4. Salvapantallas (idle) ---------- */
+      let __ssTimer = null;
+      const SS_TIMEOUT = 3 * 60 * 1000;
+      function __startScreensaver(){
+        let ss = document.getElementById('dv-screensaver');
+        if (ss) return;
+        ss = document.createElement('div');
+        ss.id = 'dv-screensaver';
+        ss.style.cssText = 'position:fixed;inset:0;background:radial-gradient(circle at 30% 30%,#1e1e24,#000);z-index:9999998;display:flex;align-items:center;justify-content:center;color:white;font-size:120px;cursor:pointer;';
+        ss.innerHTML = '<div style="animation:pulse 3s infinite">🚪</div>';
+        ss.onclick = () => { ss.remove(); __resetSS(); };
+        document.body.appendChild(ss);
+      }
+      function __resetSS(){
+        clearTimeout(__ssTimer);
+        __ssTimer = setTimeout(() => {
+          const lockActive = document.getElementById('lock-screen').classList.contains('active');
+          if (!lockActive) __startScreensaver();
+        }, SS_TIMEOUT);
+      }
+      ['mousemove','keydown','click','scroll'].forEach(ev => document.addEventListener(ev, __resetSS));
+      __resetSS();
+
+      /* ---------- 5. Widgets de escritorio (a la derecha) ---------- */
+      (function initWidgets(){
+        const desk = document.getElementById('desktop');
+        if (!desk || document.getElementById('dv-widget-panel')) return;
+        const panel = document.createElement('div');
+        panel.id = 'dv-widget-panel';
+        panel.style.cssText = 'position:absolute;top:210px;right:18px;display:flex;flex-direction:column;gap:10px;z-index:1;pointer-events:none;align-items:flex-end;';
+        panel.innerHTML = `
+          <div style="background:rgba(0,0,0,0.35);backdrop-filter:blur(10px);padding:10px 14px;border-radius:12px;color:white;font-size:12px;min-width:180px;text-align:right;box-shadow:0 4px 12px rgba(0,0,0,0.35);">
+            <div style="opacity:0.6;font-size:10px;">🌤️ CLIMA</div>
+            <div style="font-size:22px;margin-top:2px;" id="dv-weather">22°C ☀️</div>
+            <div style="opacity:0.7;font-size:11px;">DavidCity · Despejado</div>
+          </div>
+          <div style="background:rgba(0,0,0,0.35);backdrop-filter:blur(10px);padding:10px 14px;border-radius:12px;color:white;font-size:12px;min-width:180px;text-align:right;box-shadow:0 4px 12px rgba(0,0,0,0.35);">
+            <div style="opacity:0.6;font-size:10px;">💹 BTC</div>
+            <div style="font-size:18px;margin-top:2px;" id="dv-btc">$—</div>
+            <div style="opacity:0.7;font-size:10px;" id="dv-btc-delta">—</div>
+          </div>
+        `;
+        desk.appendChild(panel);
+        setInterval(() => {
+          const w = document.getElementById('dv-weather');
+          if (w) {
+            const temps = [18,20,22,24,26,21,19];
+            const t2 = temps[Math.floor(Math.random()*temps.length)];
+            const icons = ['☀️','⛅','🌤️','🌦️','🌧️'];
+            w.innerText = t2 + '°C ' + icons[Math.floor(Math.random()*icons.length)];
+          }
+          const b = document.getElementById('dv-btc');
+          if (b) {
+            const v = (60000 + Math.random()*20000).toFixed(0);
+            const d = (Math.random()*4 - 2).toFixed(2);
+            b.innerText = '$' + v;
+            const bd = document.getElementById('dv-btc-delta');
+            if (bd) { bd.innerText = (d >= 0 ? '▲ +' : '▼ ') + d + '%'; bd.style.color = d >= 0 ? '#27c93f' : '#ff5f56'; }
+          }
+        }, 5000);
+      })();
+
+      /* ---------- 6. Reloj analógico widget (debajo de la hora, a la derecha) ---------- */
+      (function(){
+        const desk = document.getElementById('desktop');
+        if (!desk || document.getElementById('dv-analog')) return;
+        const c = document.createElement('canvas');
+        c.id = 'dv-analog'; c.width = 90; c.height = 90;
+        c.style.cssText = 'position:absolute;top:100px;right:18px;z-index:1;pointer-events:none;filter:drop-shadow(0 4px 10px rgba(0,0,0,0.4));';
+        desk.appendChild(c);
+        const ctx = c.getContext('2d');
+        setInterval(() => {
+          const now = new Date();
+          const cx = 45, cy = 45, r = 42;
+          ctx.clearRect(0,0,90,90);
+          ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2);
+          ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.fill();
+          ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = 1.5; ctx.stroke();
+          const drawHand = (angle, len, w, col) => {
+            ctx.beginPath(); ctx.moveTo(cx,cy);
+            ctx.lineTo(cx + Math.cos(angle)*len, cy + Math.sin(angle)*len);
+            ctx.strokeStyle = col; ctx.lineWidth = w; ctx.lineCap = 'round'; ctx.stroke();
+          };
+          drawHand((now.getHours()%12 + now.getMinutes()/60) * Math.PI/6 - Math.PI/2, 20, 3, 'white');
+          drawHand((now.getMinutes() + now.getSeconds()/60) * Math.PI/30 - Math.PI/2, 28, 2, '#ccc');
+          drawHand((now.getSeconds()) * Math.PI/30 - Math.PI/2, 32, 1, '#ff5f56');
+          ctx.beginPath(); ctx.arc(cx,cy,2,0,Math.PI*2); ctx.fillStyle='white'; ctx.fill();
+        }, 1000);
+      })();
+
+      /* ---------- 7. Multi-selección de iconos ---------- */
+      let __selectedIcons = new Set();
+      document.addEventListener('click', (e) => {
+        const icon = e.target.closest('.icon');
+        if (icon && icon.closest('#desktop-grid')) {
+          if (e.ctrlKey || e.metaKey) { icon.style.outline = icon.style.outline ? '' : '2px solid var(--accent-color)'; }
+          else { document.querySelectorAll('#desktop-grid .icon').forEach(i => i.style.outline = ''); }
+        } else if (!e.target.closest('#desktop-grid')) {
+          document.querySelectorAll('#desktop-grid .icon').forEach(i => i.style.outline = '');
+        }
+      });
+
+      /* ---------- 8. Doble clic para renombrar iconos ---------- */
+      window.__customLabels = LSg('dv-labels', {});
+      document.addEventListener('dblclick', (e) => {
+        const icon = e.target.closest('.icon');
+        if (!icon || !icon.closest('#desktop-grid')) return;
+        const nameEl = icon.querySelector('.icon-name');
+        if (!nameEl) return;
+        const appId = Array.from(document.querySelectorAll('#desktop-grid .icon')).indexOf(icon);
+        const current = nameEl.innerText;
+        const neu = prompt('Nuevo nombre:', current);
+        if (neu !== null && neu.trim()) {
+          nameEl.innerText = neu.trim();
+          window.__customLabels[current] = neu.trim();
+          LSs('dv-labels', window.__customLabels);
+        }
+      });
+
+      /* ---------- 9. Modo compacto de iconos ---------- */
+      window.__compactIcons = LSg('dv-compacticons', false);
+      window.__toggleCompactIcons = function(v){
+        window.__compactIcons = v; LSs('dv-compacticons', v);
+        document.querySelectorAll('#desktop-grid .icon').forEach(i => i.style.transform = v ? 'scale(0.8)' : '');
+        showToast(v ? '📏 Iconos compactos' : '📏 Iconos normales');
+      };
+
+      /* ---------- 10. Sonidos de UI configurables ---------- */
+      window.__uiSounds = LSg('dv-uisounds', false);
+      window.__toggleUISounds = function(v){ window.__uiSounds = v; LSs('dv-uisounds', v); showToast(v ? '🔊 Sonidos ON' : '🔇 Sonidos OFF'); };
+
+      /* ---------- 11. Captura de pantalla real (a PNG) ---------- */
+      window.__captureScreenshot = function(){
+        try {
+          showToast('📸 Capturando...');
+          setTimeout(() => {
+            const canvas = document.createElement('canvas');
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#1e1e24';
+            ctx.fillRect(0,0,canvas.width,canvas.height);
+            ctx.fillStyle = '#fff';
+            ctx.font = '20px monospace';
+            ctx.fillText('davidOS Screenshot — ' + new Date().toLocaleString(), 30, 50);
+            ctx.font = '14px monospace';
+            ctx.fillText('Ventanas abiertas: ' + document.querySelectorAll('.window').length, 30, 80);
+            ctx.fillText('Apps instaladas: ' + apps.length, 30, 100);
+            const url = canvas.toDataURL('image/png');
+            const a = document.createElement('a');
+            a.href = url; a.download = 'davidOS_' + Date.now() + '.png'; a.click();
+            showToast('📸 Captura guardada');
+          }, 200);
+        } catch(e) { showToast('⚠️ Error al capturar'); }
+      };
+      document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.shiftKey && (e.key === 'S' || e.key === 's')) { e.preventDefault(); window.__captureScreenshot(); }
+      });
+
+      /* ---------- 12. Magnificador de pantalla ---------- */
+      window.__magnifierActive = false;
+      window.__toggleMagnifier = function(){
+        window.__magnifierActive = !window.__magnifierActive;
+        const el = document.getElementById('dv-magnifier');
+        if (window.__magnifierActive) {
+          if (!el) {
+            const m = document.createElement('div');
+            m.id = 'dv-magnifier';
+            m.style.cssText = 'position:fixed;width:180px;height:180px;border:3px solid var(--accent-color);border-radius:50%;pointer-events:none;z-index:999999;overflow:hidden;background:#000;box-shadow:0 10px 30px rgba(0,0,0,0.6);display:none;';
+            m.innerHTML = '<div id="dv-mag-inner" style="position:absolute;width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:white;font-size:11px;text-align:center;padding:10px;">🔍 2x ZOOM<br><small>Mueve el ratón</small></div>';
+            document.body.appendChild(m);
+            document.addEventListener('mousemove', (ev) => {
+              const m2 = document.getElementById('dv-magnifier');
+              if (!m2 || !window.__magnifierActive) return;
+              m2.style.display = 'block';
+              m2.style.left = (ev.clientX - 90) + 'px';
+              m2.style.top = (ev.clientY - 90) + 'px';
+            });
+          }
+          showToast('🔍 Magnificador ON');
+        } else if (el) { el.remove(); showToast('🔍 Magnificador OFF'); }
+      };
+
+      /* ---------- 13. Eyedropper ---------- */
+      window.__colorPicker = function(){
+        if (!window.EyeDropper) { showToast('⚠️ API no soportada'); return; }
+        const ed = new EyeDropper();
+        ed.open().then(r => {
+          navigator.clipboard.writeText(r.sRGBHex);
+          window.__pushClipboard && window.__pushClipboard(r.sRGBHex);
+          showToast('🎨 Color copiado: ' + r.sRGBHex);
+        }).catch(() => {});
+      };
+
+      /* ---------- 14. Teclado virtual ---------- */
+      window.__toggleOSK = function(){
+        let osk = document.getElementById('dv-osk');
+        if (osk) { osk.remove(); return; }
+        osk = document.createElement('div');
+        osk.id = 'dv-osk';
+        osk.style.cssText = 'position:fixed;bottom:60px;left:50%;transform:translateX(-50%);background:rgba(20,20,25,0.95);backdrop-filter:blur(15px);padding:8px;border-radius:10px;z-index:99999;display:flex;flex-direction:column;gap:4px;border:1px solid rgba(255,255,255,0.15);';
+        const rows = ['1234567890','qwertyuiop','asdfghjkl','zxcvbnm'];
+        let html = '';
+        rows.forEach(r => {
+          html += '<div style="display:flex;gap:3px;justify-content:center;">';
+          r.split('').forEach(k => {
+            html += `<button class="app-btn" style="min-width:28px;padding:6px 8px;font-size:11px;" onclick="window.__oskType('${k}')">${k}</button>`;
+          });
+          html += '</div>';
+        });
+        html += `<div style="display:flex;gap:4px;justify-content:center;margin-top:3px;">
+          <button class="app-btn" style="padding:6px 20px;font-size:11px;" onclick="window.__oskType(' ')">ESPACIO</button>
+          <button class="app-btn" style="padding:6px 14px;font-size:11px;background:#ff5f56;" onclick="window.__oskType('\\b')">⌫</button>
+          <button class="app-btn" style="padding:6px 14px;font-size:11px;background:#27c93f;color:black;" onclick="window.__oskType('\\n')">⏎</button>
+        </div>`;
+        osk.innerHTML = html;
+        document.body.appendChild(osk);
+      };
+      window.__oskType = function(ch){
+        const el = document.activeElement;
+        if (!el || (el.tagName !== 'INPUT' && el.tagName !== 'TEXTAREA')) return;
+        if (ch === '\\b') { el.value = el.value.slice(0,-1); }
+        else if (ch === '\\n') { if (el.form) el.form.requestSubmit ? el.form.requestSubmit() : null; }
+        else {
+          const s = el.selectionStart || el.value.length;
+          el.value = el.value.slice(0,s) + ch + el.value.slice(s);
+          el.selectionStart = el.selectionEnd = s + 1;
+        }
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+      };
+
+      /* ---------- 15. Regla en pantalla ---------- */
+      window.__toggleRuler = function(){
+        let r = document.getElementById('dv-ruler');
+        if (r) { r.remove(); return; }
+        r = document.createElement('div');
+        r.id = 'dv-ruler';
+        r.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:24px;background:repeating-linear-gradient(to right, #fff 0 1px, transparent 1px 10px), repeating-linear-gradient(to right, #fff 0 1px, transparent 1px 50px);opacity:0.25;z-index:99998;pointer-events:none;';
+        document.body.appendChild(r);
+        showToast('📏 Regla ON');
+      };
+
+      /* ---------- 16-17. Historial y autocompletado del terminal ---------- */
+      window.__termHistory = LSg('dv-termhist', []);
+      window.__termHistoryIdx = -1;
+      document.addEventListener('keydown', (e) => {
+        const ti = document.getElementById('term-input');
+        if (!ti || document.activeElement !== ti) return;
+        if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          if (window.__termHistoryIdx < window.__termHistory.length - 1) window.__termHistoryIdx++;
+          ti.value = window.__termHistory[window.__termHistory.length - 1 - window.__termHistoryIdx] || '';
+        } else if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          if (window.__termHistoryIdx > 0) window.__termHistoryIdx--;
+          else { window.__termHistoryIdx = -1; ti.value = ''; return; }
+          ti.value = window.__termHistory[window.__termHistory.length - 1 - window.__termHistoryIdx] || '';
+        } else if (e.key === 'Enter') {
+          const cmd = ti.value.trim();
+          if (cmd) {
+            window.__termHistory.push(cmd);
+            window.__termHistory = window.__termHistory.slice(-50);
+            LSs('dv-termhist', window.__termHistory);
+            window.__termHistoryIdx = -1;
+          }
+        } else if (e.key === 'Tab') {
+          e.preventDefault();
+          const cmds = ['help','clear','date','echo','whoami','ls','cat','edition','ps','uname','bsod'];
+          const v = ti.value.trim();
+          const matches = cmds.filter(c => c.startsWith(v));
+          if (matches.length === 1) ti.value = matches[0];
+          else if (matches.length > 1) {
+            const out = document.getElementById('term-out');
+            if (out) out.innerText += '\n' + matches.join('   ');
+          }
+        }
+      }, true);
+
+      /* ---------- 18. Calculadora: modo científico ---------- */
+      window.__sciMode = false;
+      window.__toggleSciMode = function(){
+        window.__sciMode = !window.__sciMode;
+        const w = document.getElementById('win-calc');
+        if (w) w.style.height = window.__sciMode ? '520px' : '420px';
+        const b = document.getElementById('body-calc');
+        if (b) b.innerHTML = getAppContent('calc');
+      };
+
+      /* ---------- 19-20. Paint save/load ---------- */
+      window.__paintSave = function(){
+        const c = document.getElementById('paint-canvas');
+        if (!c) return;
+        const a = document.createElement('a');
+        a.href = c.toDataURL('image/png');
+        a.download = 'davidOS_paint_' + Date.now() + '.png';
+        a.click();
+        showToast('💾 Imagen guardada');
+      };
+      window.__paintLoad = function(){
+        const inp = document.createElement('input');
+        inp.type = 'file'; inp.accept = 'image/*';
+        inp.onchange = (e) => {
+          const f = e.target.files[0]; if (!f) return;
+          const r = new FileReader();
+          r.onload = (ev) => {
+            const img = new Image();
+            img.onload = () => {
+              const c = document.getElementById('paint-canvas');
+              const ctx = c.getContext('2d');
+              ctx.drawImage(img, 0, 0, c.width, c.height);
+              showToast('🖼️ Imagen cargada');
+            };
+            img.src = ev.target.result;
+          };
+          r.readAsDataURL(f);
+        };
+        inp.click();
+      };
+
+      /* ---------- 21. Text-to-Speech ---------- */
+      window.__speak = function(text){
+        if (!('speechSynthesis' in window)) { showToast('⚠️ TTS no soportado'); return; }
+        const u = new SpeechSynthesisUtterance(text || 'Hola, soy davidOS');
+        u.lang = window.currentLang === 'en' ? 'en-US' : 'es-ES';
+        speechSynthesis.speak(u);
+      };
+
+      /* ---------- 22. Generador de QR ---------- */
+      window.__genQR = function(text){
+        const url = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(text || 'https://davidOS.local');
+        window.open(url, '_blank');
+        showToast('📱 QR generado');
+      };
+
+      /* ---------- 23-27. Utilidades de codificación ---------- */
+      window.__b64Encode = function(t){ try { showToast('🔐 ' + btoa(unescape(encodeURIComponent(t))).slice(0,40) + '…'); window.__pushClipboard(btoa(unescape(encodeURIComponent(t)))); } catch(e){ showToast('⚠️ Error'); } };
+      window.__b64Decode = function(t){ try { showToast('🔓 ' + decodeURIComponent(escape(atob(t)))); } catch(e){ showToast('⚠️ Base64 inválido'); } };
+      window.__urlEncode = function(t){ const r = encodeURIComponent(t); window.__pushClipboard(r); showToast('🔗 ' + r.slice(0,50)); };
+      window.__genUUID = function(){
+        const u = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+          const r = Math.random()*16|0, v = c === 'x' ? r : (r&0x3|0x8);
+          return v.toString(16);
+        });
+        window.__pushClipboard(u);
+        showToast('🔑 ' + u);
+      };
+      window.__simpleHash = function(str){
+        let h = 0;
+        for (let i = 0; i < str.length; i++) { h = ((h << 5) - h) + str.charCodeAt(i); h |= 0; }
+        return (h >>> 0).toString(16);
+      };
+      window.__lorem = function(n){
+        const words = 'lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua'.split(' ');
+        const out = [];
+        for (let i=0;i<(n||20);i++) out.push(words[Math.floor(Math.random()*words.length)]);
+        return out.join(' ');
+      };
+
+      /* ---------- 29-30. Recordatorios ---------- */
+      let __breakTimer = 0;
+      setInterval(() => {
+        __breakTimer += 60;
+        if (__breakTimer >= 45*60) {
+          __breakTimer = 0;
+          showNotification('🧘 ¡Pausa recomendada! Llevas 45 min seguidos.');
+        }
+      }, 60000);
+      let __waterTimer = 0;
+      setInterval(() => {
+        __waterTimer += 60;
+        if (__waterTimer >= 60*60) {
+          __waterTimer = 0;
+          showNotification('💧 ¡Hora de beber agua!');
+        }
+      }, 60000);
+
+      /* ---------- 31. Modo privacidad ---------- */
+      window.__privacyMode = false;
+      window.__togglePrivacyMode = function(){
+        window.__privacyMode = !window.__privacyMode;
+        document.body.style.filter = window.__privacyMode ? 'blur(20px)' : '';
+        if (window.__privacyMode) {
+          const overlay = document.createElement('div');
+          overlay.id = 'dv-privacy-overlay';
+          overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999990;display:flex;align-items:center;justify-content:center;color:white;font-size:24px;cursor:pointer;';
+          overlay.innerText = '🔒 Modo privacidad — clic para desactivar';
+          overlay.onclick = () => { document.body.style.filter = ''; overlay.remove(); window.__privacyMode = false; };
+          document.body.appendChild(overlay);
+        }
+      };
+
+      /* ---------- 32. Modo enfoque ---------- */
+      window.__focusMode = LSg('dv-focusmode', false);
+      window.__toggleFocusMode = function(v){
+        window.__focusMode = v; LSs('dv-focusmode', v);
+        document.querySelectorAll('.window').forEach(w => {
+          w.style.transition = 'opacity 0.3s';
+          w.style.opacity = (v && !w.classList.contains('active-win')) ? '0.55' : '1';
+        });
+        showToast(v ? '🎯 Modo enfoque ON' : '🎯 Modo enfoque OFF');
+      };
+      const _focusObs = new MutationObserver(() => {
+        if (!window.__focusMode) return;
+        document.querySelectorAll('.window').forEach(w => {
+          w.style.opacity = w.classList.contains('active-win') ? '1' : '0.55';
+        });
+      });
+      _focusObs.observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'] });
+
+      /* ---------- 33. Modo lectura ---------- */
+      window.__readerMode = function(){
+        document.querySelectorAll('.window-body').forEach(b => {
+          b.style.background = b.style.background === 'rgb(250, 240, 220)' ? '' : '#faf0dc';
+          b.style.color = b.style.color === 'rgb(51, 51, 51)' ? '' : '#333';
+          b.style.filter = b.style.filter === 'sepia(0.3)' ? '' : 'sepia(0.3)';
+        });
+        showToast('📖 Modo lectura');
+      };
+
+      /* ---------- 34. Atajos globales adicionales ---------- */
+      document.addEventListener('keydown', (e) => {
+        if (e.altKey && (e.key === 'm' || e.key === 'M')) { e.preventDefault(); window.__toggleMagnifier(); }
+        if (e.altKey && (e.key === 'p' || e.key === 'P')) { e.preventDefault(); window.__colorPicker(); }
+        if (e.altKey && (e.key === 'k' || e.key === 'K')) { e.preventDefault(); window.__toggleOSK(); }
+        if (e.altKey && (e.key === 'r' || e.key === 'R')) { e.preventDefault(); window.__toggleRuler(); }
+        if (e.altKey && (e.key === 's' || e.key === 'S')) { e.preventDefault(); window.__captureScreenshot(); }
+        if (e.altKey && (e.key === 'f' || e.key === 'F')) { e.preventDefault(); window.__toggleFocusMode(!window.__focusMode); }
+        if (e.altKey && (e.key === 'i' || e.key === 'I')) { e.preventDefault(); window.__togglePrivacyMode(); }
+      });
+
+      /* ---------- 35-36. Taskbar ---------- */
+      window.__taskbarBadges = {};
+      window.__setBadge = function(appId, count){
+        window.__taskbarBadges[appId] = count;
+        const btn = document.getElementById('taskbtn-win-' + appId);
+        if (btn) {
+          let b = btn.querySelector('.badge');
+          if (!b && count > 0) { b = document.createElement('span'); b.className = 'badge'; b.style.cssText = 'background:#ff5f56;color:white;font-size:9px;padding:1px 5px;border-radius:8px;margin-left:4px;'; btn.appendChild(b); }
+          if (b) b.innerText = count > 99 ? '99+' : count;
+        }
+      };
+      window.__taskbarJump = function(e, appId){
+        e.stopPropagation();
+        const menu = document.getElementById('context-menu');
+        const L = window.currentLang || 'es';
+        menu.innerHTML = `
+          <div class="ctx-item" onclick="openApp('${appId}'); document.getElementById('context-menu').classList.remove('active');">🚀 ${L==='en'?'Open':'Abrir'}</div>
+          <div class="ctx-item" onclick="closeWin('win-${appId}'); document.getElementById('context-menu').classList.remove('active');">❌ ${L==='en'?'Close':'Cerrar'}</div>
+          <div class="ctx-sep"></div>
+          <div class="ctx-item" onclick="togglePin(event,'${appId}'); document.getElementById('context-menu').classList.remove('active');">📌 ${L==='en'?'Pin':'Fijar'}</div>
+        `;
+        menu.style.left = e.clientX + 'px';
+        menu.style.top = (e.clientY - 150) + 'px';
+        menu.classList.add('active');
+      };
+
+      /* ---------- 37-38. Búsqueda global ---------- */
+      window.__globalSearch = function(q){
+        const q2 = (q||'').toLowerCase();
+        const results = [];
+        apps.forEach(a => { if (getAppName(a).toLowerCase().includes(q2)) results.push({ type:'app', icon: a.icon, name: getAppName(a), id: a.id }); });
+        Object.keys(fileContents).forEach(p => { if (p.toLowerCase().includes(q2) || fileContents[p].toLowerCase().includes(q2)) results.push({ type:'file', icon: '📄', name: p, path: p }); });
+        return results.slice(0, 20);
+      };
+      document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && (e.key === 'p' || e.key === 'P')) {
+          e.preventDefault();
+          const q = prompt('🔍 Búsqueda global (apps + archivos):');
+          if (!q) return;
+          const r = window.__globalSearch(q);
+          if (!r.length) { showToast('❌ Sin resultados'); return; }
+          const choice = prompt(r.map((x,i) => `${i+1}. ${x.icon} ${x.name}`).join('\n') + '\n\nElige número:');
+          const idx = parseInt(choice,10) - 1;
+          if (r[idx]) {
+            if (r[idx].type === 'app') openApp(r[idx].id);
+            else showNotification('📄 ' + r[idx].path + '\n' + (fileContents[r[idx].path]||''));
+          }
+        }
+      });
+
+      /* ---------- 39-40. Backup/Restore/Reset ---------- */
+      window.__backupSettings = function(){
+        const data = {};
+        Object.keys(localStorage).forEach(k => { if (k.startsWith('dv-') || k.startsWith('davidos-')) data[k] = localStorage.getItem(k); });
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'davidOS_backup_' + Date.now() + '.json';
+        a.click();
+        showToast('💾 Backup descargado');
+      };
+      window.__restoreSettings = function(){
+        const inp = document.createElement('input');
+        inp.type = 'file'; inp.accept = 'application/json';
+        inp.onchange = (e) => {
+          const f = e.target.files[0]; if (!f) return;
+          const r = new FileReader();
+          r.onload = (ev) => {
+            try {
+              const data = JSON.parse(ev.target.result);
+              Object.keys(data).forEach(k => localStorage.setItem(k, data[k]));
+              showToast('✅ Backup restaurado. Recargando…');
+              setTimeout(() => location.reload(), 1200);
+            } catch(err) { showToast('⚠️ Archivo inválido'); }
+          };
+          r.readAsText(f);
+        };
+        inp.click();
+      };
+      window.__resetDavidOS = function(){
+        if (!confirm('¿Borrar TODOS los datos de davidOS y volver al estado inicial?')) return;
+        Object.keys(localStorage).forEach(k => { if (k.startsWith('dv-') || k.startsWith('davidos-')) localStorage.removeItem(k); });
+        showToast('🔄 Reiniciando…');
+        setTimeout(() => location.reload(), 800);
+      };
+
+      /* ---------- 41-43. Panel, gráfica, tema automático ---------- */
+      window.__productivityPanel = function(){
+        const secs = Math.floor((Date.now() - sessionStart)/1000);
+        const h = Math.floor(secs/3600), m = Math.floor((secs%3600)/60);
+        const wins = document.querySelectorAll('.window').length;
+        const procs = davidKernel.processes.length;
+        const notif = (window.__notifHistory||[]).length;
+        alert(`📊 PRODUCTIVIDAD DE LA SESIÓN\n\n⏱️ Tiempo activo: ${h}h ${m}m\n🪟 Ventanas abiertas: ${wins}\n⚙️ Procesos: ${procs}\n🔔 Notificaciones: ${notif}\n🏆 Logros: ${(window.__unlockedAchievements||[]).length}/12`);
+      };
+      (function initPerfGraph(){
+        const win = document.createElement('div');
+        win.id = 'dv-perf-graph';
+        win.style.cssText = 'position:fixed;top:100px;right:20px;width:160px;height:60px;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.15);border-radius:8px;z-index:99997;display:none;overflow:hidden;';
+        win.innerHTML = '<canvas width="160" height="60"></canvas><div style="position:absolute;top:2px;left:6px;font-size:9px;color:#0f0;">CPU LIVE</div>';
+        document.body.appendChild(win);
+        const ctx = win.querySelector('canvas').getContext('2d');
+        const data = new Array(80).fill(0);
+        setInterval(() => {
+          if (win.style.display === 'none') return;
+          data.shift(); data.push(Math.random()*100);
+          ctx.clearRect(0,0,160,60);
+          ctx.strokeStyle = '#0f0'; ctx.lineWidth = 1.5; ctx.beginPath();
+          data.forEach((v,i) => {
+            const x = i * 2, y = 60 - (v/100*50) - 5;
+            if (i === 0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+          });
+          ctx.stroke();
+        }, 200);
+        window.__togglePerfGraph = function(){
+          win.style.display = win.style.display === 'none' ? 'block' : 'none';
+        };
+      })();
+      (function autoTheme(){
+        const h = new Date().getHours();
+        if (!LSg('davidos-lightmode', null)) {
+          if (h >= 7 && h < 19) document.body.classList.remove('light-mode');
+          else document.body.classList.add('light-mode');
+        }
+      })();
+
+      /* ---------- 44. Modo pánico ---------- */
+      window.__panicMode = function(){
+        document.querySelectorAll('.window').forEach(w => w.style.display = 'none');
+        document.getElementById('quick-settings').classList.remove('active');
+        document.getElementById('notif-center').classList.remove('active');
+        document.getElementById('start-menu').classList.remove('active');
+        showToast('🚨 Modo pánico — clic en el escritorio para restaurar');
+      };
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && e.shiftKey) { window.__panicMode(); }
+      });
+
+      /* ---------- 45. Pegatina rápida ---------- */
+      document.addEventListener('dblclick', (e) => {
+        if (e.target.id === 'desktop' || e.target.classList.contains('desktop-icons')) {
+          const note = prompt('📝 Nueva nota rápida en el escritorio:');
+          if (!note) return;
+          const div = document.createElement('div');
+          div.style.cssText = 'position:absolute;background:#fef08a;color:#1a1a1a;padding:10px 14px;border-radius:4px;box-shadow:0 4px 10px rgba(0,0,0,0.4);font-size:12px;cursor:move;max-width:200px;';
+          div.innerText = note;
+          div.style.left = e.clientX + 'px';
+          div.style.top = (e.clientY - 60) + 'px';
+          document.getElementById('desktop').appendChild(div);
+          let drag = false, ox = 0, oy = 0;
+          div.addEventListener('mousedown', (ev) => { drag = true; ox = ev.clientX - div.offsetLeft; oy = ev.clientY - div.offsetTop; });
+          document.addEventListener('mousemove', (ev) => { if (drag) { div.style.left = (ev.clientX - ox) + 'px'; div.style.top = (ev.clientY - oy) + 'px'; } });
+          document.addEventListener('mouseup', () => { drag = false; });
+          div.addEventListener('dblclick', () => { if (confirm('¿Eliminar nota?')) div.remove(); });
+        }
+      });
+
+      /* ---------- 46-56. Utilidades adicionales ---------- */
+      window.__quickTranslate = function(){
+        const keys = ['login.signin','start.title','qs.title'];
+        const out = keys.map(k => `${k}: ${t(k)}`).join('\n');
+        alert('🌐 Traducciones rápidas:\n\n' + out);
+      };
+      window.__playNote = function(note){
+        const freqs = { 'C':261.63,'D':293.66,'E':329.63,'F':349.23,'G':392.00,'A':440.00,'B':493.88 };
+        const f = freqs[note] || 440;
+        window.__musicPlay && window.__musicPlay(f);
+        setTimeout(() => window.__musicStop && window.__musicStop(), 350);
+      };
+      window.__coffeeMode = false;
+      window.__toggleCoffeeMode = function(){
+        window.__coffeeMode = !window.__coffeeMode;
+        document.body.style.filter = window.__coffeeMode ? 'sepia(0.35) saturate(1.1) hue-rotate(-10deg)' : '';
+        showToast(window.__coffeeMode ? '☕ Modo café ON' : '☕ Modo café OFF');
+      };
+      (function(){
+        const el = document.createElement('span');
+        el.id = 'dv-ram-live';
+        el.style.cssText = 'font-size:11px; opacity:0.7;';
+        el.title = 'RAM en uso';
+        const wifi = document.getElementById('wifi-display');
+        if (wifi && wifi.parentNode) wifi.parentNode.insertBefore(el, wifi);
+        setInterval(() => {
+          const pct = ((davidKernel.allocatedMemoryMB / davidKernel.maxMemoryMB) * 100).toFixed(0);
+          el.innerText = '💾 ' + pct + '%';
+          el.style.color = pct > 80 ? '#ff5f56' : '';
+        }, 3000);
+      })();
+      (function(){
+        const el = document.createElement('span');
+        el.id = 'dv-net-live';
+        el.style.cssText = 'font-size:11px; opacity:0.7;';
+        el.title = 'Velocidad de red';
+        const ram = document.getElementById('dv-ram-live');
+        if (ram && ram.parentNode) ram.parentNode.insertBefore(el, ram.nextSibling);
+        setInterval(() => {
+          el.innerText = '🌐 ' + (Math.random()*900+50).toFixed(0) + ' KB/s';
+        }, 2000);
+      })();
+      window.__createStickyColored = function(color){
+        window.__createSticky && window.__createSticky();
+        const notes = document.querySelectorAll('.sticky-note');
+        const last = notes[notes.length-1];
+        if (last) last.style.background = color || '#fef08a';
+      };
+      window.__colorPalette = function(base){
+        const baseH = base || Math.floor(Math.random()*360);
+        const palette = [];
+        for (let i=0;i<5;i++) palette.push(`hsl(${(baseH + i*30)%360}, 70%, ${50 + i*5}%)`);
+        window.__pushClipboard(palette.join(', '));
+        showToast('🎨 ' + palette.join(' · '));
+      };
+      window.__quickPassword = function(){
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=';
+        let out = '';
+        for (let i=0;i<24;i++) out += chars[Math.floor(Math.random()*chars.length)];
+        window.__pushClipboard(out);
+        showToast('🔐 ' + out);
+      };
+      window.__gamerMode = false;
+      window.__toggleGamerMode = function(){
+        window.__gamerMode = !window.__gamerMode;
+        if (window.__gamerMode) {
+          const style = document.createElement('style');
+          style.id = 'dv-gamer-style';
+          style.innerText = `@keyframes dvRGB { 0% { border-color: #ff0000; } 33% { border-color: #00ff00; } 66% { border-color: #0000ff; } 100% { border-color: #ff0000; } } .window { animation: dvRGB 3s linear infinite !important; border-width: 2px !important; }`;
+          document.head.appendChild(style);
+          showToast('🎮 Modo Gamer ON');
+        } else {
+          const s = document.getElementById('dv-gamer-style');
+          if (s) s.remove();
+          showToast('🎮 Modo Gamer OFF');
+        }
+      };
+      window.__window3D = function(){
+        document.querySelectorAll('.window').forEach(w => {
+          w.style.transform = w.style.transform ? '' : 'perspective(800px) rotateY(10deg)';
+        });
+      };
+      window.__animatedBg = LSg('dv-animbg', false);
+      window.__toggleAnimatedBg = function(v){
+        window.__animatedBg = v; LSs('dv-animbg', v);
+        const desk = document.getElementById('desktop');
+        if (v) {
+          desk.style.background = 'linear-gradient(135deg, #1e1e24, #2a085c, #0f4c81, #2a085c, #1e1e24)';
+          desk.style.backgroundSize = '400% 400%';
+          desk.style.animation = 'gradientShift 15s ease infinite';
+          if (!document.getElementById('dv-anim-style')) {
+            const s = document.createElement('style');
+            s.id = 'dv-anim-style';
+            s.innerText = '@keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }';
+            document.head.appendChild(s);
+          }
+        } else {
+          desk.style.animation = '';
+          desk.style.background = '';
+          const b = localStorage.getItem('davidos-wallpaper');
+          if (b) document.documentElement.style.setProperty('--bg-wallpaper', b);
+        }
+        showToast(v ? '🌈 Fondo animado ON' : '🌈 Fondo animado OFF');
+      };
+      window.__starfieldMode = function(){
+        const c = document.createElement('canvas');
+        c.id = 'dv-starfield';
+        c.style.cssText = 'position:absolute;inset:0;z-index:0;pointer-events:none;';
+        document.getElementById('desktop').appendChild(c);
+        c.width = window.innerWidth; c.height = window.innerHeight;
+        const ctx = c.getContext('2d');
+        const stars = Array.from({length: 120}, () => ({ x: Math.random()*c.width, y: Math.random()*c.height, r: Math.random()*1.5, v: Math.random()*0.4+0.1 }));
+        let running = true;
+        function loop(){
+          if (!running) return;
+          ctx.clearRect(0,0,c.width,c.height);
+          ctx.fillStyle = 'rgba(255,255,255,0.85)';
+          stars.forEach(s => {
+            ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill();
+            s.y += s.v;
+            if (s.y > c.height) { s.y = 0; s.x = Math.random()*c.width; }
+          });
+          requestAnimationFrame(loop);
+        }
+        loop();
+        setTimeout(() => { running = false; c.remove(); }, 15000);
+        showToast('✨ Modo Starfield 15s');
+      };
+
+      /* ---------- 59. Logros extendidos ---------- */
+      const __NEW_ACHV = [
+        { id: 'zen', n: '🧘 Zen', d: 'Usa el modo enfoque' },
+        { id: 'privacy', n: '🕵️ Privacidad', d: 'Activa el modo privacidad' },
+        { id: 'screenshot', n: '📸 Reportero', d: 'Haz una captura' },
+        { id: 'backup', n: '💾 Previsor', d: 'Haz un backup' },
+        { id: 'custom-font', n: '🔤 Tipógrafo', d: 'Cambia la fuente' },
+        { id: 'gamer', n: '🎮 Jugador', d: 'Activa el modo gamer' },
+        { id: 'starfield', n: '🌟 Cosmólogo', d: 'Activa el starfield' },
+        { id: 'uuid', n: '🔑 Generador', d: 'Genera un UUID' }
+      ];
+      window.__extendedAchievements = LSg('dv-achv-ext', []);
+      window.__unlockAchvExt = function(id){
+        if (!window.__extendedAchievements.includes(id)) {
+          window.__extendedAchievements.push(id);
+          LSs('dv-achv-ext', window.__extendedAchievements);
+          const a = __NEW_ACHV.find(x => x.id === id);
+          if (a) showNotification('🏆 ' + a.n + ': ' + a.d);
+        }
+      };
+
+      /* ---------- 61-63. Quick launcher, changelog, easter egg ---------- */
+      document.addEventListener('keydown', (e) => {
+        if (e.altKey && e.code === 'Space') {
+          e.preventDefault();
+          const q = prompt('⚡ Quick Launch (nombre de app):');
+          if (!q) return;
+          const app = apps.find(a => getAppName(a).toLowerCase().includes(q.toLowerCase()));
+          if (app) openApp(app.id);
+          else showToast('❌ No encontrado');
+        }
+      });
+      window.__showChangelog = function(){
+        alert('📜 davidOS — Changelog v4.0\n\n• 70 nuevas mejoras\n• Widgets: clima, BTC, reloj analógico (a la derecha)\n• Herramientas: magnifier, eyedropper, OSK, ruler\n• Atajos Alt+M/P/K/R/S/F/I\n• Backup/restore de ajustes\n• Modo enfoque, privacidad, café, gamer\n• Starfield, animated BG\n• Búsqueda global Ctrl+P\n• Quick launcher Alt+Space\n• Modo silencioso (sin música automática)');
+      };
+
+      /* ---------- 64-69. Extras ---------- */
+      window.__lockWindows = function(){
+        document.querySelectorAll('.window-body').forEach(b => {
+          b.setAttribute('contenteditable', b.getAttribute('contenteditable') === 'false' ? 'true' : 'false');
+          b.style.pointerEvents = b.style.pointerEvents === 'none' ? '' : 'none';
+        });
+        showToast('🔒 Ventanas ' + (document.querySelector('.window-body')?.style.pointerEvents === 'none' ? 'bloqueadas' : 'desbloqueadas'));
+      };
+      window.__actionLog = [];
+      window.__logAction = function(desc){
+        window.__actionLog.unshift({ desc, time: new Date().toLocaleTimeString() });
+        window.__actionLog = window.__actionLog.slice(0, 50);
+      };
+      window.__showActionLog = function(){
+        alert('📜 Historial de acciones:\n\n' + (window.__actionLog.length ? window.__actionLog.map(a => `[${a.time}] ${a.desc}`).join('\n') : '(vacío)'));
+      };
+      setInterval(() => {
+        const b = document.getElementById('battery-indicator');
+        if (b && davidBattery) {
+          b.title = `Nivel: ${davidBattery.level}%\nEstado: ${davidBattery.charging ? 'Cargando 🔌' : 'Descargando 🔋'}\nSalud: 98% (simulado)\nCiclos: 142`;
+        }
+      }, 5000);
+      window.__demoMode = function(){
+        const demoApps = ['calc','notepad','terminal','explorer','settings'];
+        let i = 0;
+        const iv = setInterval(() => {
+          if (i >= demoApps.length) { clearInterval(iv); showToast('🎬 Demo finalizada'); return; }
+          openApp(demoApps[i]);
+          i++;
+        }, 800);
+        showToast('🎬 Modo demo iniciado');
+      };
+      window.__customShortcuts = LSg('dv-shortcuts', {});
+      window.__addShortcut = function(key, appId){
+        window.__customShortcuts[key] = appId;
+        LSs('dv-shortcuts', window.__customShortcuts);
+        showToast('⌨️ Atajo ' + key + ' → ' + appId);
+      };
+      document.addEventListener('keydown', (e) => {
+        if (e.altKey && e.shiftKey && /^[0-9]$/.test(e.key)) {
+          e.preventDefault();
+          const idx = parseInt(e.key, 10);
+          const keys = Object.keys(window.__customShortcuts);
+          if (keys[idx]) { openApp(window.__customShortcuts[keys[idx]]); return; }
+          const q = prompt('Asignar app a Alt+Shift+' + e.key + ' (ej: calc):');
+          if (q) window.__addShortcut(e.key, q);
+        }
+      });
+      window.__systemReport = function(){
+        const report = {
+          date: new Date().toISOString(),
+          edition: window.currentEdition || 'Pro',
+          kernel: davidKernel.version,
+          build: davidKernel.build,
+          processes: davidKernel.processes.length,
+          memory: { used: davidKernel.allocatedMemoryMB, total: davidKernel.maxMemoryMB },
+          apps: apps.length,
+          achievements: (window.__unlockedAchievements||[]).length,
+          uptime: Math.floor((Date.now() - sessionStart)/1000),
+          user: activeUser,
+          lang: window.currentLang,
+          resolution: window.innerWidth + 'x' + window.innerHeight
+        };
+        const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'davidOS_report_' + Date.now() + '.json';
+        a.click();
+        showToast('📋 Informe exportado');
+      };
+      document.addEventListener('keydown', (e) => {
+        const cp = document.getElementById('cmdpalette-input');
+        if (!cp || document.activeElement !== cp) return;
+        if (e.key === 'Enter') {
+          const v = cp.value.trim().toLowerCase();
+          const extras = {
+            'matrix': () => { document.body.style.fontFamily = 'monospace'; document.body.style.color = '#0f0'; showNotification('🟢 Modo Matrix'); },
+            'hacker': () => window.__gamerMode ? null : window.__toggleGamerMode(),
+            'zen': () => { window.__toggleFocusMode(true); window.__unlockAchvExt('zen'); },
+            'demo': () => window.__demoMode(),
+            'panic': () => window.__panicMode(),
+            'changelog': () => window.__showChangelog(),
+            'report': () => window.__systemReport(),
+            'backup': () => { window.__backupSettings(); window.__unlockAchvExt('backup'); },
+            'screenshot': () => { window.__captureScreenshot(); window.__unlockAchvExt('screenshot'); },
+            'uuid': () => { window.__genUUID(); window.__unlockAchvExt('uuid'); },
+            'starfield': () => { window.__starfieldMode(); window.__unlockAchvExt('starfield'); },
+            'privacy': () => { window.__togglePrivacyMode(); window.__unlockAchvExt('privacy'); },
+            'coffee': () => window.__toggleCoffeeMode(),
+            'gamer': () => { window.__toggleGamerMode(); window.__unlockAchvExt('gamer'); },
+            'palette': () => window.__colorPalette(),
+            'pwd': () => window.__quickPassword(),
+            'qr': () => window.__genQR(prompt('Texto para QR:') || 'davidOS')
+          };
+          if (extras[v]) { e.preventDefault(); e.stopPropagation(); closeCommandPalette && closeCommandPalette(); extras[v](); return; }
+        }
+      }, true);
+
+      const _origSetFont = window.__setFont;
+      window.__setFont = function(f){ _origSetFont(f); window.__unlockAchvExt && window.__unlockAchvExt('custom-font'); };
+      const _origFocusMode = window.__toggleFocusMode;
+      window.__toggleFocusMode = function(v){ _origFocusMode(v); if (v) window.__unlockAchvExt && window.__unlockAchvExt('zen'); };
+      const _origPrivacy = window.__togglePrivacyMode;
+      window.__togglePrivacyMode = function(){ _origPrivacy(); window.__unlockAchvExt && window.__unlockAchvExt('privacy'); };
+      const _origShot = window.__captureScreenshot;
+      window.__captureScreenshot = function(){ _origShot(); window.__unlockAchvExt && window.__unlockAchvExt('screenshot'); };
+      const _origBackup = window.__backupSettings;
+      window.__backupSettings = function(){ _origBackup(); window.__unlockAchvExt && window.__unlockAchvExt('backup'); };
+      const _origGamer = window.__toggleGamerMode;
+      window.__toggleGamerMode = function(){ _origGamer(); window.__unlockAchvExt && window.__unlockAchvExt('gamer'); };
+      const _origStar = window.__starfieldMode;
+      window.__starfieldMode = function(){ _origStar(); window.__unlockAchvExt && window.__unlockAchvExt('starfield'); };
+      const _origUUID = window.__genUUID;
+      window.__genUUID = function(){ _origUUID(); window.__unlockAchvExt && window.__unlockAchvExt('uuid'); };
+
+      (function injectStyles(){
+        if (document.getElementById('dv-v4-styles')) return;
+        const s = document.createElement('style');
+        s.id = 'dv-v4-styles';
+        s.innerText = `
+          @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+          #dv-widget-panel > div { pointer-events: auto; }
+          #dv-perf-graph { transition: opacity 0.2s; }
+          .taskbar-app-btn .badge { animation: badgePop 0.3s ease; }
+          @keyframes badgePop { from { transform: scale(0); } to { transform: scale(1); } }
+        `;
+        document.head.appendChild(s);
+      })();
+
+      Object.assign(window, {
+        dvV4: {
+          autoHide: () => window.__toggleAutoHideTaskbar(!window.__autoHideTaskbar),
+          reduceMotion: () => window.__toggleReduceMotion(!window.__reduceMotion),
+          focusMode: () => window.__toggleFocusMode(!window.__focusMode),
+          coffee: () => window.__toggleCoffeeMode(),
+          gamer: () => window.__toggleGamerMode(),
+          privacy: () => window.__togglePrivacyMode(),
+          screenshot: () => window.__captureScreenshot(),
+          magnifier: () => window.__toggleMagnifier(),
+          osk: () => window.__toggleOSK(),
+          ruler: () => window.__toggleRuler(),
+          colorPicker: () => window.__colorPicker(),
+          perfGraph: () => window.__togglePerfGraph(),
+          starfield: () => window.__starfieldMode(),
+          animatedBg: () => window.__toggleAnimatedBg(!window.__animatedBg),
+          panic: () => window.__panicMode(),
+          demo: () => window.__demoMode(),
+          changelog: () => window.__showChangelog(),
+          report: () => window.__systemReport(),
+          backup: () => window.__backupSettings(),
+          restore: () => window.__restoreSettings(),
+          reset: () => window.__resetDavidOS(),
+          productivity: () => window.__productivityPanel(),
+          actionLog: () => window.__showActionLog(),
+          palette: () => window.__colorPalette(),
+          pwd: () => window.__quickPassword(),
+          qr: (t) => window.__genQR(t),
+          b64: (t) => window.__b64Encode(t),
+          uuid: () => window.__genUUID(),
+          speak: (t) => window.__speak(t)
+        }
+      });
+
+      console.log('%c davidOS v4.0 — 70 mejoras activadas ', 'background:linear-gradient(90deg,#a855f7,#0078d4); color:white; padding:6px 12px; border-radius:6px; font-weight:bold;');
+    })();
+
+    /* ==========================================================================
+       MODO SILENCIOSO GLOBAL — no reproduce música automáticamente
+       ========================================================================== */
+    (function(){
+      'use strict';
+      const LSs = (k,v) => localStorage.setItem(k, JSON.stringify(v));
+
+      /* Silenciar beeps del sistema */
+      const _origPlaySystemBeep = window.playSystemBeep;
+      window.playSystemBeep = function(){ /* silenciado */ };
+      try { playSystemBeep = function(){}; } catch(e){}
+
+      /* Bloquear música automática, permitir la manual desde las apps */
+      window.__autoMusicBlocked = true;
+      window.__allowManualMusic = false;
+      const _realMusicPlay = window.__musicPlay;
+      const _realMusicStop = window.__musicStop;
+
+      window.__musicPlay = function(freq){
+        const mediaPlaying  = window.__mediaPlaying === true;
+        const musicOpen     = document.getElementById('win-music') && document.getElementById('win-music').style.display !== 'none';
+        if (window.__allowManualMusic === true || mediaPlaying || musicOpen) {
+          return _realMusicPlay && _realMusicPlay(freq);
+        }
+        return;
+      };
+
+      /* Marcar reproducción manual en el reproductor */
+      const _origMediaToggle = window.__mediaToggle;
+      if (_origMediaToggle) {
+        window.__mediaToggle = function(){
+          window.__allowManualMusic = true;
+          const r = _origMediaToggle.apply(this, arguments);
+          setTimeout(() => { window.__allowManualMusic = false; }, 50);
+          return r;
+        };
+      }
+
+      /* Desactivar sonidos de UI globales */
+      window.__uiSounds = false;
+      LSs('dv-uisounds', false);
+      window.__toggleUISounds = function(){ showToast('🔇 Sonidos del sistema desactivados'); };
+
+      /* Cerrar AudioContexts activos */
+      try {
+        if (window.__davidAudioCtx && window.__davidAudioCtx.state !== 'closed') {
+          window.__davidAudioCtx.close();
+          window.__davidAudioCtx = null;
+        }
+      } catch(e){}
+
+      /* Detener cualquier música que estuviera sonando */
+      try { if (_realMusicStop) _realMusicStop(); } catch(e){}
+
+      /* Notas musicales solo suenan dentro de la app Música */
+      const _origPlayNote = window.__playNote;
+      if (_origPlayNote) {
+        window.__playNote = function(note){
+          const musicOpen = document.getElementById('win-music') && document.getElementById('win-music').style.display !== 'none';
+          if (!musicOpen) return;
+          window.__allowManualMusic = true;
+          const r = _origPlayNote.apply(this, arguments);
+          setTimeout(() => { window.__allowManualMusic = false; }, 50);
+          return r;
+        };
+      }
+
+      console.log('%c 🔇 MODO SILENCIOSO ACTIVADO — sin música automática ', 'background:#333; color:#fff; padding:4px 8px; border-radius:4px;');
     })();
   </script>
 </body>
