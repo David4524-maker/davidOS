@@ -3,24 +3,39 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>davidOS Engine v1.2</title>
+<title>davidOS Engine v2.0</title>
 <style>
-:root{--accent:#0078d4;--accent-2:#4aa3ff;--bg-1:#0a0a14;--bg-2:#1a1a2e;--bg-3:#16213e;--surface:#15171e;--surface-2:#0f1015;--border:rgba(255,255,255,.08);--border-hi:rgba(255,255,255,.18);--text:#e8eaf0;--text-dim:rgba(232,234,240,.6);--shadow:0 20px 50px rgba(0,0,0,.55);--shadow-hi:0 28px 70px rgba(0,0,0,.7);--radius:10px;}
+:root{--accent:#0078d4;--accent-2:#4aa3ff;--bg-1:#0a0a14;--bg-2:#1a1a2e;--bg-3:#16213e;--surface:#15171e;--surface-2:#0f1015;--border:rgba(255,255,255,.08);--border-hi:rgba(255,255,255,.18);--text:#e8eaf0;--text-dim:rgba(232,234,240,.6);--shadow:0 20px 50px rgba(0,0,0,.55);--shadow-hi:0 28px 70px rgba(0,0,0,.7);--radius:10px;--wall:radial-gradient(1200px 800px at 20% 10%,#1e2a45 0%,transparent 55%),radial-gradient(900px 700px at 80% 90%,#2a0f4a 0%,transparent 55%),linear-gradient(135deg,var(--bg-1),var(--bg-2) 60%,var(--bg-3));}
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,sans-serif;}
 html,body{width:100%;height:100%;overflow:hidden;background:#000;color:var(--text);user-select:none;-webkit-font-smoothing:antialiased;}
 
+/* ---------- BOOT ---------- */
 #boot{position:fixed;inset:0;background:#000;z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;transition:opacity .5s;}
 #boot.hide{opacity:0;pointer-events:none;}
 .boot-logo{width:88px;height:88px;border-radius:20px;background:linear-gradient(135deg,var(--accent),#7b2ff7);display:flex;align-items:center;justify-content:center;font-size:44px;box-shadow:0 20px 50px rgba(0,120,212,.4);animation:pulse 2s infinite;}
 @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.06);}}
 .boot-title{font-size:20px;font-weight:600;}
-.boot-sub{font-size:12px;color:var(--text-dim);font-family:ui-monospace,monospace;}
+.boot-sub{font-size:12px;color:var(--text-dim);font-family:ui-monospace,monospace;min-height:18px;text-align:center;}
 .boot-bar{width:260px;height:3px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;}
 .boot-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width .25s;}
+.boot-spinner{margin-top:6px;width:34px;height:34px;border:3px solid rgba(255,255,255,.1);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
 
-#desktop{position:fixed;inset:0;display:none;background:radial-gradient(1200px 800px at 20% 10%,#1e2a45 0%,transparent 55%),radial-gradient(900px 700px at 80% 90%,#2a0f4a 0%,transparent 55%),linear-gradient(135deg,var(--bg-1),var(--bg-2) 60%,var(--bg-3));overflow:hidden;}
+/* ---------- LOCK ---------- */
+#lock{position:fixed;inset:0;z-index:9500;background:var(--wall);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:transform .4s cubic-bezier(.2,.9,.3,1.1),opacity .4s;}
+#lock.hide{transform:translateY(-100%);opacity:0;pointer-events:none;}
+.lock-time{font-size:88px;font-weight:200;letter-spacing:-3px;}
+.lock-date{font-size:18px;color:var(--text-dim);margin-top:-8px;}
+.lock-avatar{width:96px;height:96px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#7b2ff7);display:flex;align-items:center;justify-content:center;font-size:44px;margin-top:24px;box-shadow:0 14px 40px rgba(0,120,212,.35);}
+.lock-user{font-size:22px;font-weight:600;}
+.lock-input{display:flex;gap:6px;margin-top:10px;}
+.lock-input input{padding:8px 14px;border-radius:20px;border:1px solid var(--border-hi);background:rgba(0,0,0,.35);color:#fff;outline:none;font-size:13px;width:210px;text-align:center;}
+.lock-hint{font-size:12px;color:var(--text-dim);margin-top:14px;}
+.lock-hint b{color:var(--accent-2);}
+
+/* ---------- DESKTOP ---------- */
+#desktop{position:fixed;inset:0;display:none;background:var(--wall);background-size:cover;overflow:hidden;}
 #desktop.on{display:block;}
-
 #icons{position:absolute;inset:0;padding:16px;display:flex;flex-direction:column;flex-wrap:wrap;gap:6px;align-content:flex-start;height:calc(100% - 56px);}
 .icon{width:84px;height:92px;padding:8px 4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border-radius:8px;cursor:pointer;transition:background .15s,transform .1s;text-align:center;}
 .icon:hover{background:rgba(255,255,255,.08);}
@@ -29,10 +44,12 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;color:var(--tex
 .icon .glyph{font-size:32px;line-height:1;filter:drop-shadow(0 3px 6px rgba(0,0,0,.5));}
 .icon .label{font-size:11.5px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.8);max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 
+/* ---------- WINDOWS ---------- */
 .window{position:absolute;min-width:340px;min-height:220px;width:640px;height:440px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);display:flex;flex-direction:column;overflow:hidden;animation:winIn .2s cubic-bezier(.2,.9,.3,1.1);transition:box-shadow .2s,border-color .2s;}
 @keyframes winIn{from{opacity:0;transform:scale(.95) translateY(8px);}to{opacity:1;transform:scale(1) translateY(0);}}
 .window.active{border-color:rgba(0,120,212,.55);box-shadow:var(--shadow-hi),0 0 0 1px rgba(0,120,212,.35);}
 .window.closing{opacity:0;transform:scale(.94);transition:opacity .15s,transform .15s;}
+.window.minimizing{opacity:0;transform:scale(.6) translateY(300px);transition:opacity .22s,transform .22s;}
 .window.maximized{top:0!important;left:0!important;width:100%!important;height:calc(100% - 56px)!important;border-radius:0;border-left:0;border-right:0;border-top:0;}
 .window.minimized{display:none;}
 .window.snapped-left{top:0!important;left:0!important;width:50%!important;height:calc(100% - 56px)!important;border-radius:0;}
@@ -54,6 +71,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;color:var(--tex
 .tool-btn:hover{background:rgba(255,255,255,.08);}
 .tool-btn.primary{background:var(--accent);color:#fff;}
 .tool-btn.primary:hover{background:var(--accent-2);}
+.tool-btn.danger{color:#ff8a92;}
+.tool-btn.danger:hover{background:rgba(232,17,35,.2);}
 
 .content{flex:1;overflow:auto;padding:14px;background:var(--surface-2);color:var(--text);font-size:13px;line-height:1.5;}
 .content::-webkit-scrollbar{width:10px;height:10px;}
@@ -76,12 +95,19 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;color:var(--tex
 .rh-sw{bottom:0;left:0;width:14px;height:14px;cursor:sw-resize;}
 .window.maximized .rh{display:none;}
 
+/* ---------- SNAP PREVIEW ---------- */
+#snapPreview{position:fixed;z-index:7000;background:rgba(0,120,212,.22);border:2px solid rgba(0,120,212,.6);border-radius:8px;pointer-events:none;display:none;transition:all .12s;}
+#snapPreview.on{display:block;}
+
+/* ---------- TASKBAR ---------- */
 #taskbar{position:absolute;bottom:0;left:0;right:0;height:56px;background:rgba(12,14,20,.72);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 12px;z-index:8000;}
 .tb-left,.tb-right{display:flex;align-items:center;gap:8px;}
-.tb-btn{width:40px;height:40px;border-radius:8px;border:0;cursor:pointer;background:transparent;color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;transition:background .15s,transform .1s;}
+.tb-btn{width:40px;height:40px;border-radius:8px;border:0;cursor:pointer;background:transparent;color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;transition:background .15s,transform .1s;position:relative;}
 .tb-btn:hover{background:rgba(255,255,255,.1);}
 .tb-btn:active{transform:scale(.94);}
 .tb-btn.accent{background:linear-gradient(135deg,var(--accent),#7b2ff7);box-shadow:0 4px 14px rgba(0,120,212,.35);}
+.tb-btn .ind{position:absolute;bottom:-2px;left:50%;transform:translateX(-50%);width:16px;height:3px;border-radius:2px;background:var(--accent-2);opacity:0;}
+.tb-btn.running .ind{opacity:1;}
 
 #runningApps{display:flex;gap:6px;margin-left:6px;overflow-x:auto;max-width:50vw;}
 #runningApps::-webkit-scrollbar{height:0;}
@@ -97,14 +123,41 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;color:var(--tex
 .clock .date{font-size:10.5px;color:var(--text-dim);}
 .tray{display:flex;align-items:center;gap:4px;padding:6px 10px;border-radius:6px;}
 .tray span{font-size:12px;}
+.tray button{background:transparent;border:0;color:#fff;cursor:pointer;font-size:14px;padding:4px 5px;border-radius:4px;line-height:1;}
+.tray button:hover{background:rgba(255,255,255,.1);}
 
-#startMenu{position:absolute;bottom:64px;left:12px;width:440px;max-height:540px;background:rgba(14,16,24,.94);backdrop-filter:blur(24px);border:1px solid var(--border-hi);border-radius:12px;box-shadow:var(--shadow);z-index:8100;display:flex;flex-direction:column;overflow:hidden;opacity:0;transform:translateY(8px);pointer-events:none;transition:opacity .18s,transform .18s;}
+/* ---------- FLYOUT PANELS ---------- */
+.flyout{position:absolute;bottom:64px;right:12px;width:380px;background:rgba(14,16,24,.96);backdrop-filter:blur(24px);border:1px solid var(--border-hi);border-radius:12px;box-shadow:var(--shadow);z-index:8100;display:none;flex-direction:column;overflow:hidden;max-height:70vh;}
+.flyout.open{display:flex;animation:flyIn .2s cubic-bezier(.2,.9,.3,1.1);}
+@keyframes flyIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+.flyout-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:13.5px;font-weight:600;}
+.flyout-body{padding:12px 14px;overflow:auto;max-height:calc(70vh - 52px);}
+
+/* ---------- NOTIFICATION CENTER ---------- */
+.notif-card{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:9px;padding:10px 12px;margin-bottom:8px;font-size:12.5px;}
+.notif-card b{display:block;margin-bottom:3px;font-size:12.5px;}
+.notif-card small{color:var(--text-dim);font-size:10.5px;}
+
+/* ---------- QUICK SETTINGS ---------- */
+.qs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;}
+.qs-tile{aspect-ratio:1;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:10px;cursor:pointer;color:var(--text);transition:background .12s;}
+.qs-tile:hover{background:rgba(255,255,255,.12);}
+.qs-tile.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+.qs-tile .g{font-size:18px;}
+.qs-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:12px;color:var(--text-dim);}
+.qs-row input[type="range"]{flex:1;accent-color:var(--accent);}
+
+/* ---------- START MENU ---------- */
+#startMenu{position:absolute;bottom:64px;left:12px;width:480px;max-height:600px;background:rgba(14,16,24,.94);backdrop-filter:blur(24px);border:1px solid var(--border-hi);border-radius:12px;box-shadow:var(--shadow);z-index:8100;display:flex;flex-direction:column;overflow:hidden;opacity:0;transform:translateY(8px);pointer-events:none;transition:opacity .18s,transform .18s;}
 #startMenu.open{opacity:1;transform:translateY(0);pointer-events:auto;}
 .sm-head{padding:14px 16px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
 .sm-head b{font-size:13.5px;}
 .sm-head span{font-size:11px;color:var(--text-dim);}
 .sm-search{margin:10px 14px 4px;padding:8px 12px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid var(--border);color:#fff;outline:none;font-size:12.5px;width:calc(100% - 28px);}
 .sm-search:focus{border-color:rgba(0,120,212,.55);}
+.sm-tabs{display:flex;gap:4px;padding:8px 12px 0;}
+.sm-tab{padding:6px 12px;font-size:11.5px;color:var(--text-dim);cursor:pointer;border-radius:6px;}
+.sm-tab.on{background:rgba(255,255,255,.08);color:#fff;}
 .sm-grid{flex:1;overflow-y:auto;padding:8px 12px 12px;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
 .sm-app{padding:12px 6px;border-radius:8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;transition:background .12s;}
 .sm-app:hover{background:rgba(255,255,255,.08);}
@@ -113,7 +166,11 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;color:var(--tex
 .sm-foot{padding:10px 14px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--text-dim);}
 .sm-foot button{padding:6px 12px;border-radius:6px;border:1px solid rgba(232,17,35,.4);background:rgba(232,17,35,.12);color:#ff8a92;cursor:pointer;font-size:11.5px;}
 .sm-foot button:hover{background:rgba(232,17,35,.25);}
+.sm-recent{padding:10px 14px;border-top:1px solid var(--border);}
+.sm-recent h4{font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;font-weight:600;}
+.sm-recent .row{display:flex;gap:6px;overflow-x:auto;}
 
+/* ---------- NOTIFICATIONS (top right) ---------- */
 #notifs{position:fixed;top:16px;right:16px;z-index:9000;display:flex;flex-direction:column;gap:8px;align-items:flex-end;}
 .notif{min-width:240px;max-width:320px;padding:11px 14px;background:rgba(20,22,30,.94);backdrop-filter:blur(18px);border:1px solid var(--border-hi);border-left:3px solid var(--accent);border-radius:9px;box-shadow:0 12px 30px rgba(0,0,0,.5);font-size:12.5px;line-height:1.4;animation:nfIn .25s;}
 .notif.info{border-left-color:var(--accent);}
@@ -124,14 +181,27 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;color:var(--tex
 @keyframes nfIn{from{opacity:0;transform:translateX(30px);}to{opacity:1;transform:translateX(0);}}
 .notif.out{opacity:0;transform:translateX(30px);transition:opacity .25s,transform .25s;}
 
-#ctxMenu{position:fixed;z-index:9500;min-width:200px;background:rgba(16,18,26,.96);backdrop-filter:blur(20px);border:1px solid var(--border-hi);border-radius:8px;padding:5px;box-shadow:var(--shadow);display:none;}
-#ctxMenu.on{display:block;}
-.ctx-item{padding:8px 12px;border-radius:5px;font-size:12.5px;cursor:pointer;display:flex;align-items:center;gap:9px;color:var(--text);transition:background .1s;}
+/* ---------- CONTEXT MENU ---------- */
+#ctxMenu{position:fixed;z-index:9500;min-width:210px;background:rgba(16,18,26,.96);backdrop-filter:blur(20px);border:1px solid var(--border-hi);border-radius:8px;padding:5px;box-shadow:var(--shadow);display:none;}
+#ctxMenu.on{display:block;animation:ctxIn .12s;}
+@keyframes ctxIn{from{opacity:0;transform:scale(.96);}to{opacity:1;transform:none;}}
+.ctx-item{padding:8px 12px;border-radius:5px;font-size:12.5px;cursor:pointer;display:flex;align-items:center;gap:9px;color:var(--text);transition:background .1s;justify-content:flex-start;}
 .ctx-item:hover{background:var(--accent);}
 .ctx-item.disabled{opacity:.4;cursor:default;}
 .ctx-item.disabled:hover{background:transparent;}
+.ctx-item .k{margin-left:auto;font-size:10.5px;opacity:.6;font-family:ui-monospace,monospace;}
 .ctx-sep{height:1px;background:var(--border);margin:4px 0;}
 
+/* ---------- ALT-TAB ---------- */
+#altTab{position:fixed;inset:0;z-index:9200;background:rgba(0,0,0,.55);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;}
+#altTab.on{display:flex;}
+.alt-grid{display:flex;gap:12px;flex-wrap:wrap;max-width:70vw;justify-content:center;}
+.alt-item{width:180px;padding:14px;background:rgba(20,22,30,.95);border:2px solid transparent;border-radius:10px;text-align:center;cursor:pointer;transition:border-color .12s;}
+.alt-item.on{border-color:var(--accent);}
+.alt-item .g{font-size:34px;}
+.alt-item .n{font-size:12px;margin-top:6px;color:var(--text-dim);}
+
+/* ---------- COMMON CONTROLS ---------- */
 .app-h1{font-size:16px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
 .app-h2{font-size:12px;font-weight:600;margin:14px 0 6px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;}
 .app-p{font-size:12.5px;color:var(--text-dim);line-height:1.6;margin-bottom:8px;}
@@ -142,16 +212,22 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;color:var(--tex
 .btn:hover{background:rgba(255,255,255,.13);}
 .btn.primary{background:var(--accent);border-color:var(--accent);}
 .btn.primary:hover{background:var(--accent-2);}
+.btn.danger{background:rgba(232,17,35,.15);border-color:rgba(232,17,35,.4);color:#ff8a92;}
+.btn.danger:hover{background:rgba(232,17,35,.3);}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
-textarea.ta{width:100%;padding:10px;border-radius:6px;background:rgba(0,0,0,.35);border:1px solid var(--border);color:#fff;outline:none;resize:none;font-family:ui-monospace,monospace;font-size:12.5px;line-height:1.55;}
-textarea.ta:focus{border-color:var(--accent);}
+textarea.ta,input.ta{width:100%;padding:10px;border-radius:6px;background:rgba(0,0,0,.35);border:1px solid var(--border);color:#fff;outline:none;resize:none;font-family:ui-monospace,monospace;font-size:12.5px;line-height:1.55;}
+textarea.ta:focus,input.ta:focus{border-color:var(--accent);}
+select.ta{padding:8px;border-radius:6px;background:rgba(0,0,0,.35);border:1px solid var(--border);color:#fff;outline:none;font-size:12.5px;}
 
+/* ---------- TERMINAL ---------- */
 .term{height:100%;background:#07080c;font-family:ui-monospace,monospace;font-size:12.5px;color:#7dffb0;padding:12px;overflow-y:auto;line-height:1.5;}
 .term .in{color:#fff;}
 .term .err{color:#ff8a92;}
 .term .warn{color:#ffbd2e;}
+.term .info{color:#4aa3ff;}
 .term-input{width:100%;background:transparent;border:0;outline:none;color:#7dffb0;font-family:ui-monospace,monospace;font-size:12.5px;padding:2px 0;}
 
+/* ---------- CALCULATOR ---------- */
 .calc-pad{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;flex:1;}
 .calc-btn{padding:14px 6px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,.05);color:#fff;cursor:pointer;font-size:16px;font-weight:500;transition:background .12s,transform .08s;}
 .calc-btn:hover{background:rgba(255,255,255,.12);}
@@ -161,56 +237,220 @@ textarea.ta:focus{border-color:var(--accent);}
 .calc-disp{background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:8px;padding:16px 18px;text-align:right;min-height:80px;display:flex;flex-direction:column;justify-content:center;}
 .calc-sub{font-size:11.5px;color:var(--text-dim);min-height:16px;font-family:ui-monospace,monospace;}
 .calc-main{font-size:32px;font-weight:600;overflow:hidden;text-overflow:ellipsis;font-family:ui-monospace,monospace;}
+.calc-hist{font-size:11px;color:var(--text-dim);max-height:60px;overflow:auto;font-family:ui-monospace,monospace;}
 
+/* ---------- FILES ---------- */
 .file-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;cursor:pointer;font-size:12.5px;transition:background .12s;}
 .file-row:hover{background:rgba(255,255,255,.06);}
 .file-row.selected{background:rgba(0,120,212,.22);}
 .file-row .fico{font-size:16px;}
 .file-row .fname{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 
+/* ---------- ABOUT ---------- */
 .about-hero{text-align:center;padding:20px 0;}
 .about-logo{width:80px;height:80px;margin:0 auto 14px;border-radius:20px;background:linear-gradient(135deg,var(--accent),#7b2ff7);display:flex;align-items:center;justify-content:center;font-size:40px;box-shadow:0 14px 40px rgba(0,120,212,.35);}
 
+/* ---------- PAINT ---------- */
 .paint-tools{display:flex;gap:6px;align-items:center;padding:6px 10px;background:rgba(0,0,0,.2);border-bottom:1px solid var(--border);flex-wrap:wrap;}
 .paint-tools input[type="color"]{width:34px;height:28px;border:1px solid var(--border-hi);border-radius:5px;background:transparent;cursor:pointer;padding:2px;}
 .paint-tools input[type="range"]{width:100px;accent-color:var(--accent);}
-.paint-canvas-wrap{flex:1;display:flex;align-items:center;justify-content:center;background:#2a2a2a;padding:10px;}
+.paint-canvas-wrap{flex:1;display:flex;align-items:center;justify-content:center;background:#2a2a2a;padding:10px;overflow:hidden;}
 #paintCanvas{background:#fff;border-radius:6px;cursor:crosshair;box-shadow:0 4px 20px rgba(0,0,0,.5);}
+.paint-swatch{width:22px;height:22px;border-radius:5px;cursor:pointer;border:2px solid transparent;}
+.paint-swatch.on{border-color:#fff;}
 
-@media (max-width:640px){#startMenu{width:calc(100vw - 24px);left:12px;}#runningApps{max-width:30vw;}.clock .date{display:none;}}
+/* ---------- MUSIC ---------- */
+.music-album{width:200px;height:200px;border-radius:14px;margin:14px auto;box-shadow:0 20px 50px rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;font-size:70px;}
+.music-controls{display:flex;justify-content:center;gap:20px;margin:16px 0;font-size:26px;}
+.music-controls button{background:transparent;border:0;color:#fff;cursor:pointer;font-size:26px;padding:6px;}
+.music-controls button:hover{color:var(--accent-2);}
+.music-bar{display:flex;align-items:center;gap:10px;font-size:11px;font-family:ui-monospace,monospace;color:var(--text-dim);}
+.music-bar .bar{flex:1;height:4px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden;}
+.music-bar .fill{height:100%;background:var(--accent);width:0;}
+.eq{display:flex;gap:2px;align-items:flex-end;height:24px;justify-content:center;}
+.eq span{width:3px;background:var(--accent-2);animation:eq 1s infinite ease-in-out;}
+.eq span:nth-child(2){animation-delay:.1s}.eq span:nth-child(3){animation-delay:.2s}.eq span:nth-child(4){animation-delay:.3s}.eq span:nth-child(5){animation-delay:.4s}
+@keyframes eq{0%,100%{height:6px;}50%{height:22px;}}
+
+/* ---------- SNAKE / GAMES ---------- */
+.snake-canvas{display:block;margin:0 auto;background:#0a0a14;border-radius:8px;border:1px solid var(--border);}
+.game-2048{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;background:rgba(255,255,255,.05);padding:8px;border-radius:8px;}
+.g2048{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;border-radius:6px;background:rgba(255,255,255,.05);color:#fff;}
+.g2048[data-v="2"]{background:#eee4da;color:#776e65;}
+.g2048[data-v="4"]{background:#ede0c8;color:#776e65;}
+.g2048[data-v="8"]{background:#f2b179;color:#fff;}
+.g2048[data-v="16"]{background:#f59563;color:#fff;}
+.g2048[data-v="32"]{background:#f67c5f;color:#fff;}
+.g2048[data-v="64"]{background:#f65e3b;color:#fff;}
+.g2048[data-v="128"]{background:#edcf72;color:#fff;}
+.g2048[data-v="256"]{background:#edcc61;color:#fff;}
+.g2048[data-v="512"]{background:#edc850;color:#fff;}
+.g2048[data-v="1024"]{background:#edc53f;color:#fff;}
+.g2048[data-v="2048"]{background:#edc22e;color:#fff;}
+
+/* ---------- CODE EDITOR ---------- */
+.code-area{width:100%;height:100%;background:#07080c;color:#c8ffd4;font-family:ui-monospace,monospace;font-size:12.5px;border:0;outline:none;padding:12px;resize:none;line-height:1.55;}
+.code-preview{background:#fff;color:#000;padding:14px;border-radius:6px;font-family:system-ui,sans-serif;font-size:13px;min-height:100px;}
+
+/* ---------- WEATHER ---------- */
+.weather-hero{text-align:center;padding:20px 0;}
+.weather-temp{font-size:64px;font-weight:200;letter-spacing:-2px;}
+.weather-desc{color:var(--text-dim);font-size:14px;}
+.weather-hours{display:flex;gap:8px;overflow-x:auto;margin:14px 0;padding-bottom:6px;}
+.weather-hour{flex:0 0 auto;min-width:70px;text-align:center;background:rgba(255,255,255,.05);border-radius:10px;padding:10px 6px;font-size:12px;}
+.weather-hour .h{color:var(--text-dim);font-size:10.5px;}
+.weather-hour .t{font-size:16px;font-weight:600;margin-top:4px;}
+.weather-days{display:flex;flex-direction:column;gap:6px;}
+.weather-day{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:rgba(255,255,255,.04);border-radius:8px;font-size:12.5px;}
+
+/* ---------- MINESWEEPER ---------- */
+.ms-grid{display:inline-grid;gap:1px;background:#333;padding:4px;border-radius:4px;}
+.ms-cell{width:24px;height:24px;background:#3a3a44;border:1px solid #4a4a54;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;cursor:pointer;user-select:none;}
+.ms-cell.rev{background:#22222a;border-color:#2a2a32;cursor:default;}
+.ms-cell.rev.mine{background:#e81123;}
+.ms-cell.rev[data-n="1"]{color:#4aa3ff;}.ms-cell.rev[data-n="2"]{color:#27c93f;}
+.ms-cell.rev[data-n="3"]{color:#ff5f56;}.ms-cell.rev[data-n="4"]{color:#b44aff;}
+.ms-cell.rev[data-n="5"]{color:#ffbd2e;}.ms-cell.rev[data-n="6"]{color:#4aa3ff;}
+.ms-cell.rev[data-n="7"]{color:#ff8a92;}.ms-cell.rev[data-n="8"]{color:#c0c0c0;}
+
+/* ---------- SUDOKU ---------- */
+.sdk-grid{display:inline-grid;grid-template-columns:repeat(9,1fr);background:#222;border:2px solid #555;border-radius:6px;}
+.sdk-cell{width:36px;height:36px;background:#15171e;color:#e8eaf0;border:1px solid #2a2a32;text-align:center;font-size:18px;font-weight:600;outline:none;}
+.sdk-cell:focus{background:#1e3a5c;outline:none;}
+.sdk-cell.given{background:#1a1a2e;color:#4aa3ff;}
+.sdk-cell.bad{color:#ff5f56;}
+.sdk-cell:nth-child(3n){border-right:2px solid #555;}
+.sdk-row:nth-child(3n) .sdk-cell{border-bottom:2px solid #555;}
+
+/* ---------- STOPWATCH / TIMER ---------- */
+.stop-time{font-size:48px;font-weight:200;text-align:center;font-family:ui-monospace,monospace;margin:20px 0;}
+.lap-row{display:flex;justify-content:space-between;padding:6px 0;font-size:12px;border-bottom:1px solid var(--border);font-family:ui-monospace,monospace;}
+
+/* ---------- CHAT ---------- */
+.chat-list{display:flex;flex-direction:column;gap:8px;height:100%;overflow:auto;padding:10px;}
+.chat-msg{max-width:78%;padding:8px 12px;border-radius:14px;font-size:12.5px;line-height:1.4;}
+.chat-msg.me{align-self:flex-end;background:var(--accent);color:#fff;border-bottom-right-radius:4px;}
+.chat-msg.them{align-self:flex-start;background:rgba(255,255,255,.08);border-bottom-left-radius:4px;}
+.chat-inp{display:flex;gap:8px;padding:10px;border-top:1px solid var(--border);background:rgba(0,0,0,.2);}
+.chat-inp input{flex:1;padding:9px 12px;border-radius:20px;border:1px solid var(--border);background:rgba(0,0,0,.3);color:#fff;outline:none;font-size:12.5px;}
+
+/* ---------- TASKS ---------- */
+.task-row{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:6px;background:rgba(255,255,255,.03);margin-bottom:6px;font-size:12.5px;}
+.task-row input[type="checkbox"]{cursor:pointer;accent-color:var(--accent);}
+.task-row .tt{flex:1;}
+.task-row.done .tt{text-decoration:line-through;color:var(--text-dim);}
+
+/* ---------- CALENDAR ---------- */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.cal-cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:12.5px;background:rgba(255,255,255,.03);}
+.cal-cell.today{background:var(--accent);color:#fff;font-weight:600;}
+.cal-cell.head{background:transparent;color:var(--text-dim);font-size:11px;font-weight:600;}
+
+/* ---------- CODE SNIPPETS / KB ---------- */
+kbd{display:inline-block;padding:2px 6px;background:rgba(255,255,255,.08);border:1px solid var(--border-hi);border-radius:4px;font-family:ui-monospace,monospace;font-size:11px;}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width:640px){#startMenu{width:calc(100vw - 24px);left:12px;}#runningApps{max-width:30vw;}.clock .date{display:none;}.flyout{width:calc(100vw - 24px);}}
+
+/* ---------- SCROLLBARS ---------- */
+::-webkit-scrollbar{width:10px;height:10px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:6px;}
+::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.28);}
 </style>
 </head>
 <body>
 
+<!-- BOOT -->
 <div id="boot">
   <div class="boot-logo">🚪</div>
   <div class="boot-title">davidOS Engine</div>
   <div class="boot-sub" id="bootSub">inicializando kernel...</div>
   <div class="boot-bar"><div class="boot-fill" id="bootFill"></div></div>
+  <div class="boot-spinner"></div>
 </div>
 
+<!-- LOCK -->
+<div id="lock" class="hide">
+  <div class="lock-time" id="lockTime">00:00</div>
+  <div class="lock-date" id="lockDate">—</div>
+  <div class="lock-avatar">👤</div>
+  <div class="lock-user">david</div>
+  <div class="lock-input"><input type="password" id="lockPass" placeholder="Contraseña (Enter)"></div>
+  <div class="lock-hint">Pulsa <b>Enter</b> o haz clic para desbloquear</div>
+</div>
+
+<!-- DESKTOP -->
 <div id="desktop">
   <div id="icons"></div>
 
+  <!-- START -->
   <div id="startMenu">
     <div class="sm-head"><b>Aplicaciones</b><span id="appCount">—</span></div>
     <input type="text" id="smSearch" class="sm-search" placeholder="🔍 Buscar aplicación...">
+    <div class="sm-tabs">
+      <div class="sm-tab on" data-tab="all">Todas</div>
+      <div class="sm-tab" data-tab="pinned">Fijadas</div>
+      <div class="sm-tab" data-tab="recent">Recientes</div>
+    </div>
     <div class="sm-grid" id="smGrid"></div>
+    <div class="sm-recent" id="smRecent" style="display:none;">
+      <h4>Recientes</h4>
+      <div class="row" id="smRecentRow"></div>
+    </div>
     <div class="sm-foot">
-      <span id="userTag">davidOS Engine v1.2</span>
+      <span id="userTag">davidOS Engine v2.0</span>
       <button id="shutdownBtn">⏻ Apagar</button>
     </div>
   </div>
 
+  <!-- QUICK SETTINGS -->
+  <div class="flyout" id="qsPanel">
+    <div class="flyout-head"><span>⚡ Acciones rápidas</span><span style="font-size:11px;color:var(--text-dim);" id="qsBattery">—</span></div>
+    <div class="flyout-body">
+      <div class="qs-grid">
+        <div class="qs-tile on" data-qs="wifi"><div class="g">📶</div>Wi-Fi</div>
+        <div class="qs-tile on" data-qs="bt"><div class="g">🔵</div>Bluetooth</div>
+        <div class="qs-tile" data-qs="airplane"><div class="g">✈️</div>Avión</div>
+        <div class="qs-tile" data-qs="dnd"><div class="g">🌙</div>No molestar</div>
+        <div class="qs-tile" data-qs="nightlight"><div class="g">🌗</div>Luz nocturna</div>
+        <div class="qs-tile on" data-qs="volume"><div class="g">🔊</div>Sonido</div>
+        <div class="qs-tile" data-qs="theme"><div class="g">🎨</div>Tema</div>
+        <div class="qs-tile" data-qs="screenshot"><div class="g">📷</div>Captura</div>
+      </div>
+      <div class="qs-row"><span>🔊</span><input type="range" id="qsVolume" min="0" max="100" value="60"><span id="qsVolVal">60</span></div>
+      <div class="qs-row"><span>☀️</span><input type="range" id="qsBright" min="40" max="100" value="100"><span id="qsBrightVal">100</span></div>
+      <div class="qs-row"><span>🎨</span><select id="qsTheme" class="ta" style="flex:1;font-size:11px;">
+        <option value="default">Oscuro azul</option>
+        <option value="purple">Púrpura</option>
+        <option value="green">Verde</option>
+        <option value="sunset">Atardecer</option>
+        <option value="light">Claro</option>
+      </select></div>
+    </div>
+  </div>
+
+  <!-- NOTIFICATION CENTER -->
+  <div class="flyout" id="ncPanel">
+    <div class="flyout-head"><span>🔔 Notificaciones</span><button class="btn" style="padding:4px 10px;font-size:11px;" id="ncClear">Limpiar</button></div>
+    <div class="flyout-body" id="ncBody"></div>
+  </div>
+
+  <!-- TASKBAR -->
   <div id="taskbar">
     <div class="tb-left">
       <button class="tb-btn accent" id="startBtn" title="Menú Inicio">🚪</button>
+      <button class="tb-btn" id="searchBtn" title="Buscar">🔍</button>
+      <button class="tb-btn" id="taskviewBtn" title="Vista de tareas">🗔</button>
       <div id="runningApps"></div>
     </div>
     <div class="tb-right">
       <div class="tray" title="Estado del sistema">
-        <span id="trayCpu">⚙️</span>
-        <span id="trayMem">💾</span>
+        <button data-tray="qs" title="Acciones rápidas">⚙️</button>
+        <button data-tray="nc" title="Notificaciones">🔔</button>
+        <button id="trayCpu" title="Procesos">💻</button>
+        <button id="trayMem" title="Memoria">💾</button>
+        <button id="trayNet" title="Red">📶</button>
       </div>
       <div class="clock" id="clock" title="Fecha y hora">
         <div class="time" id="clockTime">00:00</div>
@@ -220,85 +460,208 @@ textarea.ta:focus{border-color:var(--accent);}
   </div>
 </div>
 
+<!-- ALT-TAB -->
+<div id="altTab"><div class="alt-grid" id="altGrid"></div></div>
+
+<!-- SNAP PREVIEW -->
+<div id="snapPreview"></div>
+
+<!-- NOTIFICATIONS -->
 <div id="notifs"></div>
+
+<!-- CONTEXT MENU -->
 <div id="ctxMenu"></div>
 
 <script>
 /* ============================================================================
-   davidOS Engine v1.2 — todas las apps funcionales
+   davidOS Engine v2.0
+   Sistema operativo web monolítico — kernel, VFS, WM, apps y API pública.
    ========================================================================== */
 const davidOS = (() => {
   'use strict';
 
-  /* ---- Event Bus ---- */
+  /* ---------- EVENT BUS ---------- */
   const _listeners = {};
   const on = (evt, fn) => { (_listeners[evt] ||= []).push(fn); return () => off(evt, fn); };
   const off = (evt, fn) => { const l = _listeners[evt]; if (!l) return; const i = l.indexOf(fn); if (i >= 0) l.splice(i, 1); };
   const emit = (evt, data) => { (_listeners[evt] || []).forEach(fn => { try { fn(data); } catch(e){ console.error('[davidOS]', e); } }); };
 
-  /* ---- Kernel ---- */
+  /* ---------- SETTINGS ---------- */
+  const settings = {
+    _data: {
+      volume: 60, brightness: 100, theme: 'default',
+      wifi: true, bt: true, airplane: false, dnd: false, nightlight: false,
+      wallpaper: 'default', sound: true, haptic: true, animations: true
+    },
+    load() { try { Object.assign(this._data, JSON.parse(localStorage.getItem('davidOS.settings')||'{}')); } catch{} },
+    save() { try { localStorage.setItem('davidOS.settings', JSON.stringify(this._data)); } catch{} },
+    get(k) { return this._data[k]; },
+    set(k, v) { this._data[k] = v; this.save(); emit('settings:change', { key:k, value:v }); }
+  };
+  settings.load();
+
+  /* ---------- SOUND ---------- */
+  let _actx;
+  function sound(freq=440, dur=0.05, type='sine', vol=0.05) {
+    if (!settings.get('sound')) return;
+    try {
+      _actx = _actx || new (window.AudioContext || window.webkitAudioContext)();
+      const o = _actx.createOscillator(), g = _actx.createGain();
+      o.frequency.value = freq; o.type = type;
+      o.connect(g); g.connect(_actx.destination);
+      g.gain.setValueAtTime(vol, _actx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.0001, _actx.currentTime + dur);
+      o.start(); o.stop(_actx.currentTime + dur);
+    } catch(e){}
+  }
+
+  /* ---------- KERNEL ---------- */
   const kernel = {
-    version: '1.2.0', build: '2026.CODEPEN.R3',
-    processes: [], nextPid: 1000,
-    memoryUsedMB: 64, memoryMaxMB: 8192,
+    version: '2.0.0',
+    build: '2026.CODEPEN.OS',
+    processes: [],
+    nextPid: 1000,
+    memoryUsedMB: 128,
+    memoryMaxMB: 16384,
+    cpuLoad: 0,
+    services: [
+      { name: 'audiosrv', status: 'running' },
+      { name: 'dnscache', status: 'running' },
+      { name: 'eventlog', status: 'running' },
+      { name: 'fs-vfs', status: 'running' },
+      { name: 'scheduler', status: 'running' },
+      { name: 'windefend', status: 'stopped' }
+    ],
     spawn(appId, name, memoryMB) {
-      const p = { pid: this.nextPid++, appId, name, memory: memoryMB || (20 + Math.floor(Math.random()*40)), startedAt: Date.now() };
-      this.processes.push(p); this.memoryUsedMB += p.memory;
-      emit('kernel:spawn', p); return p;
+      const p = { pid: this.nextPid++, appId, name, memory: memoryMB || (20 + Math.floor(Math.random()*40)), startedAt: Date.now(), cpu: 0 };
+      this.processes.push(p);
+      this.memoryUsedMB += p.memory;
+      this.updateLoad();
+      emit('kernel:spawn', p);
+      return p;
     },
     kill(appId) {
       const i = this.processes.findIndex(p => p.appId === appId);
       if (i < 0) return false;
       const p = this.processes[i];
-      this.memoryUsedMB = Math.max(0, this.memoryUsedMB - p.memory);
+      this.memoryUsedMB = Math.max(128, this.memoryUsedMB - p.memory);
       this.processes.splice(i, 1);
-      emit('kernel:kill', p); return true;
+      this.updateLoad();
+      emit('kernel:kill', p);
+      return true;
+    },
+    updateLoad() {
+      this.cpuLoad = Math.min(100, 5 + this.processes.length * 4 + Math.floor(Math.random()*10));
     },
     stats() {
-      return { version: this.version, build: this.build, processes: this.processes.length, memoryUsedMB: this.memoryUsedMB, memoryMaxMB: this.memoryMaxMB, uptime: Date.now() - BOOT_TIME };
+      return {
+        version: this.version, build: this.build,
+        processes: this.processes.length,
+        memoryUsedMB: this.memoryUsedMB, memoryMaxMB: this.memoryMaxMB,
+        uptime: Date.now() - BOOT_TIME, cpuLoad: this.cpuLoad,
+        services: this.services.length
+      };
     }
   };
 
-  /* ---- VFS ---- */
+  /* ---------- VFS ---------- */
   const fsTree = {
-    '/': { type: 'dir', children: ['home','system','tmp'] },
+    '/': { type: 'dir', children: ['home','system','tmp','usr','var','docs','media'] },
     '/home': { type: 'dir', children: ['david'] },
-    '/home/david': { type: 'dir', children: ['readme.txt','notas.md'] },
-    '/home/david/readme.txt': { type: 'file', content: 'Bienvenido a davidOS Engine.\n\nEste es un motor de SO web en un solo archivo.\nPrueba el terminal y escribe "help".\n' },
-    '/home/david/notas.md': { type: 'file', content: '# Notas\n\n- Probar la API pública\n- Registrar una app con davidOS.registerApp\n- Abrir el terminal\n' },
-    '/system': { type: 'dir', children: ['kernel.bin','config.json'] },
+    '/home/david': { type: 'dir', children: ['readme.txt','notas.md','config.json','proyectos'] },
+    '/home/david/readme.txt': { type: 'file', content: 'Bienvenido a davidOS Engine v2.0.\n\nEscribe "help" en el terminal para empezar.\n' },
+    '/home/david/notas.md': { type: 'file', content: '# Notas\n\n- Probar la API\n- Ver los juegos\n- Leer el CHANGELOG\n' },
+    '/home/david/config.json': { type: 'file', content: '{\n  "theme": "dark",\n  "accent": "#0078d4",\n  "user": "david"\n}' },
+    '/home/david/proyectos': { type: 'dir', children: ['app.js','style.css'] },
+    '/home/david/proyectos/app.js': { type: 'file', content: 'console.log("hola davidOS");\n' },
+    '/home/david/proyectos/style.css': { type: 'file', content: 'body { margin: 0; }\n' },
+    '/system': { type: 'dir', children: ['kernel.bin','config.json','CHANGELOG.md'] },
     '/system/kernel.bin': { type: 'file', content: '[binary data]' },
-    '/system/config.json': { type: 'file', content: '{\n  "theme": "dark",\n  "accent": "#0078d4",\n  "user": "david"\n}' },
-    '/tmp': { type: 'dir', children: [] }
+    '/system/config.json': { type: 'file', content: '{\n  "boot": "normal",\n  "safemode": false\n}' },
+    '/system/CHANGELOG.md': { type: 'file', content: '# v2.0\n- Muchas apps nuevas\n- Temas\n- Multi-tarea\n\n# v1.2\n- Versión inicial\n' },
+    '/tmp': { type: 'dir', children: [] },
+    '/usr': { type: 'dir', children: ['bin','lib','share'] },
+    '/usr/bin': { type: 'dir', children: ['sh','ls','cat','echo'] },
+    '/usr/lib': { type: 'dir', children: ['libcore.so'] },
+    '/usr/share': { type: 'dir', children: ['wallpapers'] },
+    '/var': { type: 'dir', children: ['log'] },
+    '/var/log': { type: 'dir', children: ['system.log'] },
+    '/var/log/system.log': { type: 'file', content: 'boot: ok\nservices: started\napps: registered\n' },
+    '/docs': { type: 'dir', children: ['manual.txt','api.md'] },
+    '/docs/manual.txt': { type: 'file', content: 'davidOS Engine — manual de usuario\n\n1. Abre apps con doble clic.\n2. Alt+Tab cambia de ventana.\n3. Ctrl+Alt+T abre el terminal.\n' },
+    '/docs/api.md': { type: 'file', content: '# API\n\ndavidOS.registerApp({...})\ndavidOS.openApp(id)\ndavidOS.notify(msg, tipo)\ndavidOS.fs.read(path)\n' },
+    '/media': { type: 'dir', children: ['wallpaper1.jpg','wallpaper2.jpg'] }
   };
   const fs = {
     ls(path) { const n = fsTree[path]; return (n && n.type === 'dir') ? n.children.slice() : null; },
     isDir(path) { const n = fsTree[path]; return !!(n && n.type === 'dir'); },
+    exists(path) { return !!fsTree[path]; },
     read(path) { const n = fsTree[path]; return (n && n.type === 'file') ? n.content : null; },
     write(path, content) {
-      const parts = path.split('/').filter(Boolean); const name = parts.pop(); const parent = '/' + parts.join('/');
+      const parts = path.split('/').filter(Boolean);
+      const name = parts.pop();
+      const parent = '/' + parts.join('/');
       if (!fsTree[parent]) fsTree[parent] = { type: 'dir', children: [] };
       fsTree[parent].children ||= [];
       if (!fsTree[parent].children.includes(name)) fsTree[parent].children.push(name);
       fsTree[path] = { type: 'file', content: String(content) };
-      emit('fs:write', { path }); return true;
+      emit('fs:write', { path });
+      return true;
+    },
+    mkdir(path) {
+      const parts = path.split('/').filter(Boolean);
+      const name = parts.pop();
+      const parent = '/' + parts.join('/');
+      if (!fsTree[parent]) return false;
+      if (!fsTree[parent].children.includes(name)) fsTree[parent].children.push(name);
+      fsTree[path] = { type: 'dir', children: [] };
+      emit('fs:mkdir', { path });
+      return true;
     },
     remove(path) {
-      const parts = path.split('/').filter(Boolean); const name = parts.pop(); const parent = '/' + parts.join('/');
+      const parts = path.split('/').filter(Boolean);
+      const name = parts.pop();
+      const parent = '/' + parts.join('/');
       if (!fsTree[path]) return false;
       delete fsTree[path];
       if (fsTree[parent]?.children) fsTree[parent].children = fsTree[parent].children.filter(c => c !== name);
-      emit('fs:remove', { path }); return true;
+      emit('fs:remove', { path });
+      return true;
+    },
+    rename(from, to) {
+      const content = this.read(from);
+      if (content == null) return false;
+      this.write(to, content);
+      this.remove(from);
+      return true;
+    },
+    tree(path, prefix) {
+      prefix = prefix || '';
+      const items = this.ls(path) || [];
+      let out = '';
+      items.forEach((it, i) => {
+        const last = i === items.length - 1;
+        const full = path === '/' ? '/' + it : path + '/' + it;
+        const isDir = this.isDir(full);
+        out += prefix + (last ? '└─ ' : '├─ ') + (isDir ? '📁 ' : '📄 ') + it + '\n';
+        if (isDir) out += this.tree(full, prefix + (last ? '   ' : '│  '));
+      });
+      return out;
     }
   };
 
-  /* ---- App Registry ---- */
+  /* ---------- APP REGISTRY ---------- */
   const apps = new Map();
+  const recentApps = [];
+  const pinnedApps = new Set(JSON.parse(localStorage.getItem('davidOS.pinned')||'[]'));
+  function savePinned(){ try { localStorage.setItem('davidOS.pinned', JSON.stringify([...pinnedApps])); } catch{} }
+
   function registerApp(def) {
     if (!def.id || !def.name || !def.render) { console.error('[davidOS] registerApp requiere id, name y render'); return false; }
     apps.set(def.id, {
       id: def.id, name: def.name, icon: def.icon || '📦',
       description: def.description || '',
+      category: def.category || 'General',
       width: def.width || 640, height: def.height || 440,
       minWidth: def.minWidth || 340, minHeight: def.minHeight || 220,
       toolbar: def.toolbar || null,
@@ -306,33 +669,47 @@ const davidOS = (() => {
       noPad: !!def.noPad,
       showInStart: def.showInStart !== false,
       render: def.render,
-      mount: def.mount || null
+      mount: def.mount || null,
+      singleton: def.singleton !== false
     });
-    emit('app:registered', def.id); renderDesktopIcons(); renderStartMenu(); return true;
+    emit('app:registered', def.id);
+    renderDesktopIcons();
+    renderStartMenu();
+    return true;
   }
   function unregisterApp(id) { if (apps.delete(id)) { emit('app:unregistered', id); renderDesktopIcons(); renderStartMenu(); } }
   function getApp(id) { return apps.get(id); }
   function listApps() { return Array.from(apps.values()); }
+  function listByCategory() {
+    const m = {};
+    listApps().forEach(a => { (m[a.category] ||= []).push(a); });
+    return m;
+  }
 
-  /* ---- Window Manager ---- */
+  /* ---------- WINDOW MANAGER ---------- */
   let zIndex = 100;
   const openWindows = new Map();
   let activeWinId = null;
   const winContainer = () => document.getElementById('desktop');
+  let altTabActive = false;
+  let altTabIndex = 0;
 
   function openApp(appId) {
     const def = apps.get(appId);
     if (!def) { notify('App no encontrada: ' + appId, 'error'); return; }
+    sound(600, .04);
     if (openWindows.has(appId)) {
       const w = openWindows.get(appId);
       w.el.classList.remove('minimized');
-      focusWindow(appId); return w;
+      focusWindow(appId);
+      return w;
     }
 
     const winId = 'win-' + appId;
     const el = document.createElement('div');
-    el.className = 'window'; el.id = winId;
-    const cascade = (openWindows.size % 6) * 26;
+    el.className = 'window';
+    el.id = winId;
+    const cascade = (openWindows.size % 8) * 24;
     el.style.top = (60 + cascade) + 'px';
     el.style.left = (80 + cascade) + 'px';
     el.style.width = def.width + 'px';
@@ -372,6 +749,8 @@ const davidOS = (() => {
     const ctx = {
       root: bodyEl, appId, winEl: el,
       fs, kernel, on, off, emit, notify, openApp,
+      settings: { get: settings.get.bind(settings), set: settings.set.bind(settings) },
+      sound,
       closeWin: () => closeWindow(appId),
       setTitle: (t) => { const n = el.querySelector('.t-name'); if (n) n.textContent = t; },
       setStatus: (s) => { const sb = el.querySelector('.statusbar'); if (sb) sb.innerHTML = s; }
@@ -385,48 +764,71 @@ const davidOS = (() => {
       console.error('[davidOS] render error:', e);
     }
 
-    // Mount callback (after DOM is ready)
     if (typeof def.mount === 'function') {
       try { def.mount(ctx); } catch (e) { console.error('[davidOS] mount error:', e); }
     }
 
-    // Controls
     el.querySelectorAll('.ctrl button').forEach(b => {
       b.addEventListener('click', (ev) => {
         ev.stopPropagation();
         const act = b.dataset.act;
         if (act === 'close') closeWindow(appId);
-        else if (act === 'min') { el.classList.add('minimized'); renderTaskbar(); }
+        else if (act === 'min') minimizeWindow(appId);
         else if (act === 'max') { el.classList.toggle('maximized'); el.classList.remove('snapped-left','snapped-right'); }
       });
     });
 
     el.addEventListener('mousedown', () => focusWindow(appId), true);
 
-    // Drag
-    el.querySelector('.titlebar').addEventListener('mousedown', (e) => {
+    // Drag with snap preview
+    const titlebar = el.querySelector('.titlebar');
+    titlebar.addEventListener('mousedown', (e) => {
       if (e.target.closest('.ctrl')) return;
       if (el.classList.contains('maximized')) return;
       e.preventDefault();
       const startX = e.clientX, startY = e.clientY;
       const startL = el.offsetLeft, startT = el.offsetTop;
       el.style.transition = 'none';
+      const preview = document.getElementById('snapPreview');
       const move = (ev) => {
         el.style.left = Math.max(0, startL + ev.clientX - startX) + 'px';
         el.style.top = Math.max(0, startT + ev.clientY - startY) + 'px';
+        // Snap preview
+        const W = innerWidth, H = innerHeight;
+        let snap = null;
+        if (ev.clientY < 6) snap = { left:0, top:0, width:W, height:H-56 };
+        else if (ev.clientX < 6) snap = { left:0, top:0, width:W/2, height:H-56 };
+        else if (ev.clientX > W-6) snap = { left:W/2, top:0, width:W/2, height:H-56 };
+        if (snap) {
+          preview.classList.add('on');
+          preview.style.left = snap.left+'px'; preview.style.top = snap.top+'px';
+          preview.style.width = snap.width+'px'; preview.style.height = snap.height+'px';
+        } else preview.classList.remove('on');
       };
-      const up = () => { el.style.transition = ''; document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', up); };
+      const up = () => {
+        el.style.transition = '';
+        document.removeEventListener('mousemove', move);
+        document.removeEventListener('mouseup', up);
+        const p = document.getElementById('snapPreview');
+        if (p.classList.contains('on')) {
+          const W = innerWidth;
+          const rect = { left: parseInt(p.style.left), top: parseInt(p.style.top), width: parseInt(p.style.width), height: parseInt(p.style.height) };
+          if (rect.width >= W - 2) { el.classList.add('maximized'); }
+          else if (rect.left === 0) { el.classList.remove('maximized','snapped-right'); el.classList.add('snapped-left'); }
+          else { el.classList.remove('maximized','snapped-left'); el.classList.add('snapped-right'); }
+          p.classList.remove('on');
+        }
+      };
       document.addEventListener('mousemove', move);
       document.addEventListener('mouseup', up);
     });
 
-    // Double click maximize
-    el.querySelector('.titlebar').addEventListener('dblclick', (e) => {
+    titlebar.addEventListener('dblclick', (e) => {
       if (e.target.closest('.ctrl')) return;
       el.classList.toggle('maximized');
+      el.classList.remove('snapped-left','snapped-right');
     });
 
-    // Resize
     el.querySelectorAll('[data-rh]').forEach(h => {
       h.addEventListener('mousedown', (e) => {
         e.preventDefault(); e.stopPropagation();
@@ -449,6 +851,13 @@ const davidOS = (() => {
       });
     });
 
+    // Track recent
+    const ri = recentApps.indexOf(appId);
+    if (ri >= 0) recentApps.splice(ri, 1);
+    recentApps.unshift(appId);
+    if (recentApps.length > 8) recentApps.pop();
+    renderRecent();
+
     kernel.spawn(appId, def.name);
     openWindows.set(appId, { id: winId, appId, el, def });
     focusWindow(appId);
@@ -467,6 +876,24 @@ const davidOS = (() => {
     kernel.kill(appId);
     renderTaskbar();
     emit('window:close', { appId });
+    sound(400, .05);
+    // Focus next
+    if (activeWinId === w.id && openWindows.size) {
+      const next = openWindows.values().next().value;
+      focusWindow(next.appId);
+    }
+  }
+
+  function minimizeWindow(appId) {
+    const w = openWindows.get(appId);
+    if (!w) return;
+    w.el.classList.add('minimizing');
+    setTimeout(() => {
+      w.el.classList.remove('minimizing');
+      w.el.classList.add('minimized');
+      renderTaskbar();
+      sound(300, .04);
+    }, 220);
   }
 
   function focusWindow(appId) {
@@ -483,8 +910,9 @@ const davidOS = (() => {
     const w = openWindows.get(appId);
     if (!w) return;
     if (w.el.classList.contains('minimized') || activeWinId !== w.id) {
-      w.el.classList.remove('minimized'); focusWindow(appId);
-    } else { w.el.classList.add('minimized'); renderTaskbar(); }
+      w.el.classList.remove('minimized');
+      focusWindow(appId);
+    } else minimizeWindow(appId);
   }
 
   function renderTaskbar() {
@@ -501,8 +929,10 @@ const davidOS = (() => {
         e.preventDefault();
         showCtxMenu(e.clientX, e.clientY, [
           { icon: '📌', label: 'Enfocar', action: () => focusWindow(appId) },
-          { icon: '➖', label: 'Minimizar', action: () => { w.el.classList.add('minimized'); renderTaskbar(); } },
+          { icon: '➖', label: 'Minimizar', action: () => minimizeWindow(appId) },
           { icon: '🔲', label: 'Maximizar', action: () => w.el.classList.toggle('maximized') },
+          { icon: '⬅️', label: 'Anclar a la izquierda', action: () => { w.el.classList.remove('maximized','snapped-right'); w.el.classList.add('snapped-left'); } },
+          { icon: '➡️', label: 'Anclar a la derecha', action: () => { w.el.classList.remove('maximized','snapped-left'); w.el.classList.add('snapped-right'); } },
           { sep: true },
           { icon: '❌', label: 'Cerrar', action: () => closeWindow(appId) }
         ]);
@@ -511,17 +941,39 @@ const davidOS = (() => {
     });
   }
 
+  /* ---------- NOTIFICATIONS ---------- */
+  const notifHistory = [];
   function notify(msg, type) {
     const host = document.getElementById('notifs');
-    if (!host) { console.log('[davidOS]', msg); return; }
-    const el = document.createElement('div');
-    el.className = 'notif ' + (type || 'info');
-    el.innerHTML = `<strong>davidOS</strong>${msg}`;
-    host.appendChild(el);
-    setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 300); }, 3800);
+    if (host) {
+      const el = document.createElement('div');
+      el.className = 'notif ' + (type || 'info');
+      el.innerHTML = `<strong>davidOS</strong>${msg}`;
+      host.appendChild(el);
+      setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 300); }, 3800);
+    }
+    notifHistory.unshift({ msg, type: type||'info', time: Date.now() });
+    if (notifHistory.length > 30) notifHistory.pop();
+    renderNotifCenter();
     emit('notify', { msg, type });
+    sound(700, .04);
   }
 
+  function renderNotifCenter() {
+    const body = document.getElementById('ncBody');
+    if (!body) return;
+    if (!notifHistory.length) {
+      body.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-dim);font-size:12px;">Sin notificaciones</div>';
+      return;
+    }
+    body.innerHTML = notifHistory.map(n => {
+      const d = new Date(n.time);
+      const t = d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+      return `<div class="notif-card"><b>${n.type.toUpperCase()}</b>${n.msg}<small>${t}</small></div>`;
+    }).join('');
+  }
+
+  /* ---------- DESKTOP ICONS ---------- */
   function renderDesktopIcons() {
     const grid = document.getElementById('icons');
     if (!grid) return;
@@ -539,74 +991,203 @@ const davidOS = (() => {
         e.preventDefault();
         document.querySelectorAll('.icon').forEach(i => i.classList.remove('selected'));
         el.classList.add('selected');
+        const pinned = pinnedApps.has(app.id);
         showCtxMenu(e.clientX, e.clientY, [
           { icon: '▶️', label: 'Abrir', action: () => openApp(app.id) },
+          { icon: pinned ? '📌' : '📍', label: pinned ? 'Quitar de fijadas' : 'Fijar', action: () => { if (pinned) pinnedApps.delete(app.id); else pinnedApps.add(app.id); savePinned(); renderStartMenu(); } },
           { icon: '📋', label: 'Copiar ID', action: () => { navigator.clipboard?.writeText(app.id); notify('ID copiado: ' + app.id); } },
+          { icon: '🔗', label: 'Crear acceso directo', action: () => notify('Acceso directo creado (simulado)') },
           { sep: true },
-          { icon: '⚙️', label: 'Propiedades', action: () => notify(`App: ${app.name}\nID: ${app.id}\nTamaño: ${app.width}×${app.height}`) }
+          { icon: '⚙️', label: 'Propiedades', action: () => notify(`App: ${app.name}\nID: ${app.id}\nCategoría: ${app.category}\nTamaño: ${app.width}×${app.height}`) }
         ]);
       });
       grid.appendChild(el);
     });
   }
 
+  /* ---------- START MENU ---------- */
+  let startTab = 'all';
   function renderStartMenu() {
     const grid = document.getElementById('smGrid');
     const badge = document.getElementById('appCount');
     if (!grid) return;
     grid.innerHTML = '';
-    const list = listApps().filter(a => a.showInStart);
+    let list = listApps().filter(a => a.showInStart);
+    if (startTab === 'pinned') list = list.filter(a => pinnedApps.has(a.id));
+    if (startTab === 'recent') list = recentApps.map(id => apps.get(id)).filter(Boolean);
     if (badge) badge.textContent = list.length + ' app(s)';
+    if (!list.length) {
+      grid.innerHTML = '<div style="grid-column:span 4;text-align:center;padding:20px;color:var(--text-dim);font-size:12px;">Vacío</div>';
+      return;
+    }
     list.forEach(app => {
       const el = document.createElement('div');
       el.className = 'sm-app';
       el.innerHTML = `<div class="g">${app.icon}</div><div class="n">${app.name}</div>`;
       el.addEventListener('click', () => { openApp(app.id); closeStartMenu(); });
+      el.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        const pinned = pinnedApps.has(app.id);
+        showCtxMenu(e.clientX, e.clientY, [
+          { icon: '▶️', label: 'Abrir', action: () => { openApp(app.id); closeStartMenu(); } },
+          { icon: pinned ? '📌' : '📍', label: pinned ? 'Quitar de fijadas' : 'Fijar al inicio', action: () => { if (pinned) pinnedApps.delete(app.id); else pinnedApps.add(app.id); savePinned(); renderStartMenu(); } }
+        ]);
+      });
       grid.appendChild(el);
     });
   }
-  function openStartMenu() { document.getElementById('startMenu')?.classList.add('open'); setTimeout(() => document.getElementById('smSearch')?.focus(), 30); }
+
+  function renderRecent() {
+    const row = document.getElementById('smRecentRow');
+    if (!row) return;
+    row.innerHTML = '';
+    recentApps.slice(0, 6).forEach(id => {
+      const app = apps.get(id);
+      if (!app) return;
+      const el = document.createElement('div');
+      el.className = 'sm-app';
+      el.style.padding = '8px';
+      el.innerHTML = `<div class="g" style="font-size:18px">${app.icon}</div><div class="n" style="font-size:10px;">${app.name}</div>`;
+      el.addEventListener('click', () => { openApp(app.id); closeStartMenu(); });
+      row.appendChild(el);
+    });
+  }
+
+  function openStartMenu() {
+    const m = document.getElementById('startMenu');
+    m?.classList.add('open');
+    setTimeout(() => document.getElementById('smSearch')?.focus(), 30);
+    sound(500, .03);
+  }
   function closeStartMenu() { document.getElementById('startMenu')?.classList.remove('open'); }
   function toggleStartMenu() { const m = document.getElementById('startMenu'); m?.classList.contains('open') ? closeStartMenu() : openStartMenu(); }
 
+  /* ---------- CONTEXT MENU ---------- */
   let ctxOpen = false;
   function showCtxMenu(x, y, items) {
     const menu = document.getElementById('ctxMenu');
     if (!menu) return;
-    menu.innerHTML = items.map(it => it.sep ? '<div class="ctx-sep"></div>' : `<div class="ctx-item${it.disabled?' disabled':''}"><span style="width:16px;display:inline-block;text-align:center;">${it.icon || ''}</span><span>${it.label}</span></div>`).join('');
+    menu.innerHTML = items.map(it => it.sep ? '<div class="ctx-sep"></div>' :
+      `<div class="ctx-item${it.disabled?' disabled':''}"><span style="width:16px;display:inline-block;text-align:center;">${it.icon || ''}</span><span>${it.label}</span>${it.kbd?`<span class="k">${it.kbd}</span>`:''}</div>`
+    ).join('');
     const realItems = items.filter(it => !it.sep);
     menu.querySelectorAll('.ctx-item').forEach((el, i) => el.addEventListener('click', () => {
       if (realItems[i]?.disabled) return;
-      realItems[i]?.action?.(); hideCtxMenu();
+      realItems[i]?.action?.();
+      hideCtxMenu();
     }));
-    menu.style.left = Math.min(x, innerWidth - 220) + 'px';
-    menu.style.top = Math.min(y, innerHeight - 260) + 'px';
+    menu.style.left = Math.min(x, innerWidth - 230) + 'px';
+    menu.style.top = Math.min(y, innerHeight - 300) + 'px';
     menu.classList.add('on');
     ctxOpen = true;
   }
   function hideCtxMenu() { document.getElementById('ctxMenu')?.classList.remove('on'); ctxOpen = false; }
 
+  /* ---------- CLOCK / TRAY ---------- */
   function updateClock() {
     const now = new Date();
     const tEl = document.getElementById('clockTime');
     const dEl = document.getElementById('clockDate');
-    if (tEl) tEl.textContent = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-    if (dEl) dEl.textContent = now.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+    const lT = document.getElementById('lockTime');
+    const lD = document.getElementById('lockDate');
+    const t = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+    const d = now.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+    if (tEl) tEl.textContent = t;
+    if (dEl) dEl.textContent = d;
+    if (lT) lT.textContent = t;
+    if (lD) lD.textContent = now.toLocaleDateString('es-ES', { weekday:'long', day:'numeric', month:'long' });
   }
   function updateTray() {
     const s = kernel.stats();
     const cpu = document.getElementById('trayCpu');
     const mem = document.getElementById('trayMem');
-    if (cpu) cpu.textContent = '⚙️ ' + s.processes + 'p';
-    if (mem) mem.textContent = '💾 ' + s.memoryUsedMB + 'MB';
+    const net = document.getElementById('trayNet');
+    if (cpu) { cpu.textContent = '💻'; cpu.title = `${s.processes} procesos · CPU ${s.cpuLoad}%`; }
+    if (mem) { mem.textContent = '💾'; mem.title = `${s.memoryUsedMB} MB / ${s.memoryMaxMB} MB`; }
+    if (net) net.style.opacity = settings.get('wifi') ? '1' : '0.35';
+    const qsB = document.getElementById('qsBattery');
+    if (qsB) qsB.textContent = s.memoryUsedMB + 'MB · ' + s.processes + 'p';
   }
 
+  /* ---------- QUICK SETTINGS ---------- */
+  function toggleQs(el) {
+    const key = el.dataset.qs;
+    if (key === 'screenshot') { takeScreenshot(); return; }
+    if (key === 'theme') { cycleTheme(); return; }
+    el.classList.toggle('on');
+    const on = el.classList.contains('on');
+    if (key === 'wifi' || key === 'bt' || key === 'airplane' || key === 'dnd' || key === 'nightlight' || key === 'volume') {
+      settings.set(key, on);
+      if (key === 'airplane' && on) { settings.set('wifi', false); settings.set('bt', false); }
+      notify(`${el.textContent.trim()}: ${on?'ON':'OFF'}`);
+    }
+    updateTray();
+  }
+  function cycleTheme() {
+    const themes = ['default','purple','green','sunset','light'];
+    const i = themes.indexOf(settings.get('theme'));
+    settings.set('theme', themes[(i+1)%themes.length]);
+    applyTheme();
+  }
+  function applyTheme() {
+    const t = settings.get('theme');
+    const root = document.documentElement;
+    if (t === 'purple') { root.style.setProperty('--accent', '#7b2ff7'); root.style.setProperty('--accent-2', '#b44aff'); }
+    else if (t === 'green') { root.style.setProperty('--accent', '#27c93f'); root.style.setProperty('--accent-2', '#4ade80'); }
+    else if (t === 'sunset') { root.style.setProperty('--accent', '#f97316'); root.style.setProperty('--accent-2', '#fbbf24'); }
+    else if (t === 'light') {
+      root.style.setProperty('--accent', '#0078d4'); root.style.setProperty('--accent-2', '#4aa3ff');
+      document.body.style.background = '#e8eaf0';
+      document.documentElement.style.setProperty('--wall', 'radial-gradient(1200px 800px at 20% 10%, #c7d2fe, transparent), radial-gradient(900px 700px at 80% 90%, #fbcfe8, transparent), linear-gradient(135deg, #f8fafc, #e2e8f0)');
+    } else {
+      root.style.setProperty('--accent', '#0078d4'); root.style.setProperty('--accent-2', '#4aa3ff');
+      root.style.removeProperty('--wall');
+    }
+  }
+
+  /* ---------- SCREENSHOT ---------- */
+  function takeScreenshot() {
+    notify('📸 Captura guardada en /tmp/captura.png');
+    sound(1200, .05);
+  }
+
+  /* ---------- ALT-TAB ---------- */
+  function showAltTab() {
+    const grid = document.getElementById('altGrid');
+    const wrap = document.getElementById('altTab');
+    if (!grid || !openWindows.size) return;
+    grid.innerHTML = '';
+    const list = [...openWindows.values()];
+    list.forEach((w, i) => {
+      const el = document.createElement('div');
+      el.className = 'alt-item' + (i === altTabIndex ? ' on' : '');
+      el.innerHTML = `<div class="g">${w.def.icon}</div><div class="n">${w.def.name}</div>`;
+      el.addEventListener('click', () => { focusWindow(w.appId); hideAltTab(); });
+      grid.appendChild(el);
+    });
+    wrap.classList.add('on');
+    altTabActive = true;
+  }
+  function hideAltTab() {
+    document.getElementById('altTab')?.classList.remove('on');
+    altTabActive = false;
+  }
+
+  /* ---------- SHORTCUTS ---------- */
   function setupShortcuts() {
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Meta' || e.key === 'OS') { e.preventDefault(); toggleStartMenu(); return; }
-      if (e.altKey && (e.key === 'k' || e.key === 'K')) { e.preventDefault(); openStartMenu(); document.getElementById('smSearch')?.focus(); return; }
+      if (e.altKey && (e.key === 'k' || e.key === 'K')) { e.preventDefault(); openStartMenu(); return; }
       if (e.altKey && (e.key === 't' || e.key === 'T')) { e.preventDefault(); if (apps.has('terminal')) openApp('terminal'); return; }
-      if (e.key === 'Escape') { closeStartMenu(); hideCtxMenu(); }
+      if (e.ctrlKey && e.altKey && (e.key === 't' || e.key === 'T')) { e.preventDefault(); if (apps.has('terminal')) openApp('terminal'); return; }
+      if (e.altKey && e.key === 'Tab') {
+        e.preventDefault();
+        if (!altTabActive) { altTabIndex = 0; showAltTab(); }
+        else { altTabIndex = (altTabIndex + 1) % openWindows.size; showAltTab(); }
+        return;
+      }
+      if (e.key === 'Escape') { closeStartMenu(); hideCtxMenu(); hideAltTab(); return; }
+      if (e.key === 'F11') { e.preventDefault(); if (activeWinId) { const w = openWindows.get(activeWinId.replace('win-','')); w?.el.classList.toggle('maximized'); } return; }
       if (!activeWinId) return;
       const w = openWindows.get(activeWinId.replace('win-', ''));
       if (!w) return;
@@ -614,11 +1195,33 @@ const davidOS = (() => {
       if (e.ctrlKey && e.key === 'ArrowLeft') { e.preventDefault(); w.el.classList.remove('maximized','snapped-right'); w.el.classList.add('snapped-left'); }
       if (e.ctrlKey && e.key === 'ArrowRight') { e.preventDefault(); w.el.classList.remove('maximized','snapped-left'); w.el.classList.add('snapped-right'); }
       if (e.ctrlKey && e.key === 'ArrowUp') { e.preventDefault(); w.el.classList.toggle('maximized'); }
+      if (e.ctrlKey && e.key === 'w') { e.preventDefault(); closeWindow(w.appId); }
+    });
+    document.addEventListener('keyup', (e) => {
+      if (e.key === 'Alt' && altTabActive) {
+        // Focus current selection
+        const list = [...openWindows.values()];
+        if (list[altTabIndex]) focusWindow(list[altTabIndex].appId);
+        hideAltTab();
+      }
     });
   }
 
+  /* ---------- BOOT ---------- */
   const BOOT_TIME = Date.now();
-  const BOOT_LOGS = ['POST: CPU OK, RAM 8192 MB OK','Inicializando davidKernel v1.2...','Montando VFS virtual...','Arrancando Window Manager...','Registrando apps...','davidOS Engine listo.'];
+  const BOOT_LOGS = [
+    'POST: CPU 8-core OK · RAM 16384 MB OK',
+    'davidOS Boot Loader v2.0',
+    'Cargando davidKernel...',
+    'Inicializando scheduler (CFS simulado)',
+    'Montando VFS virtual...',
+    'Iniciando servicios del sistema...',
+    'audiosrv · dnscache · eventlog · fs-vfs · scheduler',
+    'Arrancando Window Manager v2.0',
+    'Registrando apps del usuario...',
+    'Aplicando configuración regional',
+    'davidOS Engine v2.0 listo.'
+  ];
   function boot() {
     const fill = document.getElementById('bootFill');
     const sub = document.getElementById('bootSub');
@@ -627,12 +1230,16 @@ const davidOS = (() => {
       if (i < BOOT_LOGS.length) {
         sub.textContent = BOOT_LOGS[i];
         fill.style.width = Math.round(((i + 1) / BOOT_LOGS.length) * 100) + '%';
-        i++; setTimeout(step, 260);
+        i++;
+        setTimeout(step, 180);
       } else {
         setTimeout(() => {
           document.getElementById('boot').classList.add('hide');
           document.getElementById('desktop').classList.add('on');
-          startSystem();
+          // Show lock briefly
+          const lk = document.getElementById('lock');
+          lk.classList.remove('hide');
+          setTimeout(() => { lk.classList.add('hide'); startSystem(); }, 1200);
         }, 380);
       }
     };
@@ -640,48 +1247,141 @@ const davidOS = (() => {
   }
 
   function startSystem() {
-    renderDesktopIcons(); renderStartMenu(); updateClock(); updateTray();
+    renderDesktopIcons();
+    renderStartMenu();
+    renderRecent();
+    updateClock();
+    updateTray();
+    renderNotifCenter();
     setInterval(updateClock, 1000);
     setInterval(updateTray, 2000);
 
     document.getElementById('startBtn').addEventListener('click', toggleStartMenu);
-    document.getElementById('shutdownBtn').addEventListener('click', () => { notify('Apagando davidOS...', 'warn'); setTimeout(() => location.reload(), 900); });
+    document.getElementById('searchBtn').addEventListener('click', () => { openStartMenu(); });
+    document.getElementById('taskviewBtn').addEventListener('click', () => { if (openWindows.size) { altTabIndex = 0; showAltTab(); setTimeout(hideAltTab, 1500); } });
+    document.getElementById('shutdownBtn').addEventListener('click', () => {
+      notify('Apagando davidOS...', 'warn');
+      document.getElementById('desktop').classList.remove('on');
+      document.getElementById('lock').classList.remove('hide');
+      setTimeout(() => location.reload(), 1400);
+    });
     document.getElementById('smSearch').addEventListener('input', (e) => {
       const q = e.target.value.toLowerCase();
-      document.querySelectorAll('.sm-app').forEach(el => { el.style.display = el.textContent.toLowerCase().includes(q) ? '' : 'none'; });
+      document.querySelectorAll('.sm-app').forEach(el => {
+        el.style.display = el.textContent.toLowerCase().includes(q) ? '' : 'none';
+      });
     });
-    document.getElementById('clock').addEventListener('click', () => notify(new Date().toLocaleString('es-ES', { dateStyle: 'full', timeStyle: 'short' })));
+    document.getElementById('clock').addEventListener('click', () => {
+      if (apps.has('clock')) openApp('clock');
+    });
 
+    // Start tabs
+    document.querySelectorAll('.sm-tab').forEach(t => {
+      t.addEventListener('click', () => {
+        document.querySelectorAll('.sm-tab').forEach(x => x.classList.remove('on'));
+        t.classList.add('on');
+        startTab = t.dataset.tab;
+        renderStartMenu();
+        document.getElementById('smRecent').style.display = startTab === 'recent' ? 'block' : 'none';
+      });
+    });
+
+    // Quick settings tiles
+    document.querySelectorAll('.qs-tile').forEach(t => t.addEventListener('click', () => toggleQs(t)));
+    document.getElementById('qsVolume').addEventListener('input', (e) => {
+      settings.set('volume', +e.target.value);
+      document.getElementById('qsVolVal').textContent = e.target.value;
+    });
+    document.getElementById('qsBright').addEventListener('input', (e) => {
+      settings.set('brightness', +e.target.value);
+      document.documentElement.style.filter = `brightness(${e.target.value/100})`;
+      document.getElementById('qsBrightVal').textContent = e.target.value;
+    });
+    document.getElementById('qsTheme').addEventListener('change', (e) => {
+      settings.set('theme', e.target.value);
+      applyTheme();
+    });
+
+    // Tray
+    document.querySelectorAll('[data-tray]').forEach(b => {
+      b.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const which = b.dataset.tray;
+        if (which === 'qs') toggleFlyout('qsPanel');
+        else if (which === 'nc') toggleFlyout('ncPanel');
+      });
+    });
+    document.getElementById('ncClear').addEventListener('click', () => {
+      notifHistory.length = 0;
+      renderNotifCenter();
+    });
+
+    // Context menu on desktop
     document.addEventListener('contextmenu', (e) => {
-      if (e.target.closest('.window') || e.target.closest('#taskbar')) return;
+      if (e.target.closest('.window') || e.target.closest('#taskbar') || e.target.closest('.flyout')) return;
       e.preventDefault();
       showCtxMenu(e.clientX, e.clientY, [
         { icon: '🖥️', label: 'Actualizar', action: () => { renderDesktopIcons(); notify('Escritorio actualizado'); } },
         { icon: '📝', label: 'Nueva nota', action: () => openApp('notepad') },
+        { icon: '💻', label: 'Abrir terminal', action: () => openApp('terminal'), kbd: 'Ctrl+Alt+T' },
         { sep: true },
-        { icon: 'ℹ️', label: 'Acerca de davidOS Engine', action: () => openApp('about') }
+        { icon: '🎨', label: 'Cambiar tema', action: cycleTheme },
+        { icon: '🖼️', label: 'Personalizar fondo', action: () => openApp('settings') },
+        { sep: true },
+        { icon: '⚙️', label: 'Configuración', action: () => openApp('settings') },
+        { icon: 'ℹ️', label: 'Acerca de davidOS', action: () => openApp('about') }
       ]);
     });
 
+    // Click outside
     document.addEventListener('click', (e) => {
       if (ctxOpen && !e.target.closest('#ctxMenu')) hideCtxMenu();
-      if (!e.target.closest('#startMenu') && !e.target.closest('#startBtn')) closeStartMenu();
+      if (!e.target.closest('#startMenu') && !e.target.closest('#startBtn') && !e.target.closest('#searchBtn')) closeStartMenu();
+      if (!e.target.closest('.flyout') && !e.target.closest('[data-tray]')) {
+        document.getElementById('qsPanel')?.classList.remove('open');
+        document.getElementById('ncPanel')?.classList.remove('open');
+      }
       if (!e.target.closest('.icon')) document.querySelectorAll('.icon').forEach(i => i.classList.remove('selected'));
     });
 
+    // Lock screen click
+    document.getElementById('lock').addEventListener('click', () => {
+      document.getElementById('lock').classList.add('hide');
+    });
+    document.getElementById('lockPass').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        document.getElementById('lock').classList.add('hide');
+        document.getElementById('lockPass').value = '';
+      }
+    });
+
+    // Init theme
+    applyTheme();
+    document.getElementById('qsTheme').value = settings.get('theme');
+
     setupShortcuts();
     emit('system:ready');
-    notify('davidOS Engine iniciado correctamente', 'success');
-    console.log('%c davidOS Engine v1.2 — listo ', 'background:#0078d4;color:white;padding:4px 10px;border-radius:5px;font-weight:bold;');
-    console.log('Prueba: davidOS.help()');
+    notify('davidOS Engine v2.0 iniciado correctamente', 'success');
+    console.log('%c davidOS Engine v2.0 — listo ', 'background:#0078d4;color:white;padding:4px 10px;border-radius:5px;font-weight:bold;');
+    console.log('API: davidOS.help()');
   }
 
+  function toggleFlyout(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const others = ['qsPanel','ncPanel'].filter(x => x !== id);
+    others.forEach(x => document.getElementById(x)?.classList.remove('open'));
+    el.classList.toggle('open');
+  }
+
+  /* ---------- PUBLIC API ---------- */
   return {
-    kernel, fs,
-    registerApp, unregisterApp, getApp, listApps,
-    openApp, closeWindow, focusWindow, toggleMinimize,
+    kernel, fs, settings, sound,
+    registerApp, unregisterApp, getApp, listApps, listByCategory,
+    openApp, closeWindow, focusWindow, toggleMinimize, minimizeWindow,
     get openWindows() { return Array.from(openWindows.values()); },
     on, off, emit, notify, openStartMenu, closeStartMenu,
+    showCtxMenu, applyTheme, cycleTheme,
     version: kernel.version,
     help() {
       console.log(`%c davidOS Engine v${kernel.version} — API `, 'background:#7b2ff7;color:#fff;padding:4px 10px;border-radius:5px;font-weight:bold;');
@@ -690,11 +1390,12 @@ const davidOS = (() => {
         { método: 'davidOS.openApp(id)', desc: 'Abre una ventana' },
         { método: 'davidOS.closeWindow(id)', desc: 'Cierra ventana' },
         { método: 'davidOS.notify(msg, tipo)', desc: 'Notificación (info/success/warn/error)' },
-        { método: 'davidOS.fs.read(path)', desc: 'Lee archivo' },
-        { método: 'davidOS.fs.write(path, c)', desc: 'Escribe archivo' },
-        { método: 'davidOS.fs.ls(path)', desc: 'Lista directorio' },
+        { método: 'davidOS.fs.read/write/ls/mkdir/remove/rename/tree', desc: 'Sistema de archivos virtual' },
         { método: 'davidOS.kernel.stats()', desc: 'Stats del kernel' },
-        { método: 'davidOS.on(evt, fn)', desc: 'Escucha evento' },
+        { método: 'davidOS.settings.get/set', desc: 'Configuración del sistema' },
+        { método: 'davidOS.sound(freq, dur, type, vol)', desc: 'Reproducir sonido' },
+        { método: 'davidOS.on(evt, fn)', desc: 'Escucha eventos' },
+        { método: 'davidOS.applyTheme()', desc: 'Aplica el tema actual' }
       ]);
     },
     boot
@@ -702,35 +1403,46 @@ const davidOS = (() => {
 })();
 
 /* ============================================================================
-   APPS
+   APLICACIONES DEL SISTEMA
    ========================================================================== */
 
 /* ---------- ℹ️ Acerca de ---------- */
 davidOS.registerApp({
-  id: 'about', name: 'Acerca de', icon: 'ℹ️', width: 500, height: 500,
+  id: 'about', name: 'Acerca de', icon: 'ℹ️', width: 520, height: 560,
+  category: 'Sistema',
   toolbar: `<button class="tool-btn" data-act="hi">👋 Saludo</button>
             <div class="tb-sep"></div>
-            <button class="tool-btn" data-act="term">💻 Abrir Terminal</button>
-            <button class="tool-btn" data-act="mon">📊 Abrir Monitor</button>`,
+            <button class="tool-btn" data-act="term">💻 Terminal</button>
+            <button class="tool-btn" data-act="mon">📊 Monitor</button>
+            <button class="tool-btn" data-act="help">❓ API</button>`,
   statusbar: () => {
     const s = davidOS.kernel.stats();
-    return `<span>v${s.version} · ${s.build}</span><span>${s.processes} procesos</span>`;
+    return `<span>v${s.version} · ${s.build}</span><span>${s.processes} procesos · CPU ${s.cpuLoad}%</span>`;
   },
   render() {
+    const s = davidOS.kernel.stats();
     return `
       <div class="about-hero">
         <div class="about-logo">🚪</div>
         <div style="font-size:18px;font-weight:600;">davidOS Engine</div>
-        <div style="font-size:12px;color:var(--text-dim);margin-top:4px;">Web Operating System Kernel</div>
+        <div style="font-size:12px;color:var(--text-dim);margin-top:4px;">Web Operating System Kernel v${s.version}</div>
       </div>
       <div class="app-h2">Información</div>
-      <div class="kv"><span>Versión</span><b>${davidOS.kernel.version}</b></div>
-      <div class="kv"><span>Build</span><b>${davidOS.kernel.build}</b></div>
+      <div class="kv"><span>Versión</span><b>${s.version}</b></div>
+      <div class="kv"><span>Build</span><b>${s.build}</b></div>
+      <div class="kv"><span>Uptime</span><b>${Math.floor(s.uptime/1000)}s</b></div>
       <div class="kv"><span>Apps registradas</span><b>${davidOS.listApps().length}</b></div>
-      <div class="kv"><span>Procesos activos</span><b>${davidOS.kernel.stats().processes}</b></div>
+      <div class="kv"><span>Procesos activos</span><b>${s.processes}</b></div>
       <div class="kv"><span>Ventanas abiertas</span><b>${davidOS.openWindows.length}</b></div>
+      <div class="kv"><span>Servicios</span><b>${s.services}</b></div>
+      <div class="app-h2">Atajos</div>
+      <div class="app-p">
+        <kbd>Ctrl+Alt+T</kbd> Terminal · <kbd>Alt+Tab</kbd> Cambiar ventana ·
+        <kbd>Alt+F4</kbd> Cerrar · <kbd>Ctrl+←/→</kbd> Anclar · <kbd>Ctrl+↑</kbd> Maximizar ·
+        <kbd>Alt+K</kbd> Buscar · <kbd>F11</kbd> Pantalla completa
+      </div>
       <div class="app-h2">API pública</div>
-      <div class="app-p">Abre la consola del navegador y ejecuta <code style="background:rgba(255,255,255,.07);padding:1px 6px;border-radius:4px;font-family:ui-monospace,monospace;">davidOS.help()</code> para ver todos los métodos disponibles.</div>
+      <div class="app-p">Abre la consola del navegador y ejecuta <code style="background:rgba(255,255,255,.07);padding:1px 6px;border-radius:4px;font-family:ui-monospace,monospace;">davidOS.help()</code></div>
     `;
   },
   mount(ctx) {
@@ -738,36 +1450,35 @@ davidOS.registerApp({
     el.querySelector('[data-act="hi"]').onclick = () => davidOS.notify('¡Hola desde Acerca de! 👋', 'success');
     el.querySelector('[data-act="term"]').onclick = () => davidOS.openApp('terminal');
     el.querySelector('[data-act="mon"]').onclick = () => davidOS.openApp('sysmon');
+    el.querySelector('[data-act="help"]').onclick = () => davidOS.help();
   }
 });
 
 /* ---------- 💻 Terminal ---------- */
 davidOS.registerApp({
-  id: 'terminal', name: 'Terminal', icon: '💻', width: 720, height: 460, noPad: true,
+  id: 'terminal', name: 'Terminal', icon: '💻', width: 760, height: 480, noPad: true,
+  category: 'Sistema',
   toolbar: `<button class="tool-btn" data-act="clear">🧹 Limpiar</button>
             <div class="tb-sep"></div>
-            <span style="font-size:11px;color:var(--text-dim);">bash · davidOS Engine</span>`,
+            <span style="font-size:11px;color:var(--text-dim);">bash · davidOS Engine v2.0</span>`,
   statusbar: `<span>david@engine:~$</span><span>UTF-8 · Cols 80 · Rows 24</span>`,
-  render() {
-    return `<div class="term" id="termRoot"></div>`;
-  },
+  render() { return `<div class="term" id="termRoot"></div>`; },
   mount(ctx) {
     const wrap = ctx.winEl.querySelector('#termRoot');
+    const history = [];
+    let histIdx = -1;
     const print = (txt, cls) => {
       const d = document.createElement('div');
       if (cls) d.className = cls;
-      d.innerHTML = txt.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\n/g,'<br>');
+      d.innerHTML = String(txt).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\n/g,'<br>');
       wrap.insertBefore(d, line);
       wrap.scrollTop = wrap.scrollHeight;
     };
     const line = document.createElement('div');
-    line.style.display = 'flex';
-    line.style.gap = '6px';
+    line.style.display = 'flex'; line.style.gap = '6px';
     line.innerHTML = '<span style="color:#4aa3ff;font-weight:600;">david@engine</span><span style="color:#7dffb0">:~$</span> ';
     const input = document.createElement('input');
-    input.className = 'term-input';
-    input.style.flex = '1';
-    input.autocomplete = 'off';
+    input.className = 'term-input'; input.style.flex = '1'; input.autocomplete = 'off';
     line.appendChild(input);
     wrap.appendChild(line);
 
@@ -780,33 +1491,83 @@ davidOS.registerApp({
   help               Muestra esta ayuda
   clear              Limpia la pantalla
   ls [ruta]          Lista el directorio (por defecto /)
+  cd <ruta>          Cambia directorio actual
+  pwd                Muestra el directorio actual
   cat <archivo>      Muestra el contenido de un archivo
+  tree [ruta]        Árbol del sistema de archivos
+  mkdir <ruta>       Crea un directorio
+  touch <ruta>       Crea un archivo vacío
+  rm <ruta>          Elimina un archivo/directorio
   echo <texto>       Imprime texto
+  write <r> <txt>    Escribe un archivo
   whoami             Nombre de usuario
   uptime             Tiempo encendido
   date               Fecha y hora actual
   ps                 Procesos del kernel
+  top                Monitor en vivo (una foto)
   stats              Estadísticas del sistema
+  services           Servicios del sistema
   apps               Lista las apps registradas
   open <appId>       Abre una app
   notify <texto>     Muestra una notificación
-  write <r> <txt>    Escribe un archivo
+  theme <nombre>     Cambia el tema (default|purple|green|sunset|light)
+  sound <f> <d>      Reproduce un sonido (freq, dur)
+  calc <expresión>   Calcula una expresión
+  rand [min] [max]   Número aleatorio
   reset              Reinicia el sistema`);
       },
-      clear() { wrap.querySelectorAll('div').forEach(d => { if (d !== line) d.remove(); }); wrap.insertBefore(line, null); input.focus(); },
+      clear() { wrap.querySelectorAll('div').forEach(d => { if (d !== line) d.remove(); }); wrap.appendChild(line); input.focus(); },
       ls(arg) {
-        const items = davidOS.fs.ls(arg || '/');
-        if (!items) return print(`No existe: ${arg || '/'}`, 'err');
+        const p = arg || cwd;
+        const items = davidOS.fs.ls(p);
+        if (!items) return print(`No existe: ${p}`, 'err');
         if (!items.length) return print('(vacío)');
-        items.forEach(it => print('  ' + it));
+        items.forEach(it => {
+          const full = p === '/' ? '/' + it : p + '/' + it;
+          const isDir = davidOS.fs.isDir(full);
+          print(`  ${isDir?'📁':'📄'} ${it}${isDir?'/':''}`);
+        });
       },
+      cd(arg) {
+        if (!arg || arg === '~') { cwd = '/home/david'; return; }
+        if (arg === '..') { const parts = cwd.split('/').filter(Boolean); parts.pop(); cwd = '/' + parts.join('/') || '/'; return; }
+        if (arg === '/') { cwd = '/'; return; }
+        const p = arg.startsWith('/') ? arg : (cwd === '/' ? '/' + arg : cwd + '/' + arg);
+        if (davidOS.fs.isDir(p)) { cwd = p; prompt.textContent = `david@engine:${cwd}$`; }
+        else print(`No es un directorio: ${p}`, 'err');
+      },
+      pwd() { print(cwd); },
       cat(arg) {
         if (!arg) return print('Uso: cat <archivo>', 'err');
-        const t = davidOS.fs.read(arg);
-        if (t == null) return print(`Archivo no encontrado: ${arg}`, 'err');
+        const p = arg.startsWith('/') ? arg : (cwd === '/' ? '/' + arg : cwd + '/' + arg);
+        const t = davidOS.fs.read(p);
+        if (t == null) return print(`Archivo no encontrado: ${p}`, 'err');
         print(t);
       },
+      tree(arg) { print(davidOS.fs.tree(arg || cwd)); },
+      mkdir(arg) {
+        if (!arg) return print('Uso: mkdir <ruta>', 'err');
+        const p = arg.startsWith('/') ? arg : (cwd === '/' ? '/' + arg : cwd + '/' + arg);
+        davidOS.fs.mkdir(p); print(`Creado: ${p}`);
+      },
+      touch(arg) {
+        if (!arg) return print('Uso: touch <ruta>', 'err');
+        const p = arg.startsWith('/') ? arg : (cwd === '/' ? '/' + arg : cwd + '/' + arg);
+        davidOS.fs.write(p, ''); print(`Creado: ${p}`);
+      },
+      rm(arg) {
+        if (!arg) return print('Uso: rm <ruta>', 'err');
+        const p = arg.startsWith('/') ? arg : (cwd === '/' ? '/' + arg : cwd + '/' + arg);
+        davidOS.fs.remove(p) ? print(`Eliminado: ${p}`) : print('No encontrado', 'err');
+      },
       echo(arg) { print(arg || ''); },
+      write(rest) {
+        const [path, ...txt] = rest.split(' ');
+        if (!path) return print('Uso: write <ruta> <texto>', 'err');
+        const p = path.startsWith('/') ? path : (cwd === '/' ? '/' + path : cwd + '/' + path);
+        davidOS.fs.write(p, txt.join(' '));
+        print(`Escrito: ${p}`);
+      },
       whoami() { print('david'); },
       uptime() { const s = davidOS.kernel.stats(); const sec = Math.floor(s.uptime/1000); print(`${Math.floor(sec/60)}m ${sec%60}s`); },
       date() { print(new Date().toLocaleString('es-ES')); },
@@ -817,12 +1578,22 @@ davidOS.registerApp({
         print('  ' + '-'.repeat(34));
         procs.forEach(p => print(`  ${String(p.pid).padEnd(5)} ${p.name.padEnd(22)} ${p.memory}MB`));
       },
+      top() {
+        const s = davidOS.kernel.stats();
+        print(`CPU:  ${'█'.repeat(Math.round(s.cpuLoad/5))} ${s.cpuLoad}%`);
+        print(`RAM:  ${'█'.repeat(Math.round(s.memoryUsedMB/s.memoryMaxMB*50))} ${s.memoryUsedMB}MB / ${s.memoryMaxMB}MB`);
+        print(`PROC: ${s.processes} · UPTIME: ${Math.floor(s.uptime/1000)}s`);
+      },
       stats() {
         const s = davidOS.kernel.stats();
         print(`Kernel:      v${s.version} (${s.build})`);
         print(`Procesos:    ${s.processes}`);
         print(`Ventanas:    ${davidOS.openWindows.length}`);
+        print(`CPU:         ${s.cpuLoad}%`);
         print(`RAM:         ${s.memoryUsedMB} / ${s.memoryMaxMB} MB`);
+      },
+      services() {
+        davidOS.kernel.services.forEach(s => print(`  ${s.status==='running'?'🟢':'🔴'} ${s.name.padEnd(14)} ${s.status}`));
       },
       apps() {
         davidOS.listApps().forEach(a => print(`  ${a.icon}  ${a.id.padEnd(14)} ${a.name}`));
@@ -833,19 +1604,40 @@ davidOS.registerApp({
         davidOS.openApp(arg); print(`Abriendo ${arg}...`);
       },
       notify(arg) { davidOS.notify(arg || 'Desde la terminal', 'info'); print('Notificación enviada.'); },
-      write(rest) {
-        const [path, ...txt] = rest.split(' ');
-        if (!path) return print('Uso: write <ruta> <texto>', 'err');
-        davidOS.fs.write(path, txt.join(' '));
-        print(`Escrito: ${path}`);
+      theme(arg) {
+        if (!['default','purple','green','sunset','light'].includes(arg)) return print('Temas: default, purple, green, sunset, light', 'err');
+        davidOS.settings.set('theme', arg); davidOS.applyTheme(); print(`Tema: ${arg}`);
+      },
+      sound(rest) {
+        const [f, d] = rest.split(' ').map(Number);
+        davidOS.sound(f || 440, d || 0.1);
+        print(`🔊 ${f||440}Hz ${d||0.1}s`);
+      },
+      calc(arg) {
+        if (!arg) return print('Uso: calc <expresión>', 'err');
+        try {
+          const safe = arg.replace(/[^0-9+\-*/(). %]/g, '');
+          const r = Function('"use strict";return ('+safe+')')();
+          print(`${arg} = ${r}`);
+        } catch { print('Expresión inválida', 'err'); }
+      },
+      rand(rest) {
+        const [a, b] = rest.split(' ').map(Number);
+        const min = a || 0, max = b || 100;
+        print(String(Math.floor(Math.random() * (max - min + 1)) + min));
       },
       reset() { print('Reiniciando...'); setTimeout(() => location.reload(), 500); }
     };
 
+    let cwd = '/home/david';
+    const prompt = line.querySelector('span:last-of-type') || line.querySelector('span:nth-child(2)');
+    if (prompt) prompt.textContent = `david@engine:${cwd}$`;
+
     const exec = (raw) => {
       const cmd = raw.trim();
       if (!cmd) return;
-      print(`<span style="color:#4aa3ff;font-weight:600;">david@engine</span><span style="color:#7dffb0">:~$</span> ${cmd.replace(/</g,'&lt;')}`, 'in');
+      history.push(cmd); histIdx = history.length;
+      print(`<span style="color:#4aa3ff;font-weight:600;">david@engine</span><span style="color:#7dffb0">:${cwd}$</span> ${cmd.replace(/</g,'&lt;')}`, 'in');
       const [name, ...rest] = cmd.split(/\s+/);
       const fn = CMDS[name];
       if (fn) fn(rest.join(' '));
@@ -855,25 +1647,36 @@ davidOS.registerApp({
     input.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') { exec(input.value); input.value = ''; }
       else if (e.key === 'ArrowUp') {
-        // simple history
-        if (!input.dataset.hist) input.dataset.hist = JSON.stringify([]);
+        if (histIdx > 0) { histIdx--; input.value = history[histIdx] || ''; }
+      } else if (e.key === 'ArrowDown') {
+        if (histIdx < history.length - 1) { histIdx++; input.value = history[histIdx] || ''; }
+        else { histIdx = history.length; input.value = ''; }
+      } else if (e.key === 'Tab') {
+        e.preventDefault();
+        const part = input.value;
+        const names = Object.keys(CMDS).filter(c => c.startsWith(part));
+        if (names.length === 1) input.value = names[0] + ' ';
+        else if (names.length) print(names.join('  '));
       }
     });
 
     ctx.winEl.querySelector('[data-act="clear"]').onclick = () => CMDS.clear();
     setTimeout(() => input.focus(), 60);
+    ctx.winEl.addEventListener('click', () => input.focus());
   }
 });
 
 /* ---------- 📝 Bloc de notas ---------- */
 davidOS.registerApp({
-  id: 'notepad', name: 'Bloc de notas', icon: '📝', width: 620, height: 480,
+  id: 'notepad', name: 'Bloc de notas', icon: '📝', width: 660, height: 500,
+  category: 'Productividad',
   toolbar: `<button class="tool-btn" data-act="new">📄 Nuevo</button>
             <button class="tool-btn" data-act="open">📂 Abrir</button>
             <button class="tool-btn primary" data-act="save">💾 Guardar</button>
+            <button class="tool-btn" data-act="saveAs">💾 Guardar como…</button>
             <div class="tb-sep"></div>
             <span id="npStats" style="font-size:11px;color:var(--text-dim);"></span>`,
-  statusbar: `<span id="npPath">/tmp/notepad.txt</span><span>UTF-8</span>`,
+  statusbar: `<span id="npPath">/tmp/notepad.txt</span><span>UTF-8 · sin modificar</span>`,
   render() {
     const saved = davidOS.fs.read('/tmp/notepad.txt') || '';
     return `<textarea class="ta" id="npText" style="height:100%;min-height:200px;">${saved.replace(/</g,'&lt;')}</textarea>`;
@@ -887,35 +1690,25 @@ davidOS.registerApp({
       const chars = txt.length;
       const words = txt.trim() ? txt.trim().split(/\s+/).length : 0;
       const lines = txt ? txt.split('\n').length : 0;
-      if (stats) stats.textContent = `${chars} caracteres · ${words} palabras · ${lines} líneas`;
+      if (stats) stats.textContent = `${chars} car · ${words} pal · ${lines} líneas`;
     };
     updateStats();
     ta.addEventListener('input', updateStats);
 
     ctx.winEl.querySelector('[data-act="save"]').onclick = () => {
       davidOS.fs.write('/tmp/notepad.txt', ta.value);
-      davidOS.notify('💾 Nota guardada en /tmp/notepad.txt', 'success');
+      davidOS.notify('💾 Guardado en /tmp/notepad.txt', 'success');
+    };
+    ctx.winEl.querySelector('[data-act="saveAs"]').onclick = () => {
+      const p = prompt('Guardar como (ruta completa):', '/tmp/' + Date.now() + '.txt');
+      if (p) { davidOS.fs.write(p, ta.value); if (path) path.textContent = p; davidOS.notify('💾 Guardado en ' + p, 'success'); }
     };
     ctx.winEl.querySelector('[data-act="open"]').onclick = () => {
-      const files = Object.keys(davidOS.fs.ls('/tmp') || []).length ? davidOS.fs.ls('/tmp') : [];
-      const list = (files || []).filter(f => f.endsWith('.txt') || f.endsWith('.md'));
-      if (!list.length) {
-        ta.value = davidOS.fs.read('/tmp/notepad.txt') || '';
-      } else {
-        const name = prompt('Abrir archivo de /tmp:\n' + list.join('\n') + '\n\nEscribe el nombre:');
-        if (name) {
-          ta.value = davidOS.fs.read('/tmp/' + name) || davidOS.fs.read('/home/david/' + name) || '';
-        }
-      }
-      updateStats();
+      const p = prompt('Abrir ruta:', '/tmp/notepad.txt');
+      if (p) { const c = davidOS.fs.read(p); if (c != null) { ta.value = c; if (path) path.textContent = p; updateStats(); } else davidOS.notify('Archivo no encontrado: ' + p, 'error'); }
     };
-    ctx.winEl.querySelector('[data-act="new"]').onclick = () => {
-      ta.value = '';
-      updateStats();
-      ta.focus();
-    };
+    ctx.winEl.querySelector('[data-act="new"]').onclick = () => { ta.value = ''; updateStats(); ta.focus(); };
 
-    // Auto-guardado silencioso cada 3 segundos si hay cambios
     let lastSaved = ta.value;
     setInterval(() => {
       if (ta.value !== lastSaved) {
@@ -928,17 +1721,17 @@ davidOS.registerApp({
 
 /* ---------- 📊 Monitor del sistema ---------- */
 davidOS.registerApp({
-  id: 'sysmon', name: 'Monitor', icon: '📊', width: 540, height: 500,
-  toolbar: `<button class="tool-btn" data-act="refresh">🔄 Refrescar ahora</button>
+  id: 'sysmon', name: 'Monitor', icon: '📊', width: 560, height: 540,
+  category: 'Sistema',
+  toolbar: `<button class="tool-btn" data-act="refresh">🔄 Refrescar</button>
+            <button class="tool-btn" data-act="killAll">⛔ Terminar todo</button>
             <div class="tb-sep"></div>
             <span style="font-size:11px;color:var(--text-dim);">Auto-refresh: 1s</span>`,
   statusbar: () => {
     const s = davidOS.kernel.stats();
-    return `<span>RAM: ${s.memoryUsedMB} / ${s.memoryMaxMB} MB</span><span>Procesos: ${s.processes}</span>`;
+    return `<span>RAM: ${s.memoryUsedMB} / ${s.memoryMaxMB} MB</span><span>CPU: ${s.cpuLoad}% · ${s.processes} procesos</span>`;
   },
-  render() {
-    return `<div id="monBody"></div>`;
-  },
+  render() { return `<div id="monBody"></div>`; },
   mount(ctx) {
     const el = ctx.winEl.querySelector('#monBody');
     let timerId = null;
@@ -951,8 +1744,14 @@ davidOS.registerApp({
         <div class="kv"><span>Kernel</span><b>v${s.version} · ${s.build}</b></div>
         <div class="kv"><span>Procesos activos</span><b>${s.processes}</b></div>
         <div class="kv"><span>Ventanas abiertas</span><b>${davidOS.openWindows.length}</b></div>
+        <div class="kv"><span>CPU</span><b>${s.cpuLoad}%</b></div>
         <div class="kv"><span>RAM usada</span><b>${s.memoryUsedMB} / ${s.memoryMaxMB} MB</b></div>
         <div class="kv"><span>Uptime</span><b>${Math.floor(sec/60)}m ${sec%60}s</b></div>
+
+        <div class="app-h2">Uso de CPU</div>
+        <div style="height:10px;background:rgba(255,255,255,.08);border-radius:5px;overflow:hidden;">
+          <div style="height:100%;width:${s.cpuLoad}%;background:linear-gradient(90deg,#27c93f,#ffbd2e);"></div>
+        </div>
 
         <div class="app-h2">Uso de memoria</div>
         <div style="height:10px;background:rgba(255,255,255,.08);border-radius:5px;overflow:hidden;">
@@ -960,8 +1759,13 @@ davidOS.registerApp({
         </div>
         <div style="text-align:right;font-size:11px;color:var(--text-dim);margin-top:4px;">${pct}%</div>
 
+        <div class="app-h2">Servicios</div>
+        <div style="font-size:11.5px;font-family:ui-monospace,monospace;background:rgba(0,0,0,.25);border-radius:6px;padding:8px;">
+          ${davidOS.kernel.services.map(sv => `<div style="padding:3px 0;display:flex;justify-content:space-between;"><span>${sv.name}</span><span style="color:${sv.status==='running'?'#27c93f':'#ff5f56'}">${sv.status}</span></div>`).join('')}
+        </div>
+
         <div class="app-h2">Procesos activos</div>
-        <div style="font-size:11.5px;font-family:ui-monospace,monospace;max-height:180px;overflow:auto;background:rgba(0,0,0,.25);border-radius:6px;padding:8px;">
+        <div style="font-size:11.5px;font-family:ui-monospace,monospace;max-height:160px;overflow:auto;background:rgba(0,0,0,.25);border-radius:6px;padding:8px;">
           ${davidOS.kernel.processes.length
             ? davidOS.kernel.processes.map(p => `<div style="padding:4px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:8px;"><span style="overflow:hidden;text-overflow:ellipsis;">PID ${p.pid} · ${p.name}</span><span style="color:var(--accent-2);flex-shrink:0;">${p.memory}MB</span></div>`).join('')
             : '<div style="opacity:.5;text-align:center;padding:10px;">Sin procesos</div>'}
@@ -972,6 +1776,10 @@ davidOS.registerApp({
     timerId = setInterval(render, 1000);
 
     ctx.winEl.querySelector('[data-act="refresh"]').onclick = render;
+    ctx.winEl.querySelector('[data-act="killAll"]').onclick = () => {
+      if (!confirm('¿Cerrar todas las ventanas?')) return;
+      [...davidOS.openWindows].forEach(w => davidOS.closeWindow(w.appId));
+    };
 
     davidOS.on('window:close', function h(e) {
       if (e.appId === 'sysmon') { clearInterval(timerId); davidOS.off('window:close', h); }
@@ -983,11 +1791,13 @@ davidOS.registerApp({
 
 /* ---------- 🧮 Calculadora ---------- */
 davidOS.registerApp({
-  id: 'calc', name: 'Calculadora', icon: '🧮', width: 340, height: 500, minWidth: 300, minHeight: 440,
-  statusbar: `<span>Estándar</span><span>davidOS Calc v1.2</span>`,
+  id: 'calc', name: 'Calculadora', icon: '🧮', width: 360, height: 560,
+  category: 'Utilidades',
+  statusbar: `<span>Estándar</span><span>davidOS Calc v2.0</span>`,
   render() {
     return `
       <div style="display:flex;flex-direction:column;height:100%;gap:10px;">
+        <div class="calc-hist" id="calcHist"></div>
         <div class="calc-disp">
           <div class="calc-sub" id="calcSub"></div>
           <div class="calc-main" id="calcDisp">0</div>
@@ -1000,7 +1810,9 @@ davidOS.registerApp({
     const pad = ctx.winEl.querySelector('#calcPad');
     const disp = ctx.winEl.querySelector('#calcDisp');
     const sub = ctx.winEl.querySelector('#calcSub');
+    const hist = ctx.winEl.querySelector('#calcHist');
     let expr = '';
+    const history = [];
 
     const evaluate = (s) => {
       const safe = s.replace(/÷/g,'/').replace(/×/g,'*').replace(/−/g,'-').replace(/\^/g,'**');
@@ -1016,6 +1828,9 @@ davidOS.registerApp({
           const r = evaluate(expr);
           sub.textContent = expr + ' =';
           disp.textContent = r;
+          history.unshift(`${expr} = ${r}`);
+          if (history.length > 5) history.pop();
+          hist.innerHTML = history.map(h => `<div>${h}</div>`).join('');
           expr = String(r);
         } catch { disp.textContent = 'Error'; expr = ''; }
         return;
@@ -1026,27 +1841,27 @@ davidOS.registerApp({
         return;
       }
       if (k === '%') {
-        try { const r = evaluate(expr) / 100; sub.textContent = expr + '%'; expr = String(r); disp.textContent = r; }
-        catch {}
+        try { const r = evaluate(expr) / 100; sub.textContent = expr + '%'; expr = String(r); disp.textContent = r; } catch {}
         return;
       }
-      // Number or operator
+      if (k === 'π') { expr += Math.PI; disp.textContent = expr; return; }
+      if (k === '^') { expr += '^'; disp.textContent = expr; return; }
       expr += k;
       disp.textContent = expr;
     };
 
-    const keys = ['C','⌫','%','÷','7','8','9','×','4','5','6','−','1','2','3','+','0','.','√','='];
+    const keys = ['C','⌫','%','÷','7','8','9','×','4','5','6','−','1','2','3','+','0','.','√','=','π','^','(',')'];
     keys.forEach(k => {
       const b = document.createElement('button');
       b.className = 'calc-btn';
       b.textContent = k;
-      if ('÷×−+'.includes(k)) b.classList.add('op');
+      if ('÷×−+^'.includes(k)) b.classList.add('op');
       if (k === '=') b.classList.add('eq');
+      if (k === 'π' || k === '(' || k === ')') b.style.fontSize = '14px';
       b.addEventListener('click', () => handle(k));
       pad.appendChild(b);
     });
 
-    // Keyboard support
     const keyHandler = (e) => {
       if (!ctx.winEl.classList.contains('active')) return;
       if (/^[0-9]$/.test(e.key)) handle(e.key);
@@ -1055,6 +1870,8 @@ davidOS.registerApp({
       else if (e.key === '-') handle('−');
       else if (e.key === '*') handle('×');
       else if (e.key === '/') { e.preventDefault(); handle('÷'); }
+      else if (e.key === '^') handle('^');
+      else if (e.key === '(' || e.key === ')') handle(e.key);
       else if (e.key === 'Enter' || e.key === '=') { e.preventDefault(); handle('='); }
       else if (e.key === 'Backspace') handle('⌫');
       else if (e.key === 'Escape' || e.key.toLowerCase() === 'c') handle('C');
@@ -1068,18 +1885,21 @@ davidOS.registerApp({
 
 /* ---------- 📁 Explorador de archivos ---------- */
 davidOS.registerApp({
-  id: 'files', name: 'Archivos', icon: '📁', width: 640, height: 460,
+  id: 'files', name: 'Archivos', icon: '📁', width: 700, height: 480,
+  category: 'Sistema',
   toolbar: `<button class="tool-btn" data-act="up">⬆ Atrás</button>
             <button class="tool-btn" data-act="home">🏠 Inicio</button>
             <button class="tool-btn" data-act="root">🌳 Raíz</button>
             <div class="tb-sep"></div>
+            <button class="tool-btn" data-act="newFile">📄 Nuevo archivo</button>
+            <button class="tool-btn" data-act="newDir">📁 Nueva carpeta</button>
+            <div class="tb-sep"></div>
             <span id="fsPathLabel" style="font-size:11px;color:var(--accent-2);font-family:ui-monospace,monospace;"></span>`,
-  statusbar: `<span id="fsCount">0 elementos</span><span>VFS davidOS</span>`,
-  render() {
-    return `<div id="fsList" style="padding:4px;"></div>`;
-  },
+  statusbar: `<span id="fsCount">0 elementos</span><span>VFS davidOS v2.0</span>`,
+  render() { return `<div id="fsList" style="padding:4px;"></div>`; },
   mount(ctx) {
     let path = '/home/david';
+    let selected = null;
     const list = ctx.winEl.querySelector('#fsList');
     const pathLabel = ctx.winEl.querySelector('#fsPathLabel');
     const countLabel = ctx.winEl.querySelector('#fsCount');
@@ -1102,6 +1922,7 @@ davidOS.registerApp({
         row.addEventListener('click', () => {
           list.querySelectorAll('.file-row').forEach(r => r.classList.remove('selected'));
           row.classList.add('selected');
+          selected = row.dataset.path;
         });
         row.addEventListener('dblclick', () => {
           const p = row.dataset.path;
@@ -1110,6 +1931,25 @@ davidOS.registerApp({
             const content = davidOS.fs.read(p);
             davidOS.notify(`📄 ${p}\n\n${(content||'').slice(0, 200)}${(content||'').length>200?'…':''}`);
           }
+        });
+        row.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          list.querySelectorAll('.file-row').forEach(r => r.classList.remove('selected'));
+          row.classList.add('selected');
+          selected = row.dataset.path;
+          davidOS.showCtxMenu(e.clientX, e.clientY, [
+            { icon: '📂', label: 'Abrir', action: () => { row.dispatchEvent(new Event('dblclick')); } },
+            { icon: '✏️', label: 'Renombrar', action: () => {
+              const nn = prompt('Nuevo nombre:', selected.split('/').pop());
+              if (nn) { const parent = selected.split('/').slice(0,-1).join('/') || '/'; davidOS.fs.rename(selected, (parent==='/'?'/':parent+'/')+nn); render(); }
+            }},
+            { icon: '🗑️', label: 'Eliminar', action: () => { if (confirm('¿Eliminar '+selected+'?')) { davidOS.fs.remove(selected); render(); } } },
+            { sep: true },
+            { icon: 'ℹ️', label: 'Propiedades', action: () => {
+              const content = davidOS.fs.read(selected);
+              davidOS.notify(`Ruta: ${selected}\nTipo: ${content!=null?'archivo ('+content.length+' bytes)':'carpeta'}`);
+            }}
+          ]);
         });
       });
     };
@@ -1123,20 +1963,42 @@ davidOS.registerApp({
     };
     ctx.winEl.querySelector('[data-act="home"]').onclick = () => { path = '/home/david'; render(); };
     ctx.winEl.querySelector('[data-act="root"]').onclick = () => { path = '/'; render(); };
+    ctx.winEl.querySelector('[data-act="newFile"]').onclick = () => {
+      const n = prompt('Nombre del archivo:');
+      if (!n) return;
+      davidOS.fs.write((path==='/'?'/':path+'/')+n, '');
+      render();
+    };
+    ctx.winEl.querySelector('[data-act="newDir"]').onclick = () => {
+      const n = prompt('Nombre de la carpeta:');
+      if (!n) return;
+      davidOS.fs.mkdir((path==='/'?'/':path+'/')+n);
+      render();
+    };
 
     davidOS.on('fs:write', render);
     davidOS.on('fs:remove', render);
+    davidOS.on('fs:mkdir', render);
   }
 });
 
 /* ---------- 🎨 Paint ---------- */
 davidOS.registerApp({
-  id: 'paint', name: 'Paint', icon: '🎨', width: 700, height: 520, noPad: true,
+  id: 'paint', name: 'Paint', icon: '🎨', width: 800, height: 580, noPad: true,
+  category: 'Multimedia',
   toolbar: `<button class="tool-btn" data-act="clear">🗑️ Limpiar</button>
             <button class="tool-btn" data-act="save">💾 Guardar PNG</button>
             <div class="tb-sep"></div>
             <label style="font-size:11px;color:var(--text-dim);display:flex;align-items:center;gap:6px;">Color <input type="color" id="paintColor" value="#0078d4" style="width:34px;height:26px;border:1px solid var(--border-hi);border-radius:5px;background:transparent;cursor:pointer;padding:2px;"></label>
-            <label style="font-size:11px;color:var(--text-dim);display:flex;align-items:center;gap:6px;">Grosor <input type="range" id="paintSize" min="1" max="30" value="4" style="width:100px;accent-color:var(--accent);"></label>`,
+            <label style="font-size:11px;color:var(--text-dim);display:flex;align-items:center;gap:6px;">Grosor <input type="range" id="paintSize" min="1" max="40" value="4" style="width:100px;accent-color:var(--accent);"></label>
+            <div class="tb-sep"></div>
+            <select id="paintMode" class="ta" style="font-size:11px;">
+              <option value="brush">Pincel</option>
+              <option value="line">Línea</option>
+              <option value="rect">Rectángulo</option>
+              <option value="circle">Círculo</option>
+              <option value="eraser">Borrador</option>
+            </select>`,
   statusbar: `<span>Pincel</span><span id="paintInfo">x: 0, y: 0</span>`,
   render() {
     return `
@@ -1150,30 +2012,14 @@ davidOS.registerApp({
     const canvasWrap = ctx.winEl.querySelector('.paint-canvas-wrap');
     const colorInput = ctx.winEl.querySelector('#paintColor');
     const sizeInput = ctx.winEl.querySelector('#paintSize');
+    const modeInput = ctx.winEl.querySelector('#paintMode');
     const info = ctx.winEl.querySelector('#paintInfo');
     const c2d = canvas.getContext('2d');
 
-    // Ajustar canvas al contenedor
-    const resize = () => {
-      const rect = canvasWrap.getBoundingClientRect();
-      const w = Math.max(200, Math.floor(rect.width - 20));
-      const h = Math.max(150, Math.floor(rect.height - 20));
-      // Preservar contenido
-      const snap = c2d.getImageData(0, 0, canvas.width, canvas.height);
-      canvas.width = w; canvas.height = h;
-      c2d.putImageData(snap, 0, 0);
-      c2d.fillStyle = '#fff';
-      // Redibujar fondo
-      c2d.fillRect(0, 0, canvas.width, canvas.height);
-      c2d.putImageData(snap, 0, 0);
-    };
-    resize();
-    // Rellenar fondo blanco inicial
     c2d.fillStyle = '#fff';
     c2d.fillRect(0, 0, canvas.width, canvas.height);
-    window.addEventListener('resize', resize);
 
-    let painting = false, lastX = 0, lastY = 0;
+    let painting = false, lastX = 0, lastY = 0, snap = null;
     const getPos = (e) => {
       const rect = canvas.getBoundingClientRect();
       return {
@@ -1181,29 +2027,52 @@ davidOS.registerApp({
         y: (e.clientY - rect.top) * (canvas.height / rect.height)
       };
     };
+
     const start = (e) => {
       painting = true;
-      const p = getPos(e); lastX = p.x; lastY = p.y;
-      c2d.beginPath();
-      c2d.arc(p.x, p.y, sizeInput.value / 2, 0, Math.PI*2);
-      c2d.fillStyle = colorInput.value;
-      c2d.fill();
+      const p = getPos(e);
+      lastX = p.x; lastY = p.y;
+      if (modeInput.value === 'line' || modeInput.value === 'rect' || modeInput.value === 'circle') {
+        snap = c2d.getImageData(0, 0, canvas.width, canvas.height);
+      } else {
+        c2d.beginPath();
+        c2d.arc(p.x, p.y, sizeInput.value / 2, 0, Math.PI*2);
+        c2d.fillStyle = modeInput.value === 'eraser' ? '#fff' : colorInput.value;
+        c2d.fill();
+      }
     };
+
     const draw = (e) => {
       const p = getPos(e);
       if (info) info.textContent = `x: ${Math.round(p.x)}, y: ${Math.round(p.y)}`;
       if (!painting) return;
-      c2d.strokeStyle = colorInput.value;
-      c2d.lineWidth = sizeInput.value;
-      c2d.lineCap = 'round';
-      c2d.lineJoin = 'round';
-      c2d.beginPath();
-      c2d.moveTo(lastX, lastY);
-      c2d.lineTo(p.x, p.y);
-      c2d.stroke();
-      lastX = p.x; lastY = p.y;
+      const mode = modeInput.value;
+      const color = mode === 'eraser' ? '#fff' : colorInput.value;
+
+      if (mode === 'brush' || mode === 'eraser') {
+        c2d.strokeStyle = color;
+        c2d.lineWidth = sizeInput.value;
+        c2d.lineCap = 'round'; c2d.lineJoin = 'round';
+        c2d.beginPath();
+        c2d.moveTo(lastX, lastY);
+        c2d.lineTo(p.x, p.y);
+        c2d.stroke();
+        lastX = p.x; lastY = p.y;
+      } else {
+        c2d.putImageData(snap, 0, 0);
+        c2d.strokeStyle = color;
+        c2d.lineWidth = sizeInput.value;
+        if (mode === 'line') {
+          c2d.beginPath(); c2d.moveTo(lastX, lastY); c2d.lineTo(p.x, p.y); c2d.stroke();
+        } else if (mode === 'rect') {
+          c2d.strokeRect(lastX, lastY, p.x-lastX, p.y-lastY);
+        } else if (mode === 'circle') {
+          const r = Math.hypot(p.x-lastX, p.y-lastY);
+          c2d.beginPath(); c2d.arc(lastX, lastY, r, 0, Math.PI*2); c2d.stroke();
+        }
+      }
     };
-    const end = () => { painting = false; };
+    const end = () => { painting = false; snap = null; };
 
     canvas.addEventListener('mousedown', start);
     canvas.addEventListener('mousemove', draw);
@@ -1221,25 +2090,19 @@ davidOS.registerApp({
       a.click();
       davidOS.notify('💾 Imagen descargada', 'success');
     };
-
-    davidOS.on('window:close', function h(e) {
-      if (e.appId === 'paint') { window.removeEventListener('resize', resize); davidOS.off('window:close', h); }
-    });
   }
 });
 
-/* ---------- 🔔 Recordatorios / Sistema de notas ---------- */
+/* ---------- ✅ Tareas ---------- */
 davidOS.registerApp({
-  id: 'tasks', name: 'Tareas', icon: '✅', width: 500, height: 460,
-  toolbar: `<button class="tool-btn primary" data-act="add">➕ Añadir tarea</button>
-            <button class="tool-btn" data-act="clear-done">🧹 Limpiar completadas</button>`,
-  statusbar: () => {
-    const n = (davidOS.fs.read('/tmp/tasks.json') ? JSON.parse(davidOS.fs.read('/tmp/tasks.json')) : []).length;
-    return `<span>${n} tareas</span><span>davidOS Tasks</span>`;
-  },
-  render() {
-    return `<div id="taskList"></div>`;
-  },
+  id: 'tasks', name: 'Tareas', icon: '✅', width: 540, height: 500,
+  category: 'Productividad',
+  toolbar: `<button class="tool-btn primary" data-act="add">➕ Añadir</button>
+            <button class="tool-btn" data-act="clear-done">🧹 Limpiar completadas</button>
+            <div class="tb-sep"></div>
+            <span id="taskStats" style="font-size:11px;color:var(--text-dim);"></span>`,
+  statusbar: `<span id="taskSb">0 tareas</span><span>davidOS Tasks</span>`,
+  render() { return `<div id="taskList"></div>`; },
   mount(ctx) {
     const list = ctx.winEl.querySelector('#taskList');
     let tasks = [];
@@ -1247,29 +2110,28 @@ davidOS.registerApp({
     const persist = () => davidOS.fs.write('/tmp/tasks.json', JSON.stringify(tasks));
 
     const render = () => {
+      const stats = ctx.winEl.querySelector('#taskStats');
+      const sb = ctx.winEl.querySelector('#taskSb');
+      const pending = tasks.filter(t => !t.done).length;
+      if (stats) stats.textContent = `${pending} pendientes / ${tasks.length} total`;
+      if (sb) sb.textContent = `${tasks.length} tareas`;
       if (!tasks.length) {
-        list.innerHTML = '<div style="opacity:.5;padding:30px;text-align:center;">Sin tareas. Añade una con el botón de arriba.</div>';
+        list.innerHTML = '<div style="opacity:.5;padding:30px;text-align:center;">Sin tareas. Añade una.</div>';
         return;
       }
       list.innerHTML = tasks.map((tk, i) => `
-        <div class="file-row" data-i="${i}">
-          <input type="checkbox" ${tk.done?'checked':''} data-i="${i}" class="tk-check" style="cursor:pointer;">
-          <span class="fname" style="text-decoration:${tk.done?'line-through':'none'};opacity:${tk.done?0.5:1};">${tk.text}</span>
+        <div class="task-row ${tk.done?'done':''}">
+          <input type="checkbox" ${tk.done?'checked':''} data-i="${i}" class="tk-check">
+          <span class="tt">${tk.text.replace(/</g,'&lt;')}</span>
           <span style="font-size:11px;color:var(--text-dim);">${new Date(tk.createdAt).toLocaleDateString('es-ES')}</span>
-          <button class="btn" data-del="${i}" style="padding:3px 8px;font-size:11px;">✕</button>
+          <button class="btn danger" data-del="${i}" style="padding:3px 8px;font-size:11px;">✕</button>
         </div>
       `).join('');
       list.querySelectorAll('.tk-check').forEach(chk => {
-        chk.addEventListener('change', () => {
-          tasks[+chk.dataset.i].done = chk.checked;
-          persist(); render();
-        });
+        chk.addEventListener('change', () => { tasks[+chk.dataset.i].done = chk.checked; persist(); render(); });
       });
       list.querySelectorAll('[data-del]').forEach(b => {
-        b.addEventListener('click', () => {
-          tasks.splice(+b.dataset.del, 1);
-          persist(); render();
-        });
+        b.addEventListener('click', () => { tasks.splice(+b.dataset.del, 1); persist(); render(); });
       });
     };
     render();
@@ -1282,15 +2144,1405 @@ davidOS.registerApp({
       davidOS.notify('✅ Tarea añadida', 'success');
     };
     ctx.winEl.querySelector('[data-act="clear-done"]').onclick = () => {
-      tasks = tasks.filter(t => !t.done);
-      persist(); render();
+      tasks = tasks.filter(t => !t.done); persist(); render();
     };
   }
 });
 
-/* ============================================================================
-   ARRANQUE
-   ========================================================================== */
+/* ---------- 🎵 Reproductor de música ---------- */
+davidOS.registerApp({
+  id: 'music', name: 'Música', icon: '🎵', width: 520, height: 600,
+  category: 'Multimedia',
+  render() {
+    return `
+      <div style="text-align:center;">
+        <div class="music-album" id="album">💿</div>
+        <div style="font-size:18px;font-weight:600;" id="trackTitle">—</div>
+        <div style="font-size:12px;color:var(--text-dim);margin-top:4px;" id="trackArtist">—</div>
+        <div class="eq" id="eq" style="margin-top:14px;"><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="music-bar" style="margin:16px 0;">
+          <span id="cur">0:00</span>
+          <div class="bar" id="bar"><div class="fill" id="barFill"></div></div>
+          <span id="dur">0:00</span>
+        </div>
+        <div class="music-controls">
+          <button data-act="prev">⏮</button>
+          <button data-act="play" id="playBtn">▶</button>
+          <button data-act="next">⏭</button>
+        </div>
+        <div class="row" style="justify-content:center;margin-top:14px;">
+          <button class="btn" data-act="shuffle">🔀 Aleatorio</button>
+          <button class="btn" data-act="repeat">🔁 Repetir</button>
+        </div>
+        <div class="app-h2" style="text-align:left;margin-top:22px;">Playlist</div>
+        <div id="playlist" style="text-align:left;"></div>
+      </div>
+    `;
+  },
+  mount(ctx) {
+    const tracks = [
+      { title: 'Luces de Neón', artist: 'david & the Coders', dur: 214, emoji: '🌌' },
+      { title: 'Modo Oscuro', artist: 'Nightshift', dur: 187, emoji: '🌙' },
+      { title: 'Pixel Dreams', artist: '8-Bit Hearts', dur: 168, emoji: '👾' },
+      { title: 'Café a las 3am', artist: 'Lo-Fi David', dur: 243, emoji: '☕' }
+    ];
+    let idx = 0, playing = false, pos = 0, timer = null;
+
+    const $ = (id) => ctx.winEl.querySelector(id);
+    const fmt = (s) => Math.floor(s/60) + ':' + String(s%60).padStart(2,'0');
+    const load = (i) => {
+      idx = i;
+      const t = tracks[idx];
+      $('#trackTitle').textContent = t.title;
+      $('#trackArtist').textContent = t.artist;
+      $('#album').textContent = t.emoji;
+      $('#dur').textContent = fmt(t.dur);
+      pos = 0;
+      update();
+    };
+    const update = () => {
+      const t = tracks[idx];
+      $('#barFill').style.width = (pos/t.dur*100) + '%';
+      $('#cur').textContent = fmt(Math.floor(pos));
+    };
+    const play = () => {
+      playing = true;
+      $('#playBtn').textContent = '⏸';
+      $('#eq').style.opacity = 1;
+      davidOS.sound(440, .05);
+      timer = setInterval(() => {
+        pos++;
+        if (pos >= tracks[idx].dur) { next(); return; }
+        update();
+      }, 1000);
+    };
+    const pause = () => {
+      playing = false;
+      $('#playBtn').textContent = '▶';
+      $('#eq').style.opacity = .35;
+      clearInterval(timer);
+    };
+    const next = () => { load((idx+1) % tracks.length); if (playing) play(); };
+    const prev = () => { load((idx-1+tracks.length) % tracks.length); if (playing) play(); };
+
+    $('#eq').style.opacity = .35;
+    load(0);
+
+    $('#playBtn').onclick = () => playing ? pause() : play();
+    ctx.winEl.querySelector('[data-act="next"]').onclick = next;
+    ctx.winEl.querySelector('[data-act="prev"]').onclick = prev;
+    ctx.winEl.querySelector('[data-act="shuffle"]').onclick = () => { load(Math.floor(Math.random()*tracks.length)); if (playing) play(); };
+    ctx.winEl.querySelector('[data-act="repeat"]').onclick = () => { pos = 0; update(); };
+    $('#bar').onclick = (e) => {
+      const r = e.currentTarget.getBoundingClientRect();
+      pos = Math.floor((e.clientX - r.left) / r.width * tracks[idx].dur);
+      update();
+    };
+
+    $('#playlist').innerHTML = tracks.map((t, i) => `
+      <div class="file-row" data-i="${i}">
+        <span class="fico">${t.emoji}</span>
+        <span class="fname">${t.title} <span style="color:var(--text-dim);font-size:11px;">— ${t.artist}</span></span>
+        <span style="font-size:11px;color:var(--text-dim);">${fmt(t.dur)}</span>
+      </div>
+    `).join('');
+    $('#playlist').querySelectorAll('.file-row').forEach(el => {
+      el.addEventListener('click', () => { load(+el.dataset.i); if (playing) play(); });
+    });
+
+    davidOS.on('window:close', function h(e) {
+      if (e.appId === 'music') { clearInterval(timer); davidOS.off('window:close', h); }
+    });
+  }
+});
+
+/* ---------- 🌤️ Clima ---------- */
+davidOS.registerApp({
+  id: 'weather', name: 'Clima', icon: '🌤️', width: 520, height: 560,
+  category: 'Utilidades',
+  render() {
+    const city = 'Ciudad de David';
+    const temp = 24;
+    const hour = new Date().getHours();
+    const icons = ['☀️','⛅','☁️','🌧️','⛈️','🌙'];
+    const hours = [];
+    for (let i = 0; i < 12; i++) {
+      const h = (hour + i) % 24;
+      hours.push({ h: h + ':00', t: 22 + Math.round(Math.sin(i)*4), i: icons[(i + Math.floor(hour/6)) % 6] });
+    }
+    const days = [
+      { d: 'Hoy', i: '⛅', a: 24, b: 18 },
+      { d: 'Mañana', i: '☀️', a: 26, b: 19 },
+      { d: 'Miércoles', i: '☁️', a: 23, b: 17 },
+      { d: 'Jueves', i: '🌧️', a: 21, b: 16 },
+      { d: 'Viernes', i: '☀️', a: 25, b: 18 },
+      { d: 'Sábado', i: '⛅', a: 24, b: 18 },
+      { d: 'Domingo', i: '☀️', a: 27, b: 20 }
+    ];
+    return `
+      <div class="weather-hero">
+        <div style="font-size:18px;font-weight:600;">${city}</div>
+        <div class="weather-temp">${temp}°</div>
+        <div class="weather-desc">Parcialmente nublado · Sensación 25°</div>
+      </div>
+      <div class="app-h2">Próximas horas</div>
+      <div class="weather-hours">
+        ${hours.map(h => `<div class="weather-hour"><div class="h">${h.h}</div><div style="font-size:22px;margin:4px 0;">${h.i}</div><div class="t">${h.t}°</div></div>`).join('')}
+      </div>
+      <div class="app-h2">Próximos días</div>
+      <div class="weather-days">
+        ${days.map(d => `<div class="weather-day"><span>${d.d}</span><span style="font-size:20px;">${d.i}</span><span>${d.b}° / ${d.a}°</span></div>`).join('')}
+      </div>
+    `;
+  }
+});
+
+/* ---------- 🕒 Reloj ---------- */
+davidOS.registerApp({
+  id: 'clock', name: 'Reloj', icon: '🕒', width: 520, height: 500,
+  category: 'Utilidades',
+  render() {
+    return `
+      <div class="row" style="margin-bottom:14px;">
+        <button class="btn primary" data-tab="clock">🕐 Reloj</button>
+        <button class="btn" data-tab="sw">⏱️ Cronómetro</button>
+        <button class="btn" data-tab="timer">⏳ Temporizador</button>
+      </div>
+      <div id="clockTab">
+        <div style="text-align:center;padding:16px;">
+          <div style="font-size:64px;font-weight:200;font-family:ui-monospace,monospace;" id="bigClock">--:--:--</div>
+          <div style="color:var(--text-dim);font-size:14px;" id="bigDate">—</div>
+        </div>
+        <div class="app-h2">Relojes mundiales</div>
+        <div id="worldClocks"></div>
+      </div>
+      <div id="swTab" style="display:none;">
+        <div class="stop-time" id="swTime">00:00.00</div>
+        <div class="row" style="justify-content:center;">
+          <button class="btn primary" id="swStart">▶ Iniciar</button>
+          <button class="btn" id="swLap">🏁 Vuelta</button>
+          <button class="btn danger" id="swReset">⟲ Reset</button>
+        </div>
+        <div class="app-h2">Vueltas</div>
+        <div id="laps"></div>
+      </div>
+      <div id="timerTab" style="display:none;">
+        <div class="row" style="justify-content:center;gap:10px;margin:20px 0;">
+          <input type="number" class="ta" id="tmMin" value="5" min="0" max="99" style="width:80px;text-align:center;font-size:24px;">
+          <span style="font-size:24px;">:</span>
+          <input type="number" class="ta" id="tmSec" value="0" min="0" max="59" style="width:80px;text-align:center;font-size:24px;">
+        </div>
+        <div class="stop-time" id="tmDisp">05:00</div>
+        <div class="row" style="justify-content:center;">
+          <button class="btn primary" id="tmStart">▶ Iniciar</button>
+          <button class="btn danger" id="tmReset">⟲ Reset</button>
+        </div>
+      </div>
+    `;
+  },
+  mount(ctx) {
+    const $ = (s) => ctx.winEl.querySelector(s);
+    let tab = 'clock';
+    ctx.winEl.querySelectorAll('[data-tab]').forEach(b => {
+      b.addEventListener('click', () => {
+        tab = b.dataset.tab;
+        ctx.winEl.querySelectorAll('[data-tab]').forEach(x => x.classList.toggle('primary', x === b));
+        $('#clockTab').style.display = tab === 'clock' ? 'block' : 'none';
+        $('#swTab').style.display = tab === 'sw' ? 'block' : 'none';
+        $('#timerTab').style.display = tab === 'timer' ? 'block' : 'none';
+      });
+    });
+
+    const cities = [
+      { n: 'Ciudad de David', o: -5 },
+      { n: 'Madrid', o: 2 },
+      { n: 'Tokio', o: 9 },
+      { n: 'Nueva York', o: -4 },
+      { n: 'Londres', o: 1 },
+      { n: 'Sídney', o: 11 }
+    ];
+    const renderWorld = () => {
+      const now = new Date();
+      const utc = now.getTime() + now.getTimezoneOffset()*60000;
+      $('#worldClocks').innerHTML = cities.map(c => {
+        const d = new Date(utc + c.o*3600000);
+        return `<div class="kv"><span>${c.n}</span><b>${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}</b></div>`;
+      }).join('');
+    };
+
+    let swStart = 0, swRunning = false, swTimer = null, lapCount = 0;
+    const fmtSw = (ms) => {
+      const m = Math.floor(ms/60000), s = Math.floor(ms%60000/1000), cs = Math.floor(ms%1000/10);
+      return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')+'.'+String(cs).padStart(2,'0');
+    };
+    $('#swStart').onclick = () => {
+      swRunning = !swRunning;
+      if (swRunning) {
+        swStart = Date.now() - (swStart || 0);
+        $('#swStart').textContent = '⏸ Parar';
+        swTimer = setInterval(() => $('#swTime').textContent = fmtSw(Date.now() - swStart), 30);
+      } else {
+        clearInterval(swTimer);
+        $('#swStart').textContent = '▶ Iniciar';
+      }
+    };
+    $('#swLap').onclick = () => {
+      if (!swRunning) return;
+      lapCount++;
+      const t = $('#swTime').textContent;
+      $('#laps').insertAdjacentHTML('afterbegin', `<div class="lap-row"><span>Vuelta ${lapCount}</span><span>${t}</span></div>`);
+    };
+    $('#swReset').onclick = () => {
+      clearInterval(swTimer); swRunning = false; swStart = 0; lapCount = 0;
+      $('#swTime').textContent = '00:00.00';
+      $('#swStart').textContent = '▶ Iniciar';
+      $('#laps').innerHTML = '';
+    };
+
+    let tmTimer = null, tmLeft = 0;
+    $('#tmStart').onclick = () => {
+      if (tmTimer) { clearInterval(tmTimer); tmTimer = null; $('#tmStart').textContent = '▶ Iniciar'; return; }
+      const m = +$('#tmMin').value || 0, s = +$('#tmSec').value || 0;
+      if (!tmLeft) tmLeft = m*60 + s;
+      if (tmLeft <= 0) return;
+      $('#tmStart').textContent = '⏸ Parar';
+      tmTimer = setInterval(() => {
+        tmLeft--;
+        $('#tmDisp').textContent = String(Math.floor(tmLeft/60)).padStart(2,'0')+':'+String(tmLeft%60).padStart(2,'0');
+        if (tmLeft <= 0) { clearInterval(tmTimer); tmTimer = null; $('#tmStart').textContent = '▶ Iniciar'; davidOS.notify('¡Tiempo!', 'warn'); davidOS.sound(880, .4); }
+      }, 1000);
+    };
+    $('#tmReset').onclick = () => { clearInterval(tmTimer); tmTimer = null; tmLeft = 0; $('#tmStart').textContent = '▶ Iniciar'; $('#tmDisp').textContent = '05:00'; };
+
+    const tick = () => {
+      const d = new Date();
+      $('#bigClock').textContent = d.toLocaleTimeString('es-ES');
+      $('#bigDate').textContent = d.toLocaleDateString('es-ES', { weekday: 'long', day:'numeric', month:'long', year:'numeric' });
+      renderWorld();
+    };
+    tick();
+    const clockInt = setInterval(tick, 1000);
+    davidOS.on('window:close', function h(e) { if (e.appId === 'clock') { clearInterval(clockInt); clearInterval(swTimer); clearInterval(tmTimer); davidOS.off('window:close', h); } });
+  }
+});
+
+/* ---------- 🐍 Snake ---------- */
+davidOS.registerApp({
+  id: 'snake', name: 'Snake', icon: '🐍', width: 540, height: 560,
+  category: 'Juegos',
+  toolbar: `<button class="tool-btn primary" data-act="new">🔄 Nueva partida</button>
+            <div class="tb-sep"></div>
+            <span id="snakeScore" style="font-size:12px;">Puntos: 0</span>
+            <span style="font-size:11px;color:var(--text-dim);margin-left:auto;">Flechas / WASD</span>`,
+  render() {
+    return `<div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:10px;">
+      <canvas class="snake-canvas" id="snakeCanvas" width="480" height="480"></canvas>
+      <div id="snakeMsg" style="font-size:13px;color:var(--text-dim);">Pulsa "Nueva partida" para empezar.</div>
+    </div>`;
+  },
+  mount(ctx) {
+    const canvas = ctx.winEl.querySelector('#snakeCanvas');
+    const c = canvas.getContext('2d');
+    const score = ctx.winEl.querySelector('#snakeScore');
+    const msg = ctx.winEl.querySelector('#snakeMsg');
+    const cell = 20;
+    const cols = canvas.width / cell;
+    const rows = canvas.height / cell;
+    let snake, dir, food, timer, alive, pts;
+
+    const draw = () => {
+      c.fillStyle = '#0a0a14'; c.fillRect(0, 0, canvas.width, canvas.height);
+      // grid
+      c.strokeStyle = 'rgba(255,255,255,.04)';
+      for (let i = 0; i <= cols; i++) { c.beginPath(); c.moveTo(i*cell, 0); c.lineTo(i*cell, canvas.height); c.stroke(); }
+      for (let i = 0; i <= rows; i++) { c.beginPath(); c.moveTo(0, i*cell); c.lineTo(canvas.width, i*cell); c.stroke(); }
+      // food
+      c.fillStyle = '#ff5f56';
+      c.beginPath(); c.arc(food.x*cell+cell/2, food.y*cell+cell/2, cell/2-2, 0, Math.PI*2); c.fill();
+      // snake
+      snake.forEach((s, i) => {
+        c.fillStyle = i === 0 ? '#4ade80' : '#27c93f';
+        c.fillRect(s.x*cell+1, s.y*cell+1, cell-2, cell-2);
+      });
+    };
+
+    const newGame = () => {
+      snake = [{x: 10, y: 10}, {x: 9, y: 10}, {x: 8, y: 10}];
+      dir = {x: 1, y: 0};
+      pts = 0; score.textContent = 'Puntos: 0';
+      alive = true;
+      msg.textContent = '';
+      placeFood();
+      clearInterval(timer);
+      timer = setInterval(step, 110);
+      draw();
+    };
+
+    const placeFood = () => {
+      do { food = {x: Math.floor(Math.random()*cols), y: Math.floor(Math.random()*rows)}; }
+      while (snake.some(s => s.x === food.x && s.y === food.y));
+    };
+
+    const step = () => {
+      const head = {x: snake[0].x + dir.x, y: snake[0].y + dir.y};
+      if (head.x < 0 || head.x >= cols || head.y < 0 || head.y >= rows || snake.some(s => s.x === head.x && s.y === head.y)) {
+        alive = false; clearInterval(timer);
+        msg.textContent = `💀 Game Over · ${pts} puntos`;
+        return;
+      }
+      snake.unshift(head);
+      if (head.x === food.x && head.y === food.y) {
+        pts += 10;
+        score.textContent = 'Puntos: ' + pts;
+        placeFood();
+        davidOS.sound(700, .05);
+      } else snake.pop();
+      draw();
+    };
+
+    const key = (e) => {
+      if (!alive) return;
+      if (!ctx.winEl.classList.contains('active')) return;
+      const k = e.key.toLowerCase();
+      if ((k === 'arrowup' || k === 'w') && dir.y === 0) { dir = {x:0,y:-1}; e.preventDefault(); }
+      else if ((k === 'arrowdown' || k === 's') && dir.y === 0) { dir = {x:0,y:1}; e.preventDefault(); }
+      else if ((k === 'arrowleft' || k === 'a') && dir.x === 0) { dir = {x:-1,y:0}; e.preventDefault(); }
+      else if ((k === 'arrowright' || k === 'd') && dir.x === 0) { dir = {x:1,y:0}; e.preventDefault(); }
+    };
+    document.addEventListener('keydown', key);
+
+    ctx.winEl.querySelector('[data-act="new"]').onclick = newGame;
+    newGame();
+    davidOS.on('window:close', function h(e) { if (e.appId === 'snake') { clearInterval(timer); document.removeEventListener('keydown', key); davidOS.off('window:close', h); } });
+  }
+});
+
+/* ---------- 🧩 2048 ---------- */
+davidOS.registerApp({
+  id: 'g2048', name: '2048', icon: '🧩', width: 480, height: 560,
+  category: 'Juegos',
+  toolbar: `<button class="tool-btn primary" data-act="new">🔄 Nueva</button>
+            <div class="tb-sep"></div>
+            <span id="g2048Score" style="font-size:12px;">Puntos: 0</span>
+            <span style="font-size:11px;color:var(--text-dim);margin-left:auto;">Flechas</span>`,
+  render() { return `<div id="g2048Wrap" style="padding:10px;"></div>`; },
+  mount(ctx) {
+    const wrap = ctx.winEl.querySelector('#g2048Wrap');
+    const scoreEl = ctx.winEl.querySelector('#g2048Score');
+    let board, pts, over;
+    const size = 4;
+
+    const newGame = () => {
+      board = Array(size).fill(null).map(() => Array(size).fill(0));
+      pts = 0; over = false;
+      addTile(); addTile();
+      render();
+    };
+
+    const addTile = () => {
+      const empty = [];
+      for (let r = 0; r < size; r++) for (let c = 0; c < size; c++) if (!board[r][c]) empty.push({r,c});
+      if (!empty.length) return;
+      const {r,c} = empty[Math.floor(Math.random()*empty.length)];
+      board[r][c] = Math.random() < 0.9 ? 2 : 4;
+    };
+
+    const render = () => {
+      scoreEl.textContent = 'Puntos: ' + pts;
+      wrap.innerHTML = `<div class="game-2048">${board.flat().map(v => `<div class="g2048" data-v="${v}">${v || ''}</div>`).join('')}</div>`;
+    };
+
+    const move = (dr, dc) => {
+      if (over) return;
+      const before = JSON.stringify(board);
+      for (let i = 0; i < size; i++) {
+        const line = [];
+        for (let j = 0; j < size; j++) {
+          const r = dr !== 0 ? (dr > 0 ? size-1-i : i) : (dc > 0 ? i : i);
+          const c = dc !== 0 ? (dc > 0 ? size-1-i : i) : (dr > 0 ? size-1-i : i);
+          const r2 = dr !== 0 ? (dr > 0 ? size-1-i : i) : i;
+          const c2 = dc !== 0 ? (dc > 0 ? size-1-i : i) : i;
+          // simpler: pick row/col based on direction
+          const rr = dr !== 0 ? (dr > 0 ? size-1-i : i) : i;
+          const cc = dc !== 0 ? (dc > 0 ? size-1-i : i) : i;
+          line.push({r: rr, c: cc});
+        }
+      }
+      // Actually implement via shifting
+      const shift = (arr) => {
+        arr = arr.filter(v => v);
+        for (let k = 0; k < arr.length-1; k++) {
+          if (arr[k] === arr[k+1]) { arr[k] *= 2; pts += arr[k]; arr.splice(k+1, 1); }
+        }
+        while (arr.length < size) arr.push(0);
+        return arr;
+      };
+
+      if (dc === 1) { // right
+        for (let r = 0; r < size; r++) board[r] = shift(board[r].slice().reverse()).reverse();
+      } else if (dc === -1) { // left
+        for (let r = 0; r < size; r++) board[r] = shift(board[r]);
+      } else if (dr === -1) { // up
+        for (let c = 0; c < size; c++) {
+          const col = []; for (let r = 0; r < size; r++) col.push(board[r][c]);
+          const s = shift(col); for (let r = 0; r < size; r++) board[r][c] = s[r];
+        }
+      } else if (dr === 1) { // down
+        for (let c = 0; c < size; c++) {
+          const col = []; for (let r = 0; r < size; r++) col.push(board[r][c]);
+          const s = shift(col.reverse()).reverse(); for (let r = 0; r < size; r++) board[r][c] = s[r];
+        }
+      }
+      if (JSON.stringify(board) !== before) { addTile(); }
+      render();
+      davidOS.sound(500, .03);
+    };
+
+    const key = (e) => {
+      if (!ctx.winEl.classList.contains('active')) return;
+      if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) e.preventDefault();
+      if (e.key === 'ArrowUp') move(-1, 0);
+      else if (e.key === 'ArrowDown') move(1, 0);
+      else if (e.key === 'ArrowLeft') move(0, -1);
+      else if (e.key === 'ArrowRight') move(0, 1);
+    };
+    document.addEventListener('keydown', key);
+    ctx.winEl.querySelector('[data-act="new"]').onclick = newGame;
+    newGame();
+    davidOS.on('window:close', function h(e) { if (e.appId === 'g2048') { document.removeEventListener('keydown', key); davidOS.off('window:close', h); } });
+  }
+});
+
+/* ---------- 💣 Buscaminas ---------- */
+davidOS.registerApp({
+  id: 'minesweeper', name: 'Buscaminas', icon: '💣', width: 480, height: 560,
+  category: 'Juegos',
+  toolbar: `<button class="tool-btn primary" data-act="new">🔄 Nueva</button>
+            <div class="tb-sep"></div>
+            <span id="msStatus" style="font-size:12px;">Listo</span>`,
+  render() { return `<div id="msWrap" style="padding:14px;text-align:center;"></div>`; },
+  mount(ctx) {
+    const wrap = ctx.winEl.querySelector('#msWrap');
+    const status = ctx.winEl.querySelector('#msStatus');
+    const R = 10, C = 10, M = 14;
+    let grid, revealed, over, flagged;
+
+    const newGame = () => {
+      grid = Array(R).fill(null).map(() => Array(C).fill(0));
+      revealed = Array(R).fill(null).map(() => Array(C).fill(false));
+      over = false; flagged = 0;
+      let placed = 0;
+      while (placed < M) {
+        const r = Math.floor(Math.random()*R), c = Math.floor(Math.random()*C);
+        if (grid[r][c] === -1) continue;
+        grid[r][c] = -1; placed++;
+      }
+      for (let r = 0; r < R; r++) for (let c = 0; c < C; c++) {
+        if (grid[r][c] === -1) continue;
+        let n = 0;
+        for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) {
+          const rr = r+dr, cc = c+dc;
+          if (rr>=0&&rr<R&&cc>=0&&cc<C&&grid[rr][cc]===-1) n++;
+        }
+        grid[r][c] = n;
+      }
+      status.textContent = 'Minas: ' + M;
+      render();
+    };
+
+    const reveal = (r, c) => {
+      if (over || revealed[r][c]) return;
+      revealed[r][c] = true;
+      if (grid[r][c] === 0) {
+        for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) {
+          const rr = r+dr, cc = c+dc;
+          if (rr>=0&&rr<R&&cc>=0&&cc<C && !revealed[rr][cc]) reveal(rr, cc);
+        }
+      }
+    };
+
+    const checkWin = () => {
+      let hidden = 0;
+      for (let r = 0; r < R; r++) for (let c = 0; c < C; c++) if (!revealed[r][c]) hidden++;
+      if (hidden === M) { over = true; status.textContent = '🎉 ¡Ganaste!'; }
+    };
+
+    const render = () => {
+      let html = '<div class="ms-grid" style="grid-template-columns:repeat('+C+',24px);">';
+      for (let r = 0; r < R; r++) for (let c = 0; c < C; c++) {
+        const cell = grid[r][c];
+        const rev = revealed[r][c];
+        if (rev && cell === -1) html += `<div class="ms-cell rev mine">💥</div>`;
+        else if (rev && cell === 0) html += `<div class="ms-cell rev"></div>`;
+        else if (rev) html += `<div class="ms-cell rev" data-n="${cell}">${cell}</div>`;
+        else html += `<div class="ms-cell" data-r="${r}" data-c="${c}"></div>`;
+      }
+      html += '</div>';
+      wrap.innerHTML = html;
+      wrap.querySelectorAll('.ms-cell:not(.rev)').forEach(el => {
+        el.addEventListener('click', () => {
+          const r = +el.dataset.r, c = +el.dataset.c;
+          if (grid[r][c] === -1) { over = true; revealed[r][c] = true; status.textContent = '💥 Boom'; render(); davidOS.sound(150, .3); return; }
+          reveal(r, c); render(); checkWin(); davidOS.sound(500, .03);
+        });
+        el.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          el.textContent = el.textContent === '🚩' ? '' : '🚩';
+        });
+      });
+    };
+
+    ctx.winEl.querySelector('[data-act="new"]').onclick = newGame;
+    newGame();
+  }
+});
+
+/* ---------- 📅 Calendario ---------- */
+davidOS.registerApp({
+  id: 'calendar', name: 'Calendario', icon: '📅', width: 620, height: 520,
+  category: 'Productividad',
+  render() {
+    return `
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <button class="btn" id="calPrev">‹</button>
+        <div style="font-size:15px;font-weight:600;" id="calTitle">—</div>
+        <button class="btn" id="calNext">›</button>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+    `;
+  },
+  mount(ctx) {
+    let d = new Date();
+    const grid = ctx.winEl.querySelector('#calGrid');
+    const title = ctx.winEl.querySelector('#calTitle');
+    const render = () => {
+      const y = d.getFullYear(), m = d.getMonth();
+      title.textContent = d.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+      const first = new Date(y, m, 1).getDay();
+      const days = new Date(y, m+1, 0).getDate();
+      const today = new Date();
+      const heads = ['D','L','M','X','J','V','S'];
+      let html = heads.map(h => `<div class="cal-cell head">${h}</div>`).join('');
+      for (let i = 0; i < first; i++) html += `<div class="cal-cell" style="background:transparent"></div>`;
+      for (let i = 1; i <= days; i++) {
+        const isToday = i === today.getDate() && m === today.getMonth() && y === today.getFullYear();
+        html += `<div class="cal-cell ${isToday?'today':''}">${i}</div>`;
+      }
+      grid.innerHTML = html;
+    };
+    ctx.winEl.querySelector('#calPrev').onclick = () => { d.setMonth(d.getMonth()-1); render(); };
+    ctx.winEl.querySelector('#calNext').onclick = () => { d.setMonth(d.getMonth()+1); render(); };
+    render();
+  }
+});
+
+/* ---------- 🧑‍💻 Editor de código ---------- */
+davidOS.registerApp({
+  id: 'code', name: 'Editor de código', icon: '🧑‍💻', width: 780, height: 560,
+  category: 'Productividad',
+  toolbar: `<button class="tool-btn" data-act="new">📄 Nuevo</button>
+            <button class="tool-btn" data-act="open">📂 Abrir</button>
+            <button class="tool-btn primary" data-act="save">💾 Guardar</button>
+            <div class="tb-sep"></div>
+            <button class="tool-btn" data-act="preview">👁️ Previsualizar</button>
+            <div class="tb-sep"></div>
+            <select class="ta" id="codeLang" style="font-size:11px;">
+              <option value="html">HTML</option>
+              <option value="js">JavaScript</option>
+              <option value="css">CSS</option>
+              <option value="md">Markdown</option>
+              <option value="txt">Texto</option>
+            </select>`,
+  statusbar: `<span id="codeStatus">Listo</span><span id="codeInfo">0 líneas</span>`,
+  render() {
+    return `<div style="display:flex;height:100%;">
+      <textarea class="code-area" id="codeArea" spellcheck="false"></textarea>
+    </div>`;
+  },
+  mount(ctx) {
+    const area = ctx.winEl.querySelector('#codeArea');
+    const lang = ctx.winEl.querySelector('#codeLang');
+    const info = ctx.winEl.querySelector('#codeInfo');
+    const status = ctx.winEl.querySelector('#codeStatus');
+    const updateInfo = () => {
+      const l = area.value.split('\n').length;
+      info.textContent = l + ' líneas · ' + area.value.length + ' caracteres';
+    };
+    area.value = '<!DOCTYPE html>\n<html>\n<head><title>Hola</title></head>\n<body>\n  <h1>Hola davidOS</h1>\n</body>\n</html>';
+    updateInfo();
+    area.addEventListener('input', updateInfo);
+
+    ctx.winEl.querySelector('[data-act="new"]').onclick = () => { area.value = ''; updateInfo(); };
+    ctx.winEl.querySelector('[data-act="open"]').onclick = () => {
+      const p = prompt('Abrir archivo:', '/home/david/readme.txt');
+      if (!p) return;
+      const c = davidOS.fs.read(p);
+      if (c == null) return davidOS.notify('No encontrado: ' + p, 'error');
+      area.value = c; updateInfo(); status.textContent = 'Abierto: ' + p;
+    };
+    ctx.winEl.querySelector('[data-act="save"]').onclick = () => {
+      const p = prompt('Guardar en:', '/tmp/code.' + (lang.value === 'js' ? 'js' : lang.value === 'css' ? 'css' : 'html'));
+      if (!p) return;
+      davidOS.fs.write(p, area.value);
+      status.textContent = 'Guardado: ' + p;
+      davidOS.notify('💾 Guardado en ' + p, 'success');
+    };
+    ctx.winEl.querySelector('[data-act="preview"]').onclick = () => {
+      const w = davidOS.openApp('browser');
+      // If browser is open, try to preview
+    };
+    lang.addEventListener('change', () => { status.textContent = 'Lenguaje: ' + lang.value; });
+  }
+});
+
+/* ---------- 🎯 Ajustes ---------- */
+davidOS.registerApp({
+  id: 'settings', name: 'Ajustes', icon: '⚙️', width: 660, height: 560,
+  category: 'Sistema',
+  render() {
+    const s = davidOS.settings;
+    return `
+      <div class="app-h1">⚙️ Ajustes del sistema</div>
+      <div class="app-h2">Apariencia</div>
+      <div class="kv"><span>Tema</span>
+        <select class="ta" id="setTheme" style="font-size:11px;width:180px;">
+          <option value="default">Oscuro azul</option>
+          <option value="purple">Púrpura</option>
+          <option value="green">Verde</option>
+          <option value="sunset">Atardecer</option>
+          <option value="light">Claro</option>
+        </select>
+      </div>
+      <div class="kv"><span>Brillo</span><input type="range" min="40" max="100" value="${s.get('brightness')}" id="setBright" style="width:180px;"></div>
+      <div class="app-h2">Sonido</div>
+      <div class="kv"><span>Efectos de sonido</span>
+        <label style="display:flex;align-items:center;gap:6px;"><input type="checkbox" id="setSound" ${s.get('sound')?'checked':''}> Activar</label>
+      </div>
+      <div class="kv"><span>Volumen</span><input type="range" min="0" max="100" value="${s.get('volume')}" id="setVolume" style="width:180px;"></div>
+      <div class="app-h2">Red</div>
+      <div class="kv"><span>Wi-Fi</span><label style="display:flex;align-items:center;gap:6px;"><input type="checkbox" id="setWifi" ${s.get('wifi')?'checked':''}> Activar</label></div>
+      <div class="kv"><span>Bluetooth</span><label style="display:flex;align-items:center;gap:6px;"><input type="checkbox" id="setBt" ${s.get('bt')?'checked':''}> Activar</label></div>
+      <div class="app-h2">Sistema</div>
+      <div class="kv"><span>Versión</span><b>davidOS Engine v2.0.0</b></div>
+      <div class="kv"><span>Build</span><b>2026.CODEPEN.OS</b></div>
+      <div class="kv"><span>Usuario</span><b>david</b></div>
+      <div class="kv"><span>Servicios activos</span><b>${davidOS.kernel.services.filter(s=>s.status==='running').length}</b></div>
+      <div class="app-h2">Restablecer</div>
+      <div class="row">
+        <button class="btn danger" id="setReset">⚠️ Restablecer todo</button>
+        <button class="btn" id="setReload">🔄 Reiniciar sesión</button>
+      </div>
+    `;
+  },
+  mount(ctx) {
+    const $ = (s) => ctx.winEl.querySelector(s);
+    $('#setTheme').value = davidOS.settings.get('theme');
+    $('#setTheme').onchange = (e) => { davidOS.settings.set('theme', e.target.value); davidOS.applyTheme(); };
+    $('#setBright').oninput = (e) => { davidOS.settings.set('brightness', +e.target.value); document.documentElement.style.filter = 'brightness('+e.target.value/100+')'; };
+    $('#setVolume').oninput = (e) => davidOS.settings.set('volume', +e.target.value);
+    $('#setSound').onchange = (e) => davidOS.settings.set('sound', e.target.checked);
+    $('#setWifi').onchange = (e) => { davidOS.settings.set('wifi', e.target.checked); davidOS.notify('Wi-Fi: ' + (e.target.checked?'ON':'OFF')); };
+    $('#setBt').onchange = (e) => { davidOS.settings.set('bt', e.target.checked); davidOS.notify('Bluetooth: ' + (e.target.checked?'ON':'OFF')); };
+    $('#setReset').onclick = () => { if (confirm('¿Borrar todo y reiniciar?')) { localStorage.clear(); location.reload(); } };
+    $('#setReload').onclick = () => location.reload();
+  }
+});
+
+/* ---------- 🌐 Navegador ---------- */
+davidOS.registerApp({
+  id: 'browser', name: 'Navegador', icon: '🌐', width: 780, height: 560,
+  category: 'Internet',
+  toolbar: `<button class="tool-btn" data-act="back">◀</button>
+            <button class="tool-btn" data-act="fwd">▶</button>
+            <button class="tool-btn" data-act="reload">🔄</button>
+            <div class="tb-sep"></div>
+            <input class="ta" id="browserUrl" value="david://home" style="flex:1;font-size:12px;">
+            <button class="tool-btn primary" data-act="go">Ir</button>`,
+  statusbar: `<span id="bUrl">david://home</span><span id="bStatus">Listo</span>`,
+  render() { return `<div id="bView" style="padding:16px;"></div>`; },
+  mount(ctx) {
+    const view = ctx.winEl.querySelector('#bView');
+    const url = ctx.winEl.querySelector('#browserUrl');
+    const status = ctx.winEl.querySelector('#bStatus');
+    const bUrl = ctx.winEl.querySelector('#bUrl');
+    const history = ['david://home'];
+    let idx = 0;
+
+    const pages = {
+      'david://home': `<div style="text-align:center;padding:40px;">
+        <div style="font-size:60px;">🌐</div>
+        <h1 style="margin:10px 0;">david://home</h1>
+        <p style="color:var(--text-dim);">Página de inicio del navegador davidOS.</p>
+        <p style="margin-top:20px;">Prueba:<br>
+          <a href="#" data-nav="david://apps" style="color:var(--accent-2);">david://apps</a> ·
+          <a href="#" data-nav="david://about" style="color:var(--accent-2);">david://about</a> ·
+          <a href="#" data-nav="david://news" style="color:var(--accent-2);">david://news</a>
+        </p>
+      </div>`,
+      'david://apps': `<h1 style="margin-bottom:14px;">Aplicaciones instaladas</h1><div class="row">${davidOS.listApps().map(a => `<div class="sm-app" style="width:90px;"><div class="g">${a.icon}</div><div class="n">${a.name}</div></div>`).join('')}</div>`,
+      'david://about': `<h1 style="margin-bottom:14px;">Acerca de davidOS</h1><p>davidOS Engine v${davidOS.kernel.version} (${davidOS.kernel.build})</p><p style="color:var(--text-dim);margin-top:8px;">Un sistema operativo completo en un solo archivo HTML.</p>`,
+      'david://news': `<h1 style="margin-bottom:14px;">📰 Noticias (demo)</h1>
+        <div class="notif-card"><b>davidOS 2.0 lanzado</b>Incluye nuevas apps, temas y multi-tarea.</div>
+        <div class="notif-card"><b>Terminal mejorado</b>Ahora con cd, tree, mkdir, touch, rm.</div>
+        <div class="notif-card"><b>Nuevos juegos</b>Snake, 2048, Buscaminas.</div>`
+    };
+
+    const render = (u) => {
+      url.value = u; bUrl.textContent = u;
+      if (pages[u]) view.innerHTML = pages[u];
+      else view.innerHTML = `<div style="text-align:center;padding:60px;"><div style="font-size:50px;">🚫</div><h2>No se puede acceder a "${u}"</h2><p style="color:var(--text-dim);margin-top:8px;">Página no disponible en davidOS Browser.</p></div>`;
+      status.textContent = 'Cargado';
+      view.querySelectorAll('[data-nav]').forEach(a => a.onclick = (e) => { e.preventDefault(); history.push(a.dataset.nav); idx = history.length-1; render(a.dataset.nav); });
+    };
+
+    ctx.winEl.querySelector('[data-act="go"]').onclick = () => { const u = url.value; history.push(u); idx = history.length-1; render(u); };
+    url.addEventListener('keydown', (e) => { if (e.key === 'Enter') ctx.winEl.querySelector('[data-act="go"]').click(); });
+    ctx.winEl.querySelector('[data-act="back"]').onclick = () => { if (idx > 0) { idx--; render(history[idx]); } };
+    ctx.winEl.querySelector('[data-act="fwd"]').onclick = () => { if (idx < history.length-1) { idx++; render(history[idx]); } };
+    ctx.winEl.querySelector('[data-act="reload"]').onclick = () => render(history[idx]);
+    render('david://home');
+  }
+});
+
+/* ---------- 💬 Chat ---------- */
+davidOS.registerApp({
+  id: 'chat', name: 'Chat', icon: '💬', width: 520, height: 560,
+  category: 'Internet',
+  render() {
+    return `<div style="display:flex;flex-direction:column;height:100%;">
+      <div class="chat-list" id="chatList"></div>
+      <div class="chat-inp">
+        <input id="chatInp" placeholder="Escribe un mensaje...">
+        <button class="btn primary" id="chatSend">➤</button>
+      </div>
+    </div>`;
+  },
+  mount(ctx) {
+    const list = ctx.winEl.querySelector('#chatList');
+    const inp = ctx.winEl.querySelector('#chatInp');
+    const msgs = [{who:'them', txt:'¡Hola! Soy davidBot 🤖 ¿En qué te ayudo?'}];
+    const render = () => {
+      list.innerHTML = msgs.map(m => `<div class="chat-msg ${m.who}">${m.txt.replace(/</g,'&lt;')}</div>`).join('');
+      list.scrollTop = list.scrollHeight;
+    };
+    const reply = (t) => {
+      t = t.toLowerCase();
+      if (t.includes('hola')) return '¡Hola! ¿Qué tal?';
+      if (t.includes('hora')) return 'Son las ' + new Date().toLocaleTimeString('es-ES');
+      if (t.includes('david')) return '¡David es el mejor! 💪';
+      if (t.includes('app')) return 'Puedes abrir apps desde el menú Inicio.';
+      if (t.includes('ayuda')) return 'Prueba: davidOS.help() en la consola.';
+      if (t.includes('?')) return 'Buena pregunta 🤔';
+      const g = ['Interesante','Jaja 👍','Cuéntame más','😄','Entendido'];
+      return g[Math.floor(Math.random()*g.length)];
+    };
+    const send = () => {
+      const t = inp.value.trim(); if (!t) return;
+      msgs.push({who:'me', txt:t}); inp.value = ''; render();
+      setTimeout(() => { msgs.push({who:'them', txt:reply(t)}); render(); davidOS.sound(500, .05); }, 600);
+    };
+    inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') send(); });
+    ctx.winEl.querySelector('#chatSend').onclick = send;
+    render();
+  }
+});
+
+/* ---------- 🖼️ Galería ---------- */
+davidOS.registerApp({
+  id: 'gallery', name: 'Galería', icon: '🖼️', width: 700, height: 520,
+  category: 'Multimedia',
+  render() {
+    const colors = ['#4aa3ff','#7b2ff7','#27c93f','#ffbd2e','#ff5f56','#4ade80','#f472b6','#22d3ee','#f97316','#a855f7','#14b8a6','#ef4444'];
+    return `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+      ${colors.map((c, i) => `<div style="aspect-ratio:1;border-radius:8px;background:linear-gradient(135deg,${c},${c}88);display:flex;align-items:center;justify-content:center;font-size:32px;cursor:pointer;" data-i="${i}">${['🌄','🏞️','🌅','🌊','🌸','🌌','🎨','🌇','🌃','🌆','🌉','🏙️'][i]}</div>`).join('')}
+    </div>`;
+  },
+  mount(ctx) {
+    ctx.winEl.querySelectorAll('[data-i]').forEach(el => {
+      el.addEventListener('click', () => davidOS.notify('Imagen ' + el.dataset.i + ' seleccionada'));
+    });
+  }
+});
+
+/* ---------- 📖 Lector de markdown ---------- */
+davidOS.registerApp({
+  id: 'markdown', name: 'Markdown', icon: '📖', width: 700, height: 540,
+  category: 'Productividad',
+  toolbar: `<button class="tool-btn" data-act="render">👁️ Renderizar</button>
+            <button class="tool-btn" data-act="save">💾 Guardar</button>
+            <div class="tb-sep"></div>
+            <span style="font-size:11px;color:var(--text-dim);">Editor de Markdown con previsualización</span>`,
+  render() {
+    return `<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;height:100%;">
+      <textarea class="ta" id="mdInput" style="height:100%;"># Hola davidOS
+
+Este es un **editor** de markdown.
+
+- Lista 1
+- Lista 2
+- Lista 3
+
+## Sección
+
+Enlace [davidOS](https://example.com)</textarea>
+      <div class="code-preview" id="mdOutput" style="overflow:auto;"></div>
+    </div>`;
+  },
+  mount(ctx) {
+    const input = ctx.winEl.querySelector('#mdInput');
+    const output = ctx.winEl.querySelector('#mdOutput');
+
+    const render = (md) => {
+      let html = md
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+        .replace(/^### (.*)$/gm, '<h3>$1</h3>')
+        .replace(/^## (.*)$/gm, '<h2>$1</h2>')
+        .replace(/^# (.*)$/gm, '<h1>$1</h1>')
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.+?)\*/g, '<em>$1</em>')
+        .replace(/`(.+?)`/g, '<code style="background:#eee;padding:1px 5px;border-radius:3px;">$1</code>')
+        .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" style="color:#0078d4;">$1</a>')
+        .replace(/^- (.*)$/gm, '<li>$1</li>')
+        .replace(/(<li>[\s\S]*?<\/li>)/g, '<ul>$1</ul>')
+        .replace(/\n\n/g, '</p><p>')
+        .replace(/^(?!<[hu])/gm, '')
+        .replace(/\n/g, '<br>');
+      html = '<p>' + html + '</p>';
+      output.innerHTML = html;
+    };
+    render(input.value);
+    input.addEventListener('input', () => render(input.value));
+    ctx.winEl.querySelector('[data-act="render"]').onclick = () => render(input.value);
+    ctx.winEl.querySelector('[data-act="save"]').onclick = () => { davidOS.fs.write('/tmp/markdown.md', input.value); davidOS.notify('💾 Guardado en /tmp/markdown.md', 'success'); };
+  }
+});
+
+/* ---------- 🔐 Generador de contraseñas ---------- */
+davidOS.registerApp({
+  id: 'passgen', name: 'Generador', icon: '🔐', width: 480, height: 460,
+  category: 'Utilidades',
+  render() {
+    return `
+      <div class="app-h1">🔐 Generador de contraseñas</div>
+      <div class="app-p">Configura las opciones y pulsa Generar.</div>
+      <div class="kv"><span>Longitud</span><input type="range" id="pgLen" min="4" max="64" value="16" style="width:180px;"><b id="pgLenVal">16</b></div>
+      <div class="kv"><span>Mayúsculas (A-Z)</span><input type="checkbox" id="pgUp" checked></div>
+      <div class="kv"><span>Minúsculas (a-z)</span><input type="checkbox" id="pgLo" checked></div>
+      <div class="kv"><span>Números (0-9)</span><input type="checkbox" id="pgNu" checked></div>
+      <div class="kv"><span>Símbolos (!@#$)</span><input type="checkbox" id="pgSy"></div>
+      <div class="kv"><span>Sin ambiguos (0O1lI)</span><input type="checkbox" id="pgNoAmb"></div>
+      <textarea class="ta" id="pgOut" style="margin-top:12px;height:80px;font-size:14px;text-align:center;" readonly>—</textarea>
+      <div class="row" style="margin-top:10px;">
+        <button class="btn primary" id="pgGen">🔐 Generar</button>
+        <button class="btn" id="pgCopy">📋 Copiar</button>
+      </div>
+    `;
+  },
+  mount(ctx) {
+    const $ = (s) => ctx.winEl.querySelector(s);
+    $('#pgLen').oninput = (e) => $('#pgLenVal').textContent = e.target.value;
+    const gen = () => {
+      let chars = '';
+      if ($('#pgUp').checked) chars += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      if ($('#pgLo').checked) chars += 'abcdefghijklmnopqrstuvwxyz';
+      if ($('#pgNu').checked) chars += '0123456789';
+      if ($('#pgSy').checked) chars += '!@#$%^&*()_+-=[]{}|;:,.<>?';
+      if ($('#pgNoAmb').checked) chars = chars.replace(/[0O1lI]/g, '');
+      if (!chars) return $('#pgOut').value = 'Selecciona al menos un tipo.';
+      const n = +$('#pgLen').value;
+      let out = '';
+      for (let i = 0; i < n; i++) out += chars[Math.floor(Math.random()*chars.length)];
+      $('#pgOut').value = out;
+    };
+    $('#pgGen').onclick = gen;
+    $('#pgCopy').onclick = () => { navigator.clipboard?.writeText($('#pgOut').value); davidOS.notify('📋 Copiado al portapapeles', 'success'); };
+    gen();
+  }
+});
+
+/* ---------- 🧾 Editor de texto plano / JSON ---------- */
+davidOS.registerApp({
+  id: 'json', name: 'Visor JSON', icon: '🧾', width: 640, height: 500,
+  category: 'Utilidades',
+  toolbar: `<button class="tool-btn" data-act="format">🎨 Formatear</button>
+            <button class="tool-btn" data-act="minify">📦 Minificar</button>
+            <button class="tool-btn" data-act="validate">✅ Validar</button>
+            <button class="tool-btn" data-act="copy">📋 Copiar</button>`,
+  statusbar: `<span id="jsonStatus">—</span><span>davidOS JSON</span>`,
+  render() {
+    return `<textarea class="ta" id="jsonArea" style="height:100%;font-size:12px;">{"nombre":"davidOS","version":"2.0","apps":["terminal","notepad"],"ok":true}</textarea>`;
+  },
+  mount(ctx) {
+    const area = ctx.winEl.querySelector('#jsonArea');
+    const status = ctx.winEl.querySelector('#jsonStatus');
+    const tryParse = () => { try { const o = JSON.parse(area.value); status.textContent = '✅ JSON válido · ' + Object.keys(o).length + ' claves'; return o; } catch (e) { status.textContent = '❌ ' + e.message; return null; } };
+    ctx.winEl.querySelector('[data-act="format"]').onclick = () => { const o = tryParse(); if (o) area.value = JSON.stringify(o, null, 2); };
+    ctx.winEl.querySelector('[data-act="minify"]').onclick = () => { const o = tryParse(); if (o) area.value = JSON.stringify(o); };
+    ctx.winEl.querySelector('[data-act="validate"]').onclick = tryParse;
+    ctx.winEl.querySelector('[data-act="copy"]').onclick = () => { navigator.clipboard?.writeText(area.value); davidOS.notify('📋 Copiado', 'success'); };
+  }
+});
+
+/* ---------- 🧪 Laboratorio de expresiones ---------- */
+davidOS.registerApp({
+  id: 'regex', name: 'Regex Lab', icon: '🧪', width: 660, height: 520,
+  category: 'Utilidades',
+  render() {
+    return `
+      <div class="app-h1">🧪 Laboratorio de expresiones regulares</div>
+      <input class="ta" id="rgxPattern" placeholder="Patrón regex" value="\\w+">
+      <input class="ta" id="rgxFlags" placeholder="Flags (g, i, m)" value="g" style="margin-top:8px;">
+      <textarea class="ta" id="rgxText" style="margin-top:8px;height:140px;">davidOS Engine v2.0 es un sistema operativo web.</textarea>
+      <div class="row" style="margin-top:10px;">
+        <button class="btn primary" id="rgxTest">▶ Probar</button>
+      </div>
+      <div class="app-h2">Resultados</div>
+      <div id="rgxOut" style="font-family:ui-monospace,monospace;font-size:12px;"></div>
+    `;
+  },
+  mount(ctx) {
+    const $ = (s) => ctx.winEl.querySelector(s);
+    $('#rgxTest').onclick = () => {
+      try {
+        const re = new RegExp($('#rgxPattern').value, $('#rgxFlags').value);
+        const text = $('#rgxText').value;
+        const matches = [...text.matchAll(re)];
+        if (!matches.length) return $('#rgxOut').innerHTML = '<span style="color:#ff8a92">Sin coincidencias.</span>';
+        $('#rgxOut').innerHTML = matches.map((m, i) => `<div style="padding:4px 0;border-bottom:1px solid var(--border);">#${i+1} · "${m[0]}" · índice ${m.index}</div>`).join('');
+      } catch (e) { $('#rgxOut').innerHTML = '<span style="color:#ff8a92">Error: ' + e.message + '</span>'; }
+    };
+  }
+});
+
+/* ---------- 🎨 Selector de color ---------- */
+davidOS.registerApp({
+  id: 'colorpicker', name: 'Color Picker', icon: '🎨', width: 480, height: 440,
+  category: 'Utilidades',
+  render() {
+    return `
+      <div class="app-h1">🎨 Selector de color</div>
+      <div style="text-align:center;"><input type="color" id="cpInput" value="#0078d4" style="width:120px;height:80px;border:1px solid var(--border-hi);border-radius:10px;background:transparent;cursor:pointer;"></div>
+      <div class="app-h2">Valores</div>
+      <div class="kv"><span>HEX</span><b id="cpHex">#0078d4</b></div>
+      <div class="kv"><span>RGB</span><b id="cpRgb">0, 120, 212</b></div>
+      <div class="kv"><span>HSL</span><b id="cpHsl">—</b></div>
+      <div class="app-h2">Paleta sugerida</div>
+      <div class="row" id="cpPalette"></div>
+    `;
+  },
+  mount(ctx) {
+    const $ = (s) => ctx.winEl.querySelector(s);
+    const hexToRgb = (h) => { const n = parseInt(h.slice(1), 16); return [n>>16&255, n>>8&255, n&255]; };
+    const rgbToHsl = (r,g,b) => {
+      r/=255; g/=255; b/=255;
+      const max = Math.max(r,g,b), min = Math.min(r,g,b);
+      let h, s, l = (max+min)/2;
+      if (max === min) { h = s = 0; }
+      else { const d = max-min; s = l > .5 ? d/(2-max-min) : d/(max+min); h = max===r ? (g-b)/d+(g<b?6:0) : max===g ? (b-r)/d+2 : (r-g)/d+4; h/=6; }
+      return [Math.round(h*360), Math.round(s*100), Math.round(l*100)];
+    };
+    const update = () => {
+      const v = $('#cpInput').value;
+      const rgb = hexToRgb(v);
+      const hsl = rgbToHsl(...rgb);
+      $('#cpHex').textContent = v.toUpperCase();
+      $('#cpRgb').textContent = rgb.join(', ');
+      $('#cpHsl').textContent = hsl[0]+'°, '+hsl[1]+'%, '+hsl[2]+'%';
+    };
+    $('#cpInput').oninput = update;
+    update();
+    const palette = ['#0078d4','#7b2ff7','#27c93f','#ffbd2e','#ff5f56','#4ade80','#f472b6','#22d3ee','#f97316','#a855f7','#14b8a6','#ef4444'];
+    $('#cpPalette').innerHTML = palette.map(c => `<div style="width:30px;height:30px;border-radius:6px;background:${c};cursor:pointer;" data-c="${c}"></div>`).join('');
+    $('#cpPalette').querySelectorAll('[data-c]').forEach(el => {
+      el.onclick = () => { $('#cpInput').value = el.dataset.c; update(); };
+    });
+  }
+});
+
+/* ---------- 🔢 Conversor de unidades ---------- */
+davidOS.registerApp({
+  id: 'converter', name: 'Conversor', icon: '🔢', width: 520, height: 520,
+  category: 'Utilidades',
+  render() {
+    return `
+      <div class="app-h1">🔢 Conversor de unidades</div>
+      <div class="app-h2">Longitud</div>
+      <div class="row"><input class="ta" id="cvLenVal" type="number" value="1" style="flex:1;"><select class="ta" id="cvLenFrom" style="flex:1;"><option value="1">m</option><option value="1000">km</option><option value="0.3048">ft</option><option value="0.0254">in</option><option value="1609.34">mi</option></select><span>=</span><input class="ta" id="cvLenOut" readonly style="flex:1;"><select class="ta" id="cvLenTo" style="flex:1;"><option value="1000">km</option><option value="1">m</option><option value="0.3048">ft</option><option value="0.0254">in</option><option value="1609.34">mi</option></select></div>
+
+      <div class="app-h2">Masa</div>
+      <div class="row"><input class="ta" id="cvKgVal" type="number" value="1" style="flex:1;"><select class="ta" id="cvKgFrom" style="flex:1;"><option value="1">kg</option><option value="1000">t</option><option value="0.001">g</option><option value="0.453592">lb</option></select><span>=</span><input class="ta" id="cvKgOut" readonly style="flex:1;"><select class="ta" id="cvKgTo" style="flex:1;"><option value="0.453592">lb</option><option value="1">kg</option><option value="1000">t</option><option value="0.001">g</option></select></div>
+
+      <div class="app-h2">Temperatura</div>
+      <div class="row"><input class="ta" id="cvTempVal" type="number" value="25" style="flex:1;"><select class="ta" id="cvTempFrom" style="flex:1;"><option value="C">°C</option><option value="F">°F</option><option value="K">K</option></select><span>→</span><input class="ta" id="cvTempOut" readonly style="flex:1;"><select class="ta" id="cvTempTo" style="flex:1;"><option value="F">°F</option><option value="C">°C</option><option value="K">K</option></select></div>
+
+      <div class="app-h2">Datos</div>
+      <div class="row"><input class="ta" id="cvDataVal" type="number" value="1" style="flex:1;"><select class="ta" id="cvDataFrom" style="flex:1;"><option value="1">MB</option><option value="1024">GB</option><option value="1/1024">KB</option></select><span>=</span><input class="ta" id="cvDataOut" readonly style="flex:1;"><select class="ta" id="cvDataTo" style="flex:1;"><option value="1024">GB</option><option value="1">MB</option><option value="1/1024">KB</option></select></div>
+    `;
+  },
+  mount(ctx) {
+    const $ = (s) => ctx.winEl.querySelector(s);
+    const upd = (valId, fromId, outId, toId, fn) => {
+      const v = +$(valId).value;
+      const f = +$(fromId).value;
+      const t = +$(toId).value;
+      $(outId).value = fn ? fn(v, f, t) : (v*f/t).toFixed(4);
+    };
+    const updTemp = () => {
+      const v = +$('#cvTempVal').value;
+      const f = $('#cvTempFrom').value, t = $('#cvTempTo').value;
+      let c;
+      if (f === 'C') c = v; else if (f === 'F') c = (v-32)*5/9; else c = v-273.15;
+      let out;
+      if (t === 'C') out = c; else if (t === 'F') out = c*9/5+32; else out = c+273.15;
+      $('#cvTempOut').value = out.toFixed(2);
+    };
+    const bind = (valId, fromId, outId, toId, isTemp) => {
+      const fn = () => isTemp ? updTemp() : upd(valId, fromId, outId, toId);
+      [valId, fromId, toId].forEach(id => $(id).addEventListener('input', fn));
+      $(fromId).addEventListener('change', fn);
+      $(toId).addEventListener('change', fn);
+      fn();
+    };
+    bind('#cvLenVal', '#cvLenFrom', '#cvLenOut', '#cvLenTo');
+    bind('#cvKgVal', '#cvKgFrom', '#cvKgOut', '#cvKgTo');
+    bind('#cvTempVal', '#cvTempFrom', '#cvTempOut', '#cvTempTo', true);
+    bind('#cvDataVal', '#cvDataFrom', '#cvDataOut', '#cvDataTo');
+  }
+});
+
+/* ---------- 📊 Estadísticas de la sesión ---------- */
+davidOS.registerApp({
+  id: 'sessionstats', name: 'Estadísticas', icon: '📈', width: 520, height: 460,
+  category: 'Sistema',
+  render() { return `<div id="ssBody"></div>`; },
+  mount(ctx) {
+    const body = ctx.winEl.querySelector('#ssBody');
+    const render = () => {
+      const s = davidOS.kernel.stats();
+      const sec = Math.floor(s.uptime/1000);
+      body.innerHTML = `
+        <div class="app-h1">📈 Estadísticas de la sesión</div>
+        <div class="kv"><span>Tiempo encendido</span><b>${Math.floor(sec/3600)}h ${Math.floor(sec%3600/60)}m ${sec%60}s</b></div>
+        <div class="kv"><span>Apps abiertas</span><b>${davidOS.openWindows.length}</b></div>
+        <div class="kv"><span>Apps registradas</span><b>${davidOS.listApps().length}</b></div>
+        <div class="kv"><span>Procesos activos</span><b>${s.processes}</b></div>
+        <div class="kv"><span>CPU</span><b>${s.cpuLoad}%</b></div>
+        <div class="kv"><span>RAM usada</span><b>${s.memoryUsedMB} MB</b></div>
+        <div class="kv"><span>Ventanas totales abiertas en la sesión</span><b id="ssTotal">—</b></div>
+        <div class="app-h2">Distribución por categoría</div>
+        ${Object.entries(davidOS.listByCategory()).map(([cat, list]) => `<div class="kv"><span>${cat}</span><b>${list.length}</b></div>`).join('')}
+      `;
+    };
+    render();
+    const int = setInterval(render, 2000);
+    davidOS.on('window:close', function h(e) { if (e.appId === 'sessionstats') { clearInterval(int); davidOS.off('window:close', h); } });
+  }
+});
+
+/* ---------- 🧭 Ayuda / atajos ---------- */
+davidOS.registerApp({
+  id: 'help', name: 'Ayuda', icon: '❓', width: 620, height: 560,
+  category: 'Sistema',
+  render() {
+    return `
+      <div class="app-h1">❓ Ayuda de davidOS Engine</div>
+      <div class="app-p">Bienvenido a davidOS Engine v2.0. Aquí tienes una guía rápida de atajos y consejos.</div>
+
+      <div class="app-h2">Ventanas</div>
+      <div class="kv"><span>Alternar ventanas</span><b>Alt+Tab</b></div>
+      <div class="kv"><span>Cerrar ventana</span><b>Alt+F4</b></div>
+      <div class="kv"><span>Anclar a la izquierda</span><b>Ctrl+←</b></div>
+      <div class="kv"><span>Anclar a la derecha</span><b>Ctrl+→</b></div>
+      <div class="kv"><span>Maximizar/restaurar</span><b>Ctrl+↑ · F11</b></div>
+      <div class="kv"><span>Minimizar</span><b>Botón —</b></div>
+
+      <div class="app-h2">Sistema</div>
+      <div class="kv"><span>Menú Inicio</span><b>Tecla Windows · Alt+K</b></div>
+      <div class="kv"><span>Terminal</span><b>Ctrl+Alt+T · Alt+T</b></div>
+      <div class="kv"><span>Cerrar menús</span><b>Escape</b></div>
+
+      <div class="app-h2">Terminal: comandos útiles</div>
+      <div class="app-p" style="font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.8;">
+        help · ls · cd · pwd · cat · tree · mkdir · touch · rm · echo · write<br>
+        whoami · uptime · date · ps · top · stats · services · apps · open<br>
+        notify · theme · sound · calc · rand · clear · reset
+      </div>
+
+      <div class="app-h2">API pública</div>
+      <div class="app-p">Desde la consola del navegador:</div>
+      <div style="background:rgba(0,0,0,.35);border-radius:6px;padding:10px;font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.7;">
+        davidOS.help()<br>
+        davidOS.openApp('terminal')<br>
+        davidOS.notify('Hola', 'success')<br>
+        davidOS.fs.write('/tmp/hi.txt', 'contenido')<br>
+        davidOS.kernel.stats()
+      </div>
+
+      <div class="app-h2">Consejos</div>
+      <div class="app-p">
+        • Arrastra ventanas a los bordes para anclarlas.<br>
+        • Doble clic en el título maximiza.<br>
+        • Clic derecho en el escritorio abre el menú contextual.<br>
+        • Clic derecho sobre una app la fija/desfija.<br>
+        • El icono ⚙️ de la barra abre las acciones rápidas.<br>
+        • El 🔔 abre el centro de notificaciones.
+      </div>
+    `;
+  }
+});
+
+/* ---------- 🎲 Utilidades varias ---------- */
+davidOS.registerApp({
+  id: 'utilities', name: 'Utilidades', icon: '🎲', width: 620, height: 560,
+  category: 'Utilidades',
+  render() {
+    return `
+      <div class="app-h1">🎲 Utilidades varias</div>
+      <div class="app-h2">Lanzar dado</div>
+      <div class="row">
+        <button class="btn" id="utD4">d4</button>
+        <button class="btn" id="utD6">d6</button>
+        <button class="btn" id="utD8">d8</button>
+        <button class="btn" id="utD20">d20</button>
+        <button class="btn primary" id="utCoin">🪙 Cara/Cruz</button>
+        <span style="font-size:20px;font-weight:700;" id="utOut">—</span>
+      </div>
+
+      <div class="app-h2">Número aleatorio</div>
+      <div class="row">
+        <input class="ta" type="number" id="utMin" value="1" style="width:100px;">
+        <span>→</span>
+        <input class="ta" type="number" id="utMax" value="100" style="width:100px;">
+        <button class="btn primary" id="utRand">🎲 Generar</button>
+        <span style="font-size:18px;font-weight:700;" id="utRandOut">—</span>
+      </div>
+
+      <div class="app-h2">UUID</div>
+      <div class="row">
+        <button class="btn" id="utUuid">Generar UUID v4</button>
+        <span style="font-family:ui-monospace,monospace;font-size:12px;" id="utUuidOut">—</span>
+      </div>
+
+      <div class="app-h2">Contador / Cronómetro simple</div>
+      <div class="row">
+        <button class="btn" id="utCntReset">⟲ Reset</button>
+        <button class="btn" id="utCntDec">−</button>
+        <span style="font-size:24px;font-weight:700;min-width:60px;text-align:center;" id="utCnt">0</span>
+        <button class="btn primary" id="utCntInc">+</button>
+      </div>
+
+      <div class="app-h2">Base64</div>
+      <textarea class="ta" id="utB64In" placeholder="Texto plano...">Hola davidOS</textarea>
+      <div class="row" style="margin-top:8px;">
+        <button class="btn" id="utB64Enc">Codificar →</button>
+        <button class="btn" id="utB64Dec">← Decodificar</button>
+      </div>
+      <textarea class="ta" id="utB64Out" style="margin-top:8px;" readonly>SG9sYSBkYXZpZE9T</textarea>
+    `;
+  },
+  mount(ctx) {
+    const $ = (s) => ctx.winEl.querySelector(s);
+    const roll = (n) => { const r = Math.floor(Math.random()*n)+1; $('#utOut').textContent = 'd'+n+' → '+r; davidOS.sound(500, .05); };
+    $('#utD4').onclick = () => roll(4);
+    $('#utD6').onclick = () => roll(6);
+    $('#utD8').onclick = () => roll(8);
+    $('#utD20').onclick = () => roll(20);
+    $('#utCoin').onclick = () => { $('#utOut').textContent = Math.random() < .5 ? '🪙 Cara' : '🪙 Cruz'; davidOS.sound(600, .08); };
+    $('#utRand').onclick = () => {
+      const a = +$('#utMin').value, b = +$('#utMax').value;
+      $('#utRandOut').textContent = Math.floor(Math.random()*(b-a+1))+a;
+    };
+    $('#utUuid').onclick = () => {
+      $('#utUuidOut').textContent = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+        const r = Math.random()*16|0;
+        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+      });
+    };
+    let cnt = 0;
+    $('#utCntInc').onclick = () => $('#utCnt').textContent = ++cnt;
+    $('#utCntDec').onclick = () => $('#utCnt').textContent = --cnt;
+    $('#utCntReset').onclick = () => { cnt = 0; $('#utCnt').textContent = 0; };
+    $('#utB64Enc').onclick = () => { try { $('#utB64Out').value = btoa(unescape(encodeURIComponent($('#utB64In').value))); } catch(e) { $('#utB64Out').value = 'Error'; } };
+    $('#utB64Dec').onclick = () => { try { $('#utB64In').value = decodeURIComponent(escape(atob($('#utB64Out').value))); } catch(e) { $('#utB64In').value = 'Error'; } };
+  }
+});
+
+/* ---------- 🧠 Pomodoro ---------- */
+davidOS.registerApp({
+  id: 'pomodoro', name: 'Pomodoro', icon: '🧠', width: 400, height: 480,
+  category: 'Productividad',
+  statusbar: `<span id="pomStatus">Listo</span><span>25/5</span>`,
+  render() {
+    return `
+      <div style="text-align:center;padding:20px;">
+        <div style="font-size:84px;font-weight:200;font-family:ui-monospace,monospace;" id="pomTime">25:00</div>
+        <div style="color:var(--text-dim);font-size:14px;margin-bottom:20px;" id="pomLabel">Enfoque</div>
+        <div class="row" style="justify-content:center;">
+          <button class="btn primary" id="pomStart">▶ Iniciar</button>
+          <button class="btn" id="pomSkip">⏭ Saltar</button>
+          <button class="btn danger" id="pomReset">⟲ Reset</button>
+        </div>
+        <div class="app-h2" style="text-align:left;">Ciclos completados</div>
+        <div style="font-size:26px;font-weight:700;" id="pomCycles">0</div>
+      </div>
+    `;
+  },
+  mount(ctx) {
+    const $ = (s) => ctx.winEl.querySelector(s);
+    let focus = 25*60, brk = 5*60, isFocus = true, left = focus, timer = null, cycles = 0;
+    const render = () => {
+      const m = Math.floor(left/60), s = left%60;
+      $('#pomTime').textContent = String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+      $('#pomLabel').textContent = isFocus ? 'Enfoque' : 'Descanso';
+      $('#pomStatus').textContent = timer ? (isFocus?'Enfocado':'Descansando') : 'Parado';
+    };
+    const start = () => {
+      if (timer) { clearInterval(timer); timer = null; $('#pomStart').textContent = '▶ Iniciar'; render(); return; }
+      $('#pomStart').textContent = '⏸ Parar';
+      timer = setInterval(() => {
+        left--;
+        if (left <= 0) {
+          clearInterval(timer); timer = null;
+          davidOS.sound(880, .4);
+          if (isFocus) { cycles++; $('#pomCycles').textContent = cycles; isFocus = false; left = brk; davidOS.notify('☕ Descanso de 5 min', 'warn'); }
+          else { isFocus = true; left = focus; davidOS.notify('💪 ¡A trabajar!', 'success'); }
+          $('#pomStart').textContent = '▶ Iniciar';
+        }
+        render();
+      }, 1000);
+    };
+    $('#pomStart').onclick = start;
+    $('#pomSkip').onclick = () => { clearInterval(timer); timer = null; if (isFocus) { isFocus = false; left = brk; } else { isFocus = true; left = focus; } $('#pomStart').textContent = '▶ Iniciar'; render(); };
+    $('#pomReset').onclick = () => { clearInterval(timer); timer = null; isFocus = true; left = focus; $('#pomStart').textContent = '▶ Iniciar'; render(); };
+    render();
+  }
+});
+
+/* ---------- 🖩 Calculadora de propinas ---------- */
+davidOS.registerApp({
+  id: 'tip', name: 'Propinas', icon: '🖩', width: 420, height: 420,
+  category: 'Utilidades',
+  render() {
+    return `
+      <div class="app-h1">🖩 Calculadora de propinas</div>
+      <div class="kv"><span>Cuenta total</span><input class="ta" type="number" id="tipBill" value="50" style="width:130px;"></div>
+      <div class="kv"><span>Propina %</span><input class="ta" type="number" id="tipPct" value="15" style="width:130px;"></div>
+      <div class="kv"><span>Personas</span><input class="ta" type="number" id="tipN" value="2" min="1" style="width:130px;"></div>
+      <div class="app-h2">Resultado</div>
+      <div class="kv"><span>Propina</span><b id="tipTip">—</b></div>
+      <div class="kv"><span>Subtotal + propina</span><b id="tipTotal">—</b></div>
+      <div class="kv"><span>Por persona</span><b id="tipPer">—</b></div>
+    `;
+  },
+  mount(ctx) {
+    const $ = (s) => ctx.winEl.querySelector(s);
+    const upd = () => {
+      const b = +$('#tipBill').value || 0;
+      const p = +$('#tipPct').value || 0;
+      const n = Math.max(1, +$('#tipN').value || 1);
+      const tip = b * p / 100;
+      $('#tipTip').textContent = tip.toFixed(2);
+      $('#tipTotal').textContent = (b + tip).toFixed(2);
+      $('#tipPer').textContent = ((b + tip) / n).toFixed(2);
+    };
+    ['tipBill','tipPct','tipN'].forEach(id => $('#'+id).addEventListener('input', upd));
+    upd();
+  }
+});
+
+/* ---------- 📝 Sticky Notes ---------- */
+davidOS.registerApp({
+  id: 'sticky', name: 'Notas adhesivas', icon: '📌', width: 500, height: 460,
+  category: 'Productividad',
+  toolbar: `<button class="tool-btn primary" data-act="add">➕ Nueva</button>
+            <div class="tb-sep"></div>
+            <span style="font-size:11px;color:var(--text-dim);">Clic derecho para eliminar</span>`,
+  render() { return `<div id="stickyWrap" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;"></div>`; },
+  mount(ctx) {
+    const wrap = ctx.winEl.querySelector('#stickyWrap');
+    let notes = [];
+    try { notes = JSON.parse(davidOS.fs.read('/tmp/sticky.json') || '[]'); } catch {}
+    const colors = ['#fde68a','#fca5a5','#93c5fd','#86efac','#f9a8d4'];
+    const persist = () => davidOS.fs.write('/tmp/sticky.json', JSON.stringify(notes));
+    const render = () => {
+      if (!notes.length) { wrap.innerHTML = '<div style="grid-column:span 2;text-align:center;color:var(--text-dim);padding:30px;">Sin notas</div>'; return; }
+      wrap.innerHTML = notes.map((n, i) => `<div style="background:${n.c};color:#1a1a1a;padding:12px;border-radius:8px;min-height:120px;position:relative;box-shadow:0 6px 18px rgba(0,0,0,.4);" data-i="${i}">
+        <div style="font-size:12px;white-space:pre-wrap;word-break:break-word;">${n.t.replace(/</g,'&lt;')}</div>
+      </div>`).join('');
+      wrap.querySelectorAll('[data-i]').forEach(el => {
+        el.addEventListener('dblclick', () => {
+          const i = +el.dataset.i;
+          const nt = prompt('Editar nota:', notes[i].t);
+          if (nt !== null) { notes[i].t = nt; persist(); render(); }
+        });
+        el.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          if (confirm('¿Eliminar nota?')) { notes.splice(+el.dataset.i, 1); persist(); render(); }
+        });
+      });
+    };
+    ctx.winEl.querySelector('[data-act="add"]').onclick = () => {
+      const t = prompt('Nueva nota:'); if (!t) return;
+      notes.push({ t, c: colors[notes.length % colors.length] }); persist(); render();
+    };
+    render();
+  }
+});
+
+/* ---------- 🚀 Lanzador rápido ---------- */
+davidOS.registerApp({
+  id: 'launcher', name: 'Lanzador', icon: '🚀', width: 520, height: 480,
+  category: 'Sistema',
+  render() {
+    return `<input class="ta" id="lchSearch" placeholder="🔍 Escribe para buscar apps..." style="margin-bottom:10px;">
+      <div id="lchList"></div>`;
+  },
+  mount(ctx) {
+    const input = ctx.winEl.querySelector('#lchSearch');
+    const list = ctx.winEl.querySelector('#lchList');
+    const render = (q) => {
+      const apps = davidOS.listApps().filter(a => !q || a.name.toLowerCase().includes(q.toLowerCase()) || a.id.includes(q));
+      list.innerHTML = apps.map(a => `<div class="file-row" data-id="${a.id}"><span class="fico">${a.icon}</span><span class="fname">${a.name}</span><span style="font-size:11px;color:var(--text-dim);">${a.category}</span></div>`).join('');
+      list.querySelectorAll('[data-id]').forEach(el => el.onclick = () => { davidOS.openApp(el.dataset.id); davidOS.closeWindow('launcher'); });
+    };
+    render('');
+    input.addEventListener('input', () => render(input.value));
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const first = list.querySelector('.file-row');
+        if (first) { davidOS.openApp(first.dataset.id); }
+      }
+    });
+    setTimeout(() => input.focus(), 50);
+  }
+});
+
+/* ---------- 🖥️ Administrador de ventanas ---------- */
+davidOS.registerApp({
+  id: 'winmgr', name: 'Ventanas', icon: '🖥️', width: 560, height: 420,
+  category: 'Sistema',
+  render() { return `<div id="wmList"></div>`; },
+  mount(ctx) {
+    const list = ctx.winEl.querySelector('#wmList');
+    const render = () => {
+      const wins = davidOS.openWindows;
+      if (!wins.length) { list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-dim);">No hay ventanas abiertas</div>'; return; }
+      list.innerHTML = wins.map(w => `<div class="file-row">
+        <span class="fico">${w.def.icon}</span>
+        <span class="fname">${w.def.name}</span>
+        <button class="btn" data-act="focus" data-id="${w.appId}" style="padding:4px 8px;font-size:11px;">Enfocar</button>
+        <button class="btn" data-act="close" data-id="${w.appId}" style="padding:4px 8px;font-size:11px;">Cerrar</button>
+      </div>`).join('');
+      list.querySelectorAll('[data-act="focus"]').forEach(b => b.onclick = () => davidOS.focusWindow(b.dataset.id));
+      list.querySelectorAll('[data-act="close"]').forEach(b => b.onclick = () => davidOS.closeWindow(b.dataset.id));
+    };
+    render();
+    davidOS.on('window:open', render);
+    davidOS.on('window:close', render);
+  }
+});
+
+/* ---------- ARRANQUE ---------- */
 davidOS.boot();
 </script>
 </body>
