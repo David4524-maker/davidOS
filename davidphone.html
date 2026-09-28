@@ -3,11 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>davidPhone</title>
+  <title>davidPhone 2.0</title>
   <style>
-    /* ============================================================
-       THEME TOKENS  (improvement: multi-theme system)
-       ============================================================ */
     :root {
       --bg: #0b1020;
       --accent: #6366f1;
@@ -21,66 +18,44 @@
         radial-gradient(800px 500px at 100% 100%, #312e81, transparent),
         linear-gradient(180deg, #0e1526, #0b1020);
     }
-    [data-theme="sunset"] {
-      --accent: #fb7185; --accent-2: #fbbf24;
+    [data-theme="sunset"] { --accent: #fb7185; --accent-2: #fbbf24;
       --wallpaper: radial-gradient(800px 500px at 20% 0%, #7c2d12, transparent),
         radial-gradient(800px 500px at 90% 100%, #be123c, transparent),
-        linear-gradient(180deg, #431407, #1c0a08);
-    }
-    [data-theme="ocean"] {
-      --accent: #38bdf8; --accent-2: #34d399;
+        linear-gradient(180deg, #431407, #1c0a08); }
+    [data-theme="ocean"] { --accent: #38bdf8; --accent-2: #34d399;
       --wallpaper: radial-gradient(800px 500px at 20% 0%, #0e7490, transparent),
         radial-gradient(800px 500px at 90% 100%, #1e3a8a, transparent),
-        linear-gradient(180deg, #082f49, #04121f);
-    }
-    [data-theme="forest"] {
-      --accent: #34d399; --accent-2: #a3e635;
+        linear-gradient(180deg, #082f49, #04121f); }
+    [data-theme="forest"] { --accent: #34d399; --accent-2: #a3e635;
       --wallpaper: radial-gradient(800px 500px at 20% 0%, #14532d, transparent),
         radial-gradient(800px 500px at 90% 100%, #166534, transparent),
-        linear-gradient(180deg, #052e16, #031206);
-    }
-    [data-theme="light"] {
-      --text: #111827; --muted: #4b5563;
+        linear-gradient(180deg, #052e16, #031206); }
+    [data-theme="light"] { --text: #111827; --muted: #4b5563;
       --card: rgba(0,0,0,0.05); --card-border: rgba(0,0,0,0.12);
       --accent: #6366f1; --accent-2: #0891b2;
       --wallpaper: radial-gradient(800px 500px at 20% 0%, #dbeafe, transparent),
         radial-gradient(800px 500px at 90% 100%, #e0e7ff, transparent),
-        linear-gradient(180deg, #f8fafc, #e2e8f0);
-    }
+        linear-gradient(180deg, #f8fafc, #e2e8f0); }
 
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
     body {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 40px;
-      flex-wrap: wrap;
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      gap: 40px; flex-wrap: wrap;
       background:
         radial-gradient(1200px 600px at 20% 10%, #1e293b, transparent),
         radial-gradient(1000px 500px at 90% 90%, #312e81, transparent),
         #05070f;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      color: #e5e7eb;
-      padding: 24px;
+      color: #e5e7eb; padding: 24px;
     }
-
-    /* ============================================================
-       PHONE FRAME  (improvement: side buttons, better shadow)
-       ============================================================ */
     .device { position: relative; }
     .phone {
-      position: relative;
-      width: 340px;
-      height: 720px;
+      position: relative; width: 340px; height: 720px;
       background: linear-gradient(160deg, #23262e, #0b0f1c);
-      border-radius: 48px;
-      padding: 13px;
+      border-radius: 48px; padding: 13px;
       box-shadow: 0 0 0 3px #33363f, 0 0 0 6px #17181d,
         0 40px 90px rgba(0, 0, 0, 0.7), inset 0 0 30px rgba(0, 0, 0, 0.4);
     }
-    /* physical buttons */
     .btn-side { position: absolute; left: -3px; background: #1b1d24; border-radius: 3px 0 0 3px; box-shadow: inset 1px 0 2px rgba(0,0,0,.6); }
     .btn-mute { top: 120px; width: 3px; height: 26px; }
     .btn-vol-up { top: 170px; width: 3px; height: 52px; }
@@ -88,44 +63,24 @@
     .btn-power { position: absolute; right: -3px; top: 190px; width: 3px; height: 70px; background: #1b1d24; border-radius: 0 3px 3px 0; }
 
     .screen {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      background: var(--wallpaper);
-      border-radius: 36px;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      transition: background .4s ease;
+      position: relative; width: 100%; height: 100%;
+      background: var(--wallpaper); border-radius: 36px; overflow: hidden;
+      display: flex; flex-direction: column; transition: background .4s ease;
     }
 
-    /* ---- Dynamic Island / notch ---- */
-    .notch {
-      position: absolute;
-      top: 12px; left: 50%;
-      transform: translateX(-50%);
-      width: 118px; height: 30px;
-      background: #05070f;
-      border-radius: 20px;
-      z-index: 60;
-      display: flex; align-items: center; justify-content: center; gap: 10px;
-      transition: width .3s, height .3s;
-    }
-    .notch.expanded { width: 200px; height: 42px; border-radius: 24px; }
+    .notch { position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+      width: 118px; height: 30px; background: #05070f; border-radius: 20px;
+      z-index: 60; display: flex; align-items: center; justify-content: center;
+      gap: 10px; transition: width .3s, height .3s; }
+    .notch.expanded { width: 220px; height: 44px; border-radius: 24px; }
     .notch .cam { width: 9px; height: 9px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #3b82f6, #0b1020); }
     .notch .speaker { width: 34px; height: 4px; border-radius: 4px; background: #1f2937; }
     .notch .island-info { display: none; align-items: center; gap: 6px; font-size: 11px; color: #34d399; white-space: nowrap; }
     .notch.expanded .island-info { display: flex; }
     .notch.expanded .speaker { display: none; }
 
-    /* ============================================================
-       STATUS BAR  (improvement: live battery, signal, wifi)
-       ============================================================ */
-    .statusbar {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 16px 24px 6px; font-size: 13px; font-weight: 600; z-index: 40;
-      color: var(--text);
-    }
+    .statusbar { display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 24px 6px; font-size: 13px; font-weight: 600; z-index: 40; color: var(--text); }
     .statusbar .icons { display: flex; gap: 6px; align-items: center; }
     .statusbar svg { width: 16px; height: 16px; fill: var(--text); }
     .batt { display: inline-flex; align-items: center; gap: 3px; }
@@ -136,23 +91,15 @@
     .batt-fill.charging { background: #22c55e; }
     .batt-pct { font-size: 11px; }
 
-    /* ============================================================
-       VIEWS
-       ============================================================ */
     .view { flex: 1; display: none; flex-direction: column; padding: 8px 18px 26px; overflow-y: auto; }
     .view.active { display: flex; animation: fade .28s ease; }
     .view::-webkit-scrollbar { width: 0; }
     @keyframes fade { from { opacity: 0; transform: scale(.97); } to { opacity: 1; transform: none; } }
 
-    /* ============================================================
-       LOCK SCREEN  (improvement: lock + swipe to unlock)
-       ============================================================ */
-    #lock {
-      position: absolute; inset: 0; z-index: 70;
+    #lock { position: absolute; inset: 0; z-index: 70;
       display: flex; flex-direction: column; align-items: center;
       padding: 70px 24px 30px; background: var(--wallpaper);
-      transition: transform .45s cubic-bezier(.4,0,.2,1), opacity .45s;
-    }
+      transition: transform .45s cubic-bezier(.4,0,.2,1), opacity .45s; }
     #lock.hidden { transform: translateY(-102%); opacity: 0; pointer-events: none; }
     .lock-time { font-size: 74px; font-weight: 700; letter-spacing: -3px; color: var(--text); line-height: 1; }
     .lock-date { color: var(--text); opacity: .8; font-size: 15px; margin-top: 4px; }
@@ -164,15 +111,10 @@
     @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
     .unlock-grip { width: 120px; height: 5px; border-radius: 5px; background: var(--text); opacity: .6; margin: 14px auto 0; }
 
-    /* ============================================================
-       HOME  (improvement: widgets, pages, dock, search)
-       ============================================================ */
     .home-top { padding-top: 6px; }
-    .search-bar {
-      display: flex; align-items: center; gap: 8px;
+    .search-bar { display: flex; align-items: center; gap: 8px;
       background: var(--card); border: 1px solid var(--card-border);
-      border-radius: 12px; padding: 9px 12px; margin: 6px 0 14px;
-    }
+      border-radius: 12px; padding: 9px 12px; margin: 6px 0 14px; }
     .search-bar input { flex: 1; background: none; border: none; outline: none; color: var(--text); font: inherit; font-size: 14px; }
     .search-bar svg { width: 16px; height: 16px; fill: var(--muted); }
 
@@ -202,6 +144,13 @@
     .ic.photos{background:linear-gradient(160deg,#a855f7,#7e22ce)} .ic.calendar{background:linear-gradient(160deg,#ef4444,#b91c1c)}
     .ic.games{background:linear-gradient(160deg,#8b5cf6,#6d28d9)} .ic.convert{background:linear-gradient(160deg,#14b8a6,#0f766e)}
     .ic.browser{background:linear-gradient(160deg,#3b82f6,#1d4ed8)} .ic.dice{background:linear-gradient(160deg,#e11d48,#9f1239)}
+    .ic.health{background:linear-gradient(160deg,#f43f5e,#be123c)} .ic.wallet{background:linear-gradient(160deg,#059669,#065f46)}
+    .ic.maps{background:linear-gradient(160deg,#16a34a,#15803d)} .ic.contacts{background:linear-gradient(160deg,#0891b2,#155e75)}
+    .ic.mail{background:linear-gradient(160deg,#0284c7,#075985)} .ic.files{background:linear-gradient(160deg,#eab308,#a16207)}
+    .ic.voice{background:linear-gradient(160deg,#dc2626,#991b1b)} .ic.calc2{background:linear-gradient(160deg,#8b5cf6,#5b21b6)}
+    .ic.home{background:linear-gradient(160deg,#0ea5e9,#0369a1)} .ic.sys{background:linear-gradient(160deg,#64748b,#0f172a)}
+    .ic.password{background:linear-gradient(160deg,#14b8a6,#134e4a)} .ic.timer{background:linear-gradient(160deg,#f59e0b,#d97706)}
+    .ic.qr{background:linear-gradient(160deg,#1e293b,#000000)} .ic.flashlight{background:linear-gradient(160deg,#facc15,#92400e)}
 
     .page-dots { display: flex; gap: 6px; justify-content: center; margin: 16px 0 8px; }
     .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); opacity: .4; cursor: pointer; }
@@ -209,9 +158,6 @@
 
     .dock { margin-top: auto; display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; background: var(--card); border: 1px solid var(--card-border); border-radius: 24px; padding: 12px 8px; }
 
-    /* ============================================================
-       APP HEADER
-       ============================================================ */
     .app-header { display: flex; align-items: center; gap: 10px; padding: 6px 0 14px; }
     .app-header h2 { font-size: 20px; }
     .app-header .spacer { margin-left: auto; }
@@ -221,9 +167,6 @@
     .chip:active { transform: scale(.94); }
     .chip.solid { background: var(--accent); border-color: transparent; color: #fff; }
 
-    /* ============================================================
-       CALCULATOR  (improvement: history, keyboard)
-       ============================================================ */
     .calc-hist { flex: 0 0 auto; max-height: 70px; overflow-y: auto; text-align: right; color: var(--muted); font-size: 13px; margin-bottom: 6px; }
     .calc-display { background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; padding: 16px 20px; text-align: right; font-size: 38px; font-weight: 600; margin-bottom: 12px; min-height: 78px; word-break: break-all; display: flex; align-items: flex-end; justify-content: flex-end; }
     .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 9px; }
@@ -232,9 +175,6 @@
     .calc-grid .op { background: var(--accent); color: #fff; } .calc-grid .op.sel { background: #fff; color: var(--accent); }
     .calc-grid .fn { background: #374151; color: #fbbf24; } .calc-grid .eq { background: var(--accent-2); color: #04222b; }
 
-    /* ============================================================
-       NOTES  (improvement: multiple notes)
-       ============================================================ */
     .note-list { display: flex; flex-direction: column; gap: 8px; }
     .note-item { display: flex; align-items: center; gap: 8px; background: var(--card); border: 1px solid var(--card-border); border-radius: 14px; padding: 12px 14px; cursor: pointer; }
     .note-item .nt { flex: 1; overflow: hidden; }
@@ -242,11 +182,8 @@
     .note-del { background: none; border: none; color: #ef4444; font-size: 18px; cursor: pointer; }
     #noteEditor { flex: 1; background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; padding: 16px; color: var(--text); font-size: 15px; resize: none; outline: none; line-height: 1.5; }
 
-    /* ============================================================
-       CLOCK app  (improvement: stopwatch/timer/alarm tabs)
-       ============================================================ */
-    .tabs { display: flex; gap: 6px; margin-bottom: 14px; }
-    .tab { flex: 1; text-align: center; padding: 8px; border-radius: 10px; background: var(--card); border: 1px solid var(--card-border); color: var(--muted); font-size: 13px; cursor: pointer; }
+    .tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+    .tab { flex: 1; text-align: center; padding: 8px; border-radius: 10px; background: var(--card); border: 1px solid var(--card-border); color: var(--muted); font-size: 12px; cursor: pointer; min-width: 70px; }
     .tab.on { background: var(--accent); color: #fff; border-color: transparent; }
     .tabpane { display: none; flex: 1; flex-direction: column; align-items: center; justify-content: center; gap: 18px; }
     .tabpane.on { display: flex; }
@@ -259,9 +196,6 @@
     .timer-inputs { display: flex; align-items: center; gap: 4px; font-size: 30px; }
     .timer-inputs input { width: 60px; background: var(--card); border: 1px solid var(--card-border); color: var(--text); border-radius: 10px; text-align: center; font: inherit; padding: 6px 0; }
 
-    /* ============================================================
-       WEATHER  (improvement: hourly strip)
-       ============================================================ */
     .weather-view { align-items: center; }
     .w-city { font-size: 20px; color: var(--muted); }
     .w-temp { font-size: 68px; font-weight: 700; margin-top: 12px; }
@@ -272,9 +206,6 @@
     .w-days { width: 100%; display: flex; flex-direction: column; gap: 8px; }
     .w-row { display: flex; justify-content: space-between; align-items: center; background: var(--card); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px 16px; font-size: 14px; }
 
-    /* ============================================================
-       MUSIC  (improvement: real player)
-       ============================================================ */
     .music-view { align-items: center; }
     .album { width: 190px; height: 190px; border-radius: 24px; margin: 10px 0 18px; box-shadow: 0 20px 40px rgba(0,0,0,.5); background: linear-gradient(160deg,#ec4899,#6366f1); display: flex; align-items: center; justify-content: center; }
     .album svg { width: 70px; height: 70px; fill: rgba(255,255,255,.85); }
@@ -290,13 +221,10 @@
     .m-play { width: 66px; height: 66px; border-radius: 50%; background: var(--accent) !important; display: flex; align-items: center; justify-content: center; }
     .m-play svg { fill: #fff; }
 
-    /* ============================================================
-       CAMERA  (improvement: filters + shutter)
-       ============================================================ */
     .cam-view { padding: 0; }
     .viewfinder { flex: 1; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
     #camScene { position: absolute; inset: 0; background: linear-gradient(160deg,#1e293b,#0f172a); display: flex; align-items: center; justify-content: center; font-size: 60px; }
-    .cam-top { position: absolute; top: 0; left: 0; right: 0; z-index: 5; padding: 46px 18px 10px; display: flex; gap: 8px; justify-content: center; }
+    .cam-top { position: absolute; top: 0; left: 0; right: 0; z-index: 5; padding: 46px 18px 10px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
     .cam-bottom { position: absolute; bottom: 0; left: 0; right: 0; z-index: 5; padding: 16px; display: flex; align-items: center; justify-content: center; }
     .shutter { width: 66px; height: 66px; border-radius: 50%; background: #fff; border: 4px solid rgba(255,255,255,.4); cursor: pointer; }
     .shutter:active { transform: scale(.9); }
@@ -304,9 +232,6 @@
     .flash.go { animation: flash .4s ease; }
     @keyframes flash { 0% { opacity: .9; } 100% { opacity: 0; } }
 
-    /* ============================================================
-       MESSAGES  (improvement: chat bot)
-       ============================================================ */
     .chat { flex: 1; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; padding-bottom: 8px; }
     .bubble { max-width: 78%; padding: 9px 13px; border-radius: 18px; font-size: 14px; line-height: 1.35; }
     .bubble.me { align-self: flex-end; background: var(--accent); color: #fff; border-bottom-right-radius: 4px; }
@@ -315,15 +240,9 @@
     .chat-input input { flex: 1; background: var(--card); border: 1px solid var(--card-border); border-radius: 20px; padding: 10px 14px; color: var(--text); outline: none; font: inherit; }
     .send-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: var(--accent); color: #fff; cursor: pointer; font-size: 18px; }
 
-    /* ============================================================
-       PHOTOS  (improvement: gallery grid)
-       ============================================================ */
     .photo-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 4px; }
-    .photo { aspect-ratio: 1; border-radius: 8px; }
+    .photo { aspect-ratio: 1; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 28px; }
 
-    /* ============================================================
-       CALENDAR
-       ============================================================ */
     .cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
     .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; text-align: center; }
     .cal-grid .dow { font-size: 11px; color: var(--muted); padding: 4px 0; }
@@ -331,9 +250,6 @@
     .cal-cell.today { background: var(--accent); color: #fff; font-weight: 700; }
     .cal-cell.muted { color: var(--muted); opacity: .4; }
 
-    /* ============================================================
-       TODO  (improvement: reminders, persisted)
-       ============================================================ */
     .todo-add { display: flex; gap: 8px; margin-bottom: 14px; }
     .todo-add input { flex: 1; background: var(--card); border: 1px solid var(--card-border); border-radius: 12px; padding: 10px 12px; color: var(--text); outline: none; font: inherit; }
     .todo-list { display: flex; flex-direction: column; gap: 8px; }
@@ -344,9 +260,6 @@
     .todo-item .txt { flex: 1; font-size: 14px; }
     .todo-item .del { background: none; border: none; color: #ef4444; cursor: pointer; font-size: 16px; }
 
-    /* ============================================================
-       GAMES  (improvement: tic-tac-toe, dice, coin)
-       ============================================================ */
     .game-tabs { margin-bottom: 14px; }
     .ttt { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; width: 240px; margin: 0 auto; }
     .ttt-cell { aspect-ratio: 1; background: var(--card); border: 1px solid var(--card-border); border-radius: 14px; font-size: 42px; font-weight: 700; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text); }
@@ -355,25 +268,18 @@
     .dice-face { font-size: 90px; text-align: center; margin: 20px 0; }
     .coin { width: 130px; height: 130px; border-radius: 50%; margin: 20px auto; background: linear-gradient(160deg,#fbbf24,#b45309); display: flex; align-items: center; justify-content: center; font-size: 44px; font-weight: 800; color: #78350f; box-shadow: 0 12px 30px rgba(0,0,0,.4); }
     .coin.flip { animation: coinflip .6s ease; } @keyframes coinflip { 50% { transform: rotateY(900deg) scale(1.1); } }
+    .snake-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .snake-canvas { background: #0a0a14; border-radius: 12px; border: 1px solid var(--card-border); touch-action: none; }
 
-    /* ============================================================
-       CONVERTER  (improvement: unit / currency / tip)
-       ============================================================ */
     .conv-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
     .conv-field label { font-size: 12px; color: var(--muted); }
     .conv-field input, .conv-field select { background: var(--card); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; color: var(--text); font: inherit; font-size: 16px; outline: none; }
     .conv-result { text-align: center; font-size: 30px; font-weight: 700; margin: 10px 0; }
 
-    /* ============================================================
-       BROWSER
-       ============================================================ */
     .browser-bar { display: flex; gap: 8px; margin-bottom: 12px; }
     .browser-bar input { flex: 1; background: var(--card); border: 1px solid var(--card-border); border-radius: 20px; padding: 9px 14px; color: var(--text); outline: none; font: inherit; font-size: 13px; }
     .browser-page { flex: 1; background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--muted); }
 
-    /* ============================================================
-       SETTINGS  (improvement: real toggles + themes)
-       ============================================================ */
     .set-group { background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; overflow: hidden; margin-bottom: 16px; }
     .set-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid var(--card-border); font-size: 14px; }
     .set-row:last-child { border-bottom: none; }
@@ -386,10 +292,7 @@
     .swatch.on { border-color: var(--text); }
     .slider { width: 130px; }
 
-    /* ============================================================
-       CONTROL CENTER  (improvement: swipe-down panel)
-       ============================================================ */
-    #control { position: absolute; inset: 0; z-index: 55; background: rgba(10,12,22,.6); backdrop-filter: blur(20px); padding: 60px 18px 30px; display: none; flex-direction: column; gap: 12px; }
+    #control { position: absolute; inset: 0; z-index: 55; background: rgba(10,12,22,.6); backdrop-filter: blur(20px); padding: 60px 18px 30px; display: none; flex-direction: column; gap: 12px; overflow-y: auto; }
     #control.on { display: flex; animation: fade .25s ease; }
     .cc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .cc-tile { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.15); border-radius: 18px; padding: 14px; display: flex; align-items: center; gap: 10px; cursor: pointer; color: #fff; font-size: 13px; }
@@ -400,26 +303,24 @@
     .cc-slider input { width: 100%; margin-top: 10px; }
     .cc-close { text-align: center; color: #fff; font-size: 13px; opacity: .8; margin-top: auto; cursor: pointer; }
 
-    /* ============================================================
-       APP SWITCHER hint / toast / screenshot flash
-       ============================================================ */
-    .toast { position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(0,0,0,.85); color: #fff; padding: 10px 18px; border-radius: 20px; font-size: 13px; z-index: 90; opacity: 0; transition: all .3s; pointer-events: none; white-space: nowrap; }
+    .toast { position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(0,0,0,.85); color: #fff; padding: 10px 18px; border-radius: 20px; font-size: 13px; z-index: 90; opacity: 0; transition: all .3s; pointer-events: none; white-space: nowrap; max-width: 80%; overflow: hidden; text-overflow: ellipsis; }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     #shot { position: absolute; inset: 0; background: #fff; z-index: 95; opacity: 0; pointer-events: none; }
     #shot.go { animation: flash .35s ease; }
 
-    /* placeholder */
-    .placeholder { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: var(--muted); text-align: center; }
-    .placeholder svg { width: 60px; height: 60px; fill: var(--accent); opacity: .7; }
-
     .home-bar { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 120px; height: 5px; border-radius: 5px; background: var(--text); opacity: .35; cursor: pointer; z-index: 45; }
 
-    /* side info panel */
-    .legend { max-width: 300px; color: #cbd5e1; font-size: 13px; line-height: 1.6; }
+    .legend { max-width: 320px; color: #cbd5e1; font-size: 13px; line-height: 1.6; }
     .legend h1 { font-size: 20px; color: #fff; margin-bottom: 10px; }
     .legend b { color: #a5b4fc; }
     .legend ul { margin: 8px 0 0 16px; }
     @media (max-width: 760px) { .legend { display: none; } }
+
+    .health-rings { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+    .ring { aspect-ratio: 1; border-radius: 50%; background: conic-gradient(var(--accent) var(--p), rgba(255,255,255,.08) 0); display: flex; align-items: center; justify-content: center; position: relative; }
+    .ring::after { content:""; position: absolute; inset: 8px; border-radius: 50%; background: var(--bg); }
+    .ring span { position: relative; z-index: 1; font-size: 13px; font-weight: 700; }
+    .ring small { position: relative; z-index: 1; font-size: 9px; color: var(--muted); display: block; text-align: center; }
   </style>
 </head>
 <body>
@@ -431,14 +332,12 @@
       <span class="btn-power"></span>
 
       <div class="screen" id="screen" data-theme="default">
-        <!-- Dynamic Island -->
         <div class="notch" id="notch" onclick="collapseIsland()">
           <span class="speaker"></span>
           <span class="cam"></span>
           <span class="island-info" id="islandInfo"></span>
         </div>
 
-        <!-- Status bar -->
         <div class="statusbar" id="statusbar">
           <span id="sbTime">9:41</span>
           <div class="icons">
@@ -451,7 +350,7 @@
           </div>
         </div>
 
-        <!-- ===================== HOME ===================== -->
+        <!-- HOME -->
         <section class="view active" id="home">
           <div class="home-top">
             <div class="search-bar">
@@ -470,21 +369,18 @@
               </div>
             </div>
           </div>
-
-          <!-- page 1 -->
           <div class="grid page on" id="page0"></div>
-          <!-- page 2 -->
           <div class="grid page" id="page1"></div>
-
+          <div class="grid page" id="page2"></div>
           <div class="page-dots">
             <span class="dot on" onclick="setPage(0)"></span>
             <span class="dot" onclick="setPage(1)"></span>
+            <span class="dot" onclick="setPage(2)"></span>
           </div>
-
           <div class="dock" id="dock"></div>
         </section>
 
-        <!-- ===================== CALCULATOR ===================== -->
+        <!-- CALC -->
         <section class="view" id="calc">
           <div class="app-header"><button class="back" onclick="goHome()">&#8249;</button><h2>Calculadora</h2></div>
           <div class="calc-hist" id="calcHist"></div>
@@ -506,7 +402,7 @@
           </div>
         </section>
 
-        <!-- ===================== NOTES ===================== -->
+        <!-- NOTES -->
         <section class="view" id="notes">
           <div class="app-header"><button class="back" onclick="goHome()">&#8249;</button><h2>Notas</h2>
             <span class="spacer"></span><button class="chip solid" onclick="newNote()">+ Nueva</button></div>
@@ -518,7 +414,7 @@
           <div style="font-size:12px;color:var(--muted);margin-top:10px;text-align:center">Se guarda automáticamente</div>
         </section>
 
-        <!-- ===================== TORCH ===================== -->
+        <!-- TORCH -->
         <section class="view" id="torch" style="align-items:center">
           <div class="app-header" style="width:100%"><button class="back" onclick="goHome()">&#8249;</button><h2>Linterna</h2></div>
           <button class="rbtn" id="torchBtn" onclick="toggleTorch()" style="width:150px;height:150px;margin-top:30px;flex-direction:column;gap:8px;display:flex">
@@ -527,7 +423,7 @@
           </button>
         </section>
 
-        <!-- ===================== WEATHER ===================== -->
+        <!-- WEATHER -->
         <section class="view weather-view" id="weather">
           <div class="app-header" style="width:100%"><button class="back" onclick="goHome()">&#8249;</button><h2>Clima</h2></div>
           <div class="w-city">Ciudad de David</div>
@@ -543,7 +439,7 @@
           </div>
         </section>
 
-        <!-- ===================== CLOCK ===================== -->
+        <!-- CLOCK -->
         <section class="view" id="clock">
           <div class="app-header"><button class="back" onclick="goHome()">&#8249;</button><h2>Reloj</h2></div>
           <div class="tabs">
@@ -576,11 +472,13 @@
               <div class="w-row"><span>Madrid</span><span id="wc2">--:--</span></div>
               <div class="w-row"><span>Tokio</span><span id="wc3">--:--</span></div>
               <div class="w-row"><span>Nueva York</span><span id="wc4">--:--</span></div>
+              <div class="w-row"><span>Londres</span><span id="wc5">--:--</span></div>
+              <div class="w-row"><span>Sídney</span><span id="wc6">--:--</span></div>
             </div>
           </div>
         </section>
 
-        <!-- ===================== MUSIC ===================== -->
+        <!-- MUSIC -->
         <section class="view music-view" id="music">
           <div class="app-header" style="width:100%"><button class="back" onclick="goHome()">&#8249;</button><h2>Música</h2></div>
           <div class="album" id="albumArt"><svg viewBox="0 0 24 24"><path d="M9 3h10v3H12v11a4 4 0 1 1-2-3.46V3z"/></svg></div>
@@ -595,7 +493,7 @@
           </div>
         </section>
 
-        <!-- ===================== CAMERA ===================== -->
+        <!-- CAMERA -->
         <section class="view cam-view" id="camera">
           <div class="viewfinder">
             <div id="camScene">&#127749;</div>
@@ -604,16 +502,16 @@
               <button class="chip" onclick="camFilter('grayscale(1)',this)">B/N</button>
               <button class="chip" onclick="camFilter('sepia(1)',this)">Sepia</button>
               <button class="chip" onclick="camFilter('hue-rotate(90deg) saturate(2)',this)">Vivo</button>
+              <button class="chip" onclick="camFilter('invert(1)',this)">Negativo</button>
+              <button class="chip" onclick="camFilter('blur(3px)',this)">Desenfoque</button>
             </div>
-            <div class="cam-bottom">
-              <button class="shutter" onclick="takePhoto()"></button>
-            </div>
+            <div class="cam-bottom"><button class="shutter" onclick="takePhoto()"></button></div>
             <div class="flash" id="camFlash"></div>
           </div>
           <div class="app-header" style="position:absolute;top:0;z-index:6"><button class="back" onclick="goHome()">&#8249;</button></div>
         </section>
 
-        <!-- ===================== MESSAGES ===================== -->
+        <!-- MESSAGES -->
         <section class="view" id="msg">
           <div class="app-header"><button class="back" onclick="goHome()">&#8249;</button><h2>davidBot</h2></div>
           <div class="chat" id="chat"></div>
@@ -623,13 +521,13 @@
           </div>
         </section>
 
-        <!-- ===================== PHOTOS ===================== -->
+        <!-- PHOTOS -->
         <section class="view" id="photos">
           <div class="app-header"><button class="back" onclick="goHome()">&#8249;</button><h2>Fotos</h2></div>
           <div class="photo-grid" id="photoGrid"></div>
         </section>
 
-        <!-- ===================== CALENDAR ===================== -->
+        <!-- CALENDAR -->
         <section class="view" id="calendar">
           <div class="app-header"><button class="back" onclick="goHome()">&#8249;</button><h2>Calendario</h2></div>
           <div class="cal-head">
@@ -640,7 +538,7 @@
           <div class="cal-grid" id="calGrid"></div>
         </section>
 
-        <!-- ===================== TODO ===================== -->
+        <!-- TODO -->
         <section class="view" id="todo">
           <div class="app-header"><button class="back" onclick="goHome()">&#8249;</button><h2>Tareas</h2></div>
           <div class="todo-add">
@@ -650,13 +548,14 @@
           <div class="todo-list" id="todoList"></div>
         </section>
 
-        <!-- ===================== GAMES ===================== -->
+        <!-- GAMES -->
         <section class="view" id="games">
           <div class="app-header"><button class="back" onclick="goHome()">&#8249;</button><h2>Juegos</h2></div>
           <div class="tabs game-tabs">
             <div class="tab on" onclick="gameTab('ttt',this)">3 en raya</div>
             <div class="tab" onclick="gameTab('dice',this)">Dados</div>
             <div class="tab" onclick="gameTab('coin',this)">Moneda</div>
+            <div class="tab" onclick="gameTab('snake',this)">Snake</div>
           </div>
           <div class="tabpane on" id="game-ttt">
             <div class="game-status" id="tttStatus">Turno: X</div>
@@ -671,9 +570,16 @@
             <div class="coin" id="coinFace">?</div>
             <button class="chip solid" onclick="flipCoin()">Lanzar moneda</button>
           </div>
+          <div class="tabpane" id="game-snake">
+            <div class="snake-wrap">
+              <canvas class="snake-canvas" id="snakeCanvas" width="240" height="240"></canvas>
+              <div style="font-size:13px;color:var(--muted);">Puntos: <b id="snakeScore" style="color:var(--text);">0</b></div>
+              <button class="chip solid" onclick="snakeNew()">Nuevo juego</button>
+            </div>
+          </div>
         </section>
 
-        <!-- ===================== CONVERTER ===================== -->
+        <!-- CONVERTER -->
         <section class="view" id="convert">
           <div class="app-header"><button class="back" onclick="goHome()">&#8249;</button><h2>Conversor</h2></div>
           <div class="tabs">
@@ -709,7 +615,7 @@
           </div>
         </section>
 
-        <!-- ===================== BROWSER ===================== -->
+        <!-- BROWSER -->
         <section class="view" id="browser">
           <div class="app-header"><button class="back" onclick="goHome()">&#8249;</button><h2>Navegador</h2></div>
           <div class="browser-bar">
@@ -723,7 +629,93 @@
           </div>
         </section>
 
-        <!-- ===================== SETTINGS ===================== -->
+        <!-- HEALTH -->
+        <section class="view" id="health">
+          <div class="app-header"><button class="back" onclick="goHome()">&#8249;</button><h2>Salud</h2></div>
+          <div class="health-rings">
+            <div class="ring" style="--p:70%"><div><span>7.2k</span><small>Pasos</small></div></div>
+            <div class="ring" style="--p:55%"><div><span>420</span><small>kcal</small></div></div>
+            <div class="ring" style="--p:80%"><div><span>6.5h</span><small>Sueño</small></div></div>
+          </div>
+          <div class="set-group" style="margin-top:16px;">
+            <div class="set-row"><span>&#127939; Pasos hoy</span><span style="color:var(--muted)">7,234</span></div>
+            <div class="set-row"><span>&#128293; Calorías</span><span style="color:var(--muted)">420 kcal</span></div>
+            <div class="set-row"><span>&#128147; Frecuencia cardíaca</span><span style="color:var(--muted)">72 bpm</span></div>
+            <div class="set-row"><span>&#128564; Sueño</span><span style="color:var(--muted)">6h 30m</span></div>
+          </div>
+        </section>
+
+        <!-- WALLET -->
+        <section class="view" id="wallet">
+          <div class="app-header"><button class="back" onclick="goHome()">&#8249;</button><h2>Cartera</h2></div>
+          <div style="background:linear-gradient(160deg,#059669,#065f46);border-radius:20px;padding:20px;color:#fff;box-shadow:0 20px 40px rgba(0,0,0,.4);">
+            <div style="font-size:12px;opacity:.8;">Tarjeta principal</div>
+            <div style="font-size:22px;font-weight:700;margin:14px 0 8px;">•••• •••• •••• 4829</div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;opacity:.9;"><span>DAVID CODE</span><span>12/28</span></div>
+          </div>
+          <div class="set-group" style="margin-top:16px;">
+            <div class="set-row"><span>Saldo disponible</span><span style="color:#22c55e">$1,250.40</span></div>
+            <div class="set-row"><span>Último pago</span><span style="color:var(--muted)">-$45.00</span></div>
+            <div class="set-row"><span>Puntos</span><span style="color:var(--muted)">3,420 pts</span></div>
+          </div>
+        </section>
+
+        <!-- MAPS -->
+        <section class="view" id="maps">
+          <div class="app-header"><button class="back" onclick="goHome()">&#8249;</button><h2>Mapas</h2></div>
+          <div style="flex:1;background:
+            radial-gradient(80px 80px at 30% 40%, #16a34a 20%, transparent 22%),
+            radial-gradient(60px 60px at 70% 60%, #0891b2 20%, transparent 22%),
+            linear-gradient(160deg, #1e293b, #0f172a);
+            border-radius:16px;position:relative;min-height:300px;">
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:32px;">📍</div>
+            <div style="position:absolute;bottom:10px;left:10px;background:rgba(0,0,0,.6);color:#fff;padding:8px 12px;border-radius:8px;font-size:12px;">Ciudad de David</div>
+          </div>
+        </section>
+
+        <!-- FILES -->
+        <section class="view" id="files">
+          <div class="app-header"><button class="back" onclick="goHome()">&#8249;</button><h2>Archivos</h2></div>
+          <div id="filesList" style="display:flex;flex-direction:column;gap:8px;">
+            <div class="set-row" style="background:var(--card);border-radius:12px;border:1px solid var(--card-border);">&#128196; documento.txt <span style="color:var(--muted);font-size:12px;">2 KB</span></div>
+            <div class="set-row" style="background:var(--card);border-radius:12px;border:1px solid var(--card-border);">&#128247; foto.jpg <span style="color:var(--muted);font-size:12px;">1.2 MB</span></div>
+            <div class="set-row" style="background:var(--card);border-radius:12px;border:1px solid var(--card-border);">&#127925; cancion.mp3 <span style="color:var(--muted);font-size:12px;">4.5 MB</span></div>
+            <div class="set-row" style="background:var(--card);border-radius:12px;border:1px solid var(--card-border);">&#128230; backup.zip <span style="color:var(--muted);font-size:12px;">45 MB</span></div>
+          </div>
+        </section>
+
+        <!-- CONTACTS -->
+        <section class="view" id="contacts">
+          <div class="app-header"><button class="back" onclick="goHome()">&#8249;</button><h2>Contactos</h2></div>
+          <div class="todo-list" id="contactsList"></div>
+        </section>
+
+        <!-- PASSWORD GEN -->
+        <section class="view" id="password">
+          <div class="app-header"><button class="back" onclick="goHome()">&#8249;</button><h2>Contraseñas</h2></div>
+          <div class="conv-field"><label>Longitud</label><input id="pwLen" type="number" value="16" min="6" max="64" oninput="genPassword()"></div>
+          <div class="set-group">
+            <div class="set-row"><span>Mayúsculas</span><div class="switch on" id="pwUp" onclick="toggleSwitch(this);genPassword()"></div></div>
+            <div class="set-row"><span>Números</span><div class="switch on" id="pwNum" onclick="toggleSwitch(this);genPassword()"></div></div>
+            <div class="set-row"><span>Símbolos</span><div class="switch on" id="pwSym" onclick="toggleSwitch(this);genPassword()"></div></div>
+          </div>
+          <div class="conv-result" id="pwOut" style="font-size:16px;word-break:break-all;">------</div>
+          <button class="chip solid" onclick="genPassword()">Generar</button>
+          <button class="chip" onclick="navigator.clipboard?.writeText(document.getElementById('pwOut').textContent);toast('Copiado')">Copiar</button>
+        </section>
+
+        <!-- TIMER -->
+        <section class="view" id="timer">
+          <div class="app-header"><button class="back" onclick="goHome()">&#8249;</button><h2>Temporizador</h2></div>
+          <div class="conv-field"><label>Minutos</label><input id="extraMin" type="number" value="10" min="1" max="120"></div>
+          <div class="big-time" id="extraTime" style="text-align:center;">10:00</div>
+          <div class="row-btns" style="justify-content:center;">
+            <button class="rbtn go" id="extraToggle" onclick="extraToggle()">Iniciar</button>
+            <button class="rbtn" onclick="extraReset()">Reset</button>
+          </div>
+        </section>
+
+        <!-- SETTINGS -->
         <section class="view" id="settings">
           <div class="app-header"><button class="back" onclick="goHome()">&#8249;</button><h2>Ajustes</h2></div>
           <div class="set-group">
@@ -731,6 +723,7 @@
             <div class="set-row"><span>Wi-Fi</span><div class="switch on" id="swWifi" onclick="toggleWifi(this)"></div></div>
             <div class="set-row"><span>No molestar</span><div class="switch" id="swDnd" onclick="toggleSwitch(this)"></div></div>
             <div class="set-row"><span>Vibración</span><div class="switch on" id="swHaptic" onclick="toggleSwitch(this)"></div></div>
+            <div class="set-row"><span>Bluetooth</span><div class="switch on" id="swBt" onclick="toggleSwitch(this)"></div></div>
           </div>
           <div class="set-group">
             <div class="set-row"><span>Brillo</span><input class="slider" type="range" min="30" max="100" value="100" oninput="setBrightness(this.value)"></div>
@@ -743,11 +736,12 @@
           <div class="set-group">
             <div class="set-row"><span>Modelo</span><span style="color:var(--muted)">davidPhone Pro</span></div>
             <div class="set-row"><span>Versión</span><span style="color:var(--muted)">2.0</span></div>
+            <div class="set-row"><span>Almacenamiento</span><span style="color:var(--muted)">48.2 / 128 GB</span></div>
             <div class="set-row" onclick="resetAll()" style="cursor:pointer"><span style="color:#ef4444">Restablecer todo</span></div>
           </div>
         </section>
 
-        <!-- ===================== CONTROL CENTER ===================== -->
+        <!-- CONTROL CENTER -->
         <div id="control">
           <div class="cc-grid">
             <div class="cc-tile" id="ccAirplane" onclick="ccAirplane(this)"><svg viewBox="0 0 24 24"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg>Avión</div>
@@ -757,18 +751,12 @@
             <div class="cc-tile" id="ccTorch" onclick="ccTorch(this)"><svg viewBox="0 0 24 24"><path d="M9 2h6l-1 5H10zM9.5 9h5l-.5 13h-4z"/></svg>Linterna</div>
             <div class="cc-tile" id="ccDark" onclick="ccDark(this)"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z"/></svg>Tema oscuro</div>
           </div>
-          <div class="cc-slider">
-            <label>&#9728; Brillo</label>
-            <input type="range" min="30" max="100" value="100" oninput="setBrightness(this.value)">
-          </div>
-          <div class="cc-slider">
-            <label>&#128266; Volumen</label>
-            <input type="range" min="0" max="100" value="70" id="volSlider">
-          </div>
+          <div class="cc-slider"><label>&#9728; Brillo</label><input type="range" min="30" max="100" value="100" oninput="setBrightness(this.value)"></div>
+          <div class="cc-slider"><label>&#128266; Volumen</label><input type="range" min="0" max="100" value="70" id="volSlider"></div>
           <div class="cc-close" onclick="closeControl()">Cerrar &#9650;</div>
         </div>
 
-        <!-- Lock screen -->
+        <!-- LOCK -->
         <div id="lock">
           <div class="lock-time" id="lockTime">9:41</div>
           <div class="lock-date" id="lockDate">Lunes, 13 de septiembre</div>
@@ -791,21 +779,18 @@
 
   <div class="legend">
     <h1>davidPhone 2.0</h1>
-    <p>Un smartphone completo en un solo archivo HTML. Prueba estas cosas:</p>
+    <p>Un smartphone completo en un solo archivo HTML. Mejoras nuevas:</p>
     <ul>
-      <li>Desliza (o toca) la <b>pantalla de bloqueo</b> hacia arriba</li>
-      <li>Abre el <b>Centro de control</b> tocando la barra de estado</li>
-      <li>Cambia el <b>tema/fondo</b> en Ajustes</li>
-      <li>La <b>batería</b> se descarga sola; enciende la linterna</li>
-      <li>Chatea con <b>davidBot</b>, juega, usa el cronómetro</li>
+      <li>3 páginas de apps + <b>Snake</b>, Salud, Cartera, Mapas, Contactos, Archivos</li>
+      <li>Generador de contraseñas, temporizador extra</li>
+      <li>Centro de control mejorado, cámara con más filtros</li>
+      <li>Batería que se descarga, linterna, bloqueo automático</li>
+      <li>Todo persiste en localStorage</li>
     </ul>
-    <p style="margin-top:12px;opacity:.7">Todo se guarda en tu navegador.</p>
   </div>
 
   <script>
-  /* =====================================================================
-     STATE + PERSISTENCE  (improvement: everything persists)
-     ===================================================================== */
+  /* ============ PERSISTENCIA ============ */
   const LS = {
     get: (k, d) => { try { const v = localStorage.getItem('dp_'+k); return v === null ? d : JSON.parse(v); } catch(e){ return d; } },
     set: (k, v) => { try { localStorage.setItem('dp_'+k, JSON.stringify(v)); } catch(e){} },
@@ -813,9 +798,7 @@
   };
   const screen_ = document.getElementById('screen');
 
-  /* =====================================================================
-     HELPERS: haptics, sound, toast
-     ===================================================================== */
+  /* ============ HELPERS ============ */
   let hapticOn = LS.get('haptic', true);
   function haptic(ms=15){ if(hapticOn && navigator.vibrate) navigator.vibrate(ms); }
   let audioCtx;
@@ -836,9 +819,7 @@
     clearTimeout(toastTimer); toastTimer = setTimeout(()=>t.classList.remove('show'), 1800);
   }
 
-  /* =====================================================================
-     APP REGISTRY  (improvement: data-driven home + search + dock)
-     ===================================================================== */
+  /* ============ APPS ============ */
   const APPS = [
     {id:'calc', name:'Calculadora', cls:'calc', svg:'<rect x="5" y="2" width="14" height="20" rx="3"/><rect x="7.5" y="4.5" width="9" height="4" rx="1" fill="#000" opacity=".35"/><circle cx="9" cy="12" r="1.2" fill="#000" opacity=".35"/><circle cx="12" cy="12" r="1.2" fill="#000" opacity=".35"/><circle cx="15" cy="12" r="1.2" fill="#000" opacity=".35"/><circle cx="9" cy="15.5" r="1.2" fill="#000" opacity=".35"/><circle cx="12" cy="15.5" r="1.2" fill="#000" opacity=".35"/><circle cx="15" cy="15.5" r="1.2" fill="#000" opacity=".35"/><circle cx="9" cy="19" r="1.2" fill="#000" opacity=".35"/><circle cx="12" cy="19" r="1.2" fill="#000" opacity=".35"/><circle cx="15" cy="19" r="1.2" fill="#000" opacity=".35"/>'},
     {id:'notes', name:'Notas', cls:'notes', svg:'<path d="M5 3.5h14a1.5 1.5 0 0 1 1.5 1.5v14a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 19V5A1.5 1.5 0 0 1 5 3.5z"/><rect x="7" y="7.5" width="10" height="1.8" rx=".9" fill="#000" opacity=".3"/><rect x="7" y="11.1" width="10" height="1.8" rx=".9" fill="#000" opacity=".3"/><rect x="7" y="14.7" width="6.5" height="1.8" rx=".9" fill="#000" opacity=".3"/>'},
@@ -855,6 +836,13 @@
     {id:'torch', name:'Linterna', cls:'torch', svg:'<path d="M8.5 3h7l-.6 4.2a1 1 0 0 1-.4.7l-.9.6v1a1 1 0 0 1-.3.7L12 12l-.8-.8a1 1 0 0 1-.3-.7v-1l-.9-.6a1 1 0 0 1-.4-.7z"/><path d="M10.2 12.5h3.6l-.5 8.5h-2.6z" opacity=".85"/>'},
     {id:'settings', name:'Ajustes', cls:'settings', svg:'<path d="M12 2.2l1.9.9.9-1.1a9.6 9.6 0 0 1 2.5 1.5l-.4 1.4 1.4.4a9.6 9.6 0 0 1 1.5 2.5l-1.1.9.9 1.9-.9 1.9 1.1.9a9.6 9.6 0 0 1-1.5 2.5l-1.4-.4-.4 1.4a9.6 9.6 0 0 1-2.5 1.5l-.9-1.1-1.9.9-1.9-.9-.9 1.1a9.6 9.6 0 0 1-2.5-1.5l.4-1.4-1.4-.4a9.6 9.6 0 0 1-1.5-2.5l1.1-.9L2.2 12l.9-1.9-1.1-.9A9.6 9.6 0 0 1 3.5 6.7l1.4.4.4-1.4a9.6 9.6 0 0 1 2.5-1.5l.9 1.1z"/><circle cx="12" cy="12" r="3.4" fill="#334155"/>'},
     {id:'msg', name:'Mensajes', cls:'msg', svg:'<path d="M4.5 4.5h15a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H9.5l-4.2 3.4a.6.6 0 0 1-1-.47V6.5a2 2 0 0 1 2-2z"/><circle cx="9" cy="10.5" r="1.2" fill="#000" opacity=".3"/><circle cx="12" cy="10.5" r="1.2" fill="#000" opacity=".3"/><circle cx="15" cy="10.5" r="1.2" fill="#000" opacity=".3"/>', badge:1},
+    {id:'health', name:'Salud', cls:'health', svg:'<path d="M12 21s-8-5-8-11.5A4.5 4.5 0 0 1 12 6a4.5 4.5 0 0 1 8 3.5C20 16 12 21 12 21z"/>'},
+    {id:'wallet', name:'Cartera', cls:'wallet', svg:'<rect x="3.5" y="6" width="17" height="13" rx="3"/><rect x="3.5" y="6" width="17" height="4" fill="#000" opacity=".3"/><circle cx="17" cy="13" r="1.4" fill="#fff" opacity=".6"/>'},
+    {id:'maps', name:'Mapas', cls:'maps', svg:'<path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7z"/><circle cx="12" cy="9" r="2.5" fill="#0f172a"/>'},
+    {id:'files', name:'Archivos', cls:'files', svg:'<path d="M3.5 6A1.5 1.5 0 0 1 5 4.5h4l2 2h8A1.5 1.5 0 0 1 20.5 8v10a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 18z"/>'},
+    {id:'contacts', name:'Contactos', cls:'contacts', svg:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0z"/>'},
+    {id:'password', name:'Contraseñas', cls:'password', svg:'<path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z"/><circle cx="12" cy="11" r="2" fill="#0f172a"/><rect x="11.2" y="12" width="1.6" height="4" fill="#0f172a"/>'},
+    {id:'timer', name:'Timer', cls:'timer', svg:'<circle cx="12" cy="13" r="8"/><path d="M12 8v5l3.5 2" fill="none" stroke="#0f172a" stroke-width="1.8" stroke-linecap="round"/><rect x="10" y="2" width="4" height="2" rx="1"/>'},
   ];
   const DOCK = ['msg','music','camera','settings'];
 
@@ -866,9 +854,11 @@
   function buildHome(){
     const dockIds = DOCK;
     const gridApps = APPS.filter(a => !dockIds.includes(a.id));
-    const half = Math.ceil(gridApps.length/2);
-    document.getElementById('page0').innerHTML = gridApps.slice(0, 8).map(appButton).join('');
-    document.getElementById('page1').innerHTML = gridApps.slice(8).map(appButton).join('');
+    const perPage = 8;
+    for (let p = 0; p < 3; p++) {
+      const slice = gridApps.slice(p*perPage, (p+1)*perPage);
+      document.getElementById('page'+p).innerHTML = slice.map(appButton).join('');
+    }
     document.getElementById('dock').innerHTML = dockIds.map(id => appButton(APPS.find(a=>a.id===id))).join('');
   }
   buildHome();
@@ -885,16 +875,17 @@
     });
   }
 
-  /* =====================================================================
-     NAVIGATION
-     ===================================================================== */
+  /* ============ NAV ============ */
   let current = 'home';
   function open_(id){
     document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
     document.getElementById(id).classList.add('active');
-    current = id; haptic(10);
+    current = id; haptic(10); beep(500,.04);
     if(id==='calendar') renderCalendar();
     if(id==='msg') scrollChat();
+    if(id==='password') genPassword();
+    if(id==='health') {} // static
+    if(id==='games') { tttRender(); snakeNew(); }
   }
   function goHome(){
     if(torchOn){ toggleTorch(); }
@@ -902,24 +893,18 @@
     document.getElementById('appSearch').value=''; filterApps('');
   }
 
-  /* =====================================================================
-     LOCK SCREEN  (improvement: swipe/tap to unlock)
-     ===================================================================== */
+  /* ============ LOCK ============ */
   const lock = document.getElementById('lock');
   let lockStartY = null;
   function unlock(){ lock.classList.add('hidden'); haptic(20); beep(660,.1); }
   function lockPhone(){ lock.classList.remove('hidden'); }
   lock.addEventListener('click', unlock);
   lock.addEventListener('touchstart', e=> lockStartY = e.touches[0].clientY, {passive:true});
-  lock.addEventListener('touchmove', e=>{
-    if(lockStartY!==null && lockStartY - e.touches[0].clientY > 40) unlock();
-  }, {passive:true});
+  lock.addEventListener('touchmove', e=>{ if(lockStartY!==null && lockStartY - e.touches[0].clientY > 40) unlock(); }, {passive:true});
   lock.addEventListener('mousedown', e=> lockStartY = e.clientY);
   window.addEventListener('mouseup', e=>{ if(lockStartY!==null && lockStartY - e.clientY > 40) unlock(); lockStartY=null; });
 
-  /* =====================================================================
-     CONTROL CENTER  (improvement: swipe-down from status bar)
-     ===================================================================== */
+  /* ============ CONTROL CENTER ============ */
   const control = document.getElementById('control');
   document.getElementById('statusbar').addEventListener('click', openControl);
   function openControl(){ control.classList.add('on'); haptic(10); }
@@ -930,9 +915,7 @@
   function ccTorch(el){ toggleTorch(); el.classList.toggle('on', torchOn); }
   function ccDark(el){ const dark=!screen_.getAttribute('data-theme').includes('light'); setTheme(dark?'light':'default'); el.classList.toggle('on'); }
 
-  /* =====================================================================
-     CLOCK (status bar + widgets + lock)  (improvement: live everywhere)
-     ===================================================================== */
+  /* ============ CLOCK ============ */
   function pad(n){ return n<10?'0'+n:n; }
   const DAYS=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
   const MONTHS=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
@@ -942,14 +925,12 @@
     setTxt('sbTime',t); setTxt('wgTime',t); setTxt('lockTime',t);
     setTxt('wgDate', DAYS[d.getDay()]+' '+d.getDate());
     setTxt('lockDate', dateStr);
-    // world clock
     updateWorldClock(d);
   }
   function setTxt(id,v){ const e=document.getElementById(id); if(e) e.textContent=v; }
   function updateWorldClock(d){
-    const zones={wc1:0,wc2:6,wc3:14,wc4:-1}; // rough offsets vs local demo
     const utc = d.getTime() + d.getTimezoneOffset()*60000;
-    const map = {wc1:-5, wc2:2, wc3:9, wc4:-4};
+    const map = {wc1:-5, wc2:2, wc3:9, wc4:-4, wc5:1, wc6:11};
     for(const id in map){
       const z=new Date(utc + map[id]*3600000);
       setTxt(id, z.getHours()+':'+pad(z.getMinutes()));
@@ -957,9 +938,7 @@
   }
   tick(); setInterval(tick,1000);
 
-  /* =====================================================================
-     BATTERY  (improvement: drains, low warning, charging)
-     ===================================================================== */
+  /* ============ BATTERY ============ */
   let battery = LS.get('battery', 100), charging=false;
   function renderBattery(){
     const f=document.getElementById('battFill');
@@ -975,19 +954,14 @@
     if(battery===20 && !charging) toast('Batería baja: 20%');
     LS.set('battery', battery); renderBattery();
   }, 4000);
-  // tap battery to toggle charging (fun)
   document.querySelector('.batt').addEventListener('click', e=>{ e.stopPropagation(); charging=!charging; toast(charging?'Cargando ⚡':'Desconectado'); renderBattery(); });
 
-  /* =====================================================================
-     DYNAMIC ISLAND  (improvement: shows now playing / timer)
-     ===================================================================== */
+  /* ============ DYNAMIC ISLAND ============ */
   const notch=document.getElementById('notch');
   function showIsland(txt){ document.getElementById('islandInfo').innerHTML=txt; notch.classList.add('expanded'); }
   function collapseIsland(){ notch.classList.remove('expanded'); }
 
-  /* =====================================================================
-     CALCULATOR  (improvement: history, keyboard, op highlight)
-     ===================================================================== */
+  /* ============ CALCULATOR ============ */
   let cur='0', prev=null, op=null, reset=false;
   const disp=document.getElementById('calcDisplay');
   function render(){ disp.textContent=cur; }
@@ -1017,9 +991,7 @@
     else if(e.key.toLowerCase()==='c')calcClear();
   });
 
-  /* =====================================================================
-     NOTES  (improvement: multiple notes)
-     ===================================================================== */
+  /* ============ NOTES ============ */
   let noteData = LS.get('notes', [{t:'Bienvenido', body:'¡Hola David! Esta es tu primera nota. Toca + para crear más.'}]);
   let editingNote = -1;
   function renderNotes(){
@@ -1031,7 +1003,7 @@
       return `<div class="note-item" onclick="editNote(${i})"><div class="nt"><b>${esc(title)}</b><small>${esc(sub)}</small></div><button class="note-del" onclick="event.stopPropagation();delNote(${i})">&#128465;</button></div>`;
     }).join('');
   }
-  function esc(s){ return s.replace(/[<>&]/g, c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c])); }
+  function esc(s){ return String(s).replace(/[<>&]/g, c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c])); }
   function newNote(){ noteData.unshift({body:''}); editNote(0); }
   function editNote(i){ editingNote=i; document.getElementById('noteEditor').value=noteData[i].body||''; open_('noteEdit'); setTimeout(()=>document.getElementById('noteEditor').focus(),100); }
   function delNote(i){ noteData.splice(i,1); LS.set('notes',noteData); renderNotes(); haptic(20); }
@@ -1039,24 +1011,19 @@
   function saveNoteBack(){ noteData=noteData.filter(n=>n.body.trim()!==''); LS.set('notes',noteData); renderNotes(); open_('notes'); }
   renderNotes();
 
-  /* =====================================================================
-     TORCH  (improvement: full-screen light + drains battery)
-     ===================================================================== */
+  /* ============ TORCH ============ */
   let torchOn=false;
   function toggleTorch(){
     torchOn=!torchOn;
-    document.body.style.transition='background .2s';
     if(torchOn){ screen_.dataset.prevTheme=screen_.getAttribute('data-theme'); screen_.style.setProperty('--wallpaper','#fef9c3'); }
     else { screen_.style.removeProperty('--wallpaper'); setTheme(currentTheme); }
     setTxt('torchLabel', torchOn?'Encendida':'Apagada');
     document.getElementById('torchBtn').style.color = torchOn ? '#78350f' : 'var(--muted)';
     document.getElementById('ccTorch').classList.toggle('on', torchOn);
-    haptic(15);
+    haptic(15); beep(torchOn?800:400,.08);
   }
 
-  /* =====================================================================
-     WEATHER  (improvement: hourly strip)
-     ===================================================================== */
+  /* ============ WEATHER ============ */
   (function(){
     const icons=['\u2600\ufe0f','\u26c5','\u2601\ufe0f','\ud83c\udf27\ufe0f'];
     let html=''; const now=new Date().getHours();
@@ -1065,9 +1032,7 @@
     document.getElementById('wHourly').innerHTML=html;
   })();
 
-  /* =====================================================================
-     STOPWATCH + TIMER  (improvement: clock app)
-     ===================================================================== */
+  /* ============ STOPWATCH / TIMER ============ */
   function clockTab(id,el){ document.querySelectorAll('#clock .tab').forEach(t=>t.classList.remove('on')); el.classList.add('on');
     document.querySelectorAll('#clock .tabpane').forEach(p=>p.classList.remove('on')); document.getElementById('tab-'+id).classList.add('on'); }
   let swTime=0, swInt=null;
@@ -1098,9 +1063,22 @@
     document.getElementById('tmToggle').textContent='Iniciar'; document.getElementById('tmToggle').className='rbtn go'; }
   function timerDone(){ toast('¡Tiempo!'); collapseIsland(); haptic(200); beep(880,.2); setTimeout(()=>beep(660,.2),250); tmReset(); }
 
-  /* =====================================================================
-     MUSIC  (improvement: working player w/ progress)
-     ===================================================================== */
+  /* Extra timer */
+  let extraLeft=600, extraInt=null;
+  function extraToggle(){
+    const b = document.getElementById('extraToggle');
+    if (extraInt) { clearInterval(extraInt); extraInt=null; b.textContent='Iniciar'; b.className='rbtn go'; return; }
+    if (extraLeft <= 0) extraLeft = (+document.getElementById('extraMin').value || 10) * 60;
+    b.textContent='Pausar'; b.className='rbtn stop';
+    extraInt = setInterval(()=>{
+      extraLeft--;
+      document.getElementById('extraTime').textContent = pad(Math.floor(extraLeft/60))+':'+pad(extraLeft%60);
+      if (extraLeft <= 0) { clearInterval(extraInt); extraInt=null; b.textContent='Iniciar'; b.className='rbtn go'; timerDone(); }
+    }, 1000);
+  }
+  function extraReset(){ clearInterval(extraInt); extraInt=null; extraLeft=0; document.getElementById('extraToggle').textContent='Iniciar'; document.getElementById('extraToggle').className='rbtn go'; document.getElementById('extraTime').textContent='10:00'; }
+
+  /* ============ MUSIC ============ */
   const tracks=[
     {t:'Luces de Neón', a:'David & The Coders', d:214, c:'linear-gradient(160deg,#ec4899,#6366f1)'},
     {t:'Modo Oscuro', a:'Nightshift', d:187, c:'linear-gradient(160deg,#0ea5e9,#1e3a8a)'},
@@ -1128,10 +1106,8 @@
   function seek(e){ const r=e.currentTarget.getBoundingClientRect(); pos=Math.round((e.clientX-r.left)/r.width*tracks[ti].d); updateProg(); }
   loadTrack();
 
-  /* =====================================================================
-     CAMERA  (improvement: filters + shutter flash + saves to Photos)
-     ===================================================================== */
-  const scenes=['\ud83c\udf05','\ud83c\udfd4\ufe0f','\ud83c\udf03','\ud83c\udf0a','\ud83c\udf3b','\ud83c\udf0c'];
+  /* ============ CAMERA ============ */
+  const scenes=['\ud83c\udf05','\ud83c\udfd4\ufe0f','\ud83c\udf03','\ud83c\udf0a','\ud83c\udf3b','\ud83c\udf0c','\ud83c\udfdd\ufe0f','\ud83c\udf18'];
   let sceneIdx=0;
   document.getElementById('camScene').addEventListener('click',()=>{ sceneIdx=(sceneIdx+1)%scenes.length; document.getElementById('camScene').textContent=scenes[sceneIdx]; });
   function camFilter(f,el){ document.getElementById('camScene').style.filter=f; document.querySelectorAll('.cam-top .chip').forEach(c=>c.classList.remove('solid')); el.classList.add('solid'); }
@@ -1147,13 +1123,11 @@
   }
   renderPhotos();
 
-  /* =====================================================================
-     MESSAGES  (improvement: chat bot with replies)
-     ===================================================================== */
+  /* ============ MESSAGES ============ */
   let chatData = LS.get('chat', [{who:'them', txt:'¡Hola David! Soy davidBot. ¿Cómo estás?'}]);
   function renderChat(){ document.getElementById('chat').innerHTML = chatData.map(m=>`<div class="bubble ${m.who}">${esc(m.txt)}</div>`).join(''); }
   function scrollChat(){ const c=document.getElementById('chat'); c.scrollTop=c.scrollHeight; }
-  function chatKey(e){ if(e.key==='Enter' && !e.nativeEvent?.isComposing) sendMsg(); }
+  function chatKey(e){ if(e.key==='Enter') sendMsg(); }
   function sendMsg(){
     const inp=document.getElementById('chatInput'); const txt=inp.value.trim(); if(!txt)return;
     chatData.push({who:'me',txt}); inp.value=''; renderChat(); scrollChat(); LS.set('chat',chatData); beep(500,.04);
@@ -1165,15 +1139,14 @@
     if(t.includes('hora')) return 'Son las '+new Date().getHours()+':'+pad(new Date().getMinutes())+' ⏰';
     if(t.includes('clima')||t.includes('tiempo')) return 'Hoy: 24° y parcialmente nublado ⛅';
     if(t.includes('bien')||t.includes('gracias')) return '¡Me alegra! 😄';
+    if(t.includes('david')) return '¡David es un crack! 💪';
     if(t.includes('?')) return 'Buena pregunta... soy solo un bot de demostración 🤖';
     const g=['Interesante 🤔','¡Cuéntame más!','😄👍','Anotado, David.','Jaja, buena esa.'];
     return g[Math.floor(Math.random()*g.length)];
   }
   renderChat();
 
-  /* =====================================================================
-     CALENDAR  (improvement: navigable month grid)
-     ===================================================================== */
+  /* ============ CALENDAR ============ */
   let calDate = new Date();
   function calMove(d){ calDate.setMonth(calDate.getMonth()+d); renderCalendar(); }
   function renderCalendar(){
@@ -1188,9 +1161,7 @@
     document.getElementById('calGrid').innerHTML=html;
   }
 
-  /* =====================================================================
-     TODO  (improvement: persisted checklist)
-     ===================================================================== */
+  /* ============ TODO ============ */
   let todos = LS.get('todos', [{t:'Probar davidPhone',done:true},{t:'Añadir una tarea',done:false}]);
   function renderTodos(){
     const l=document.getElementById('todoList');
@@ -1206,11 +1177,11 @@
   function saveTodos(){ LS.set('todos',todos); renderTodos(); }
   renderTodos();
 
-  /* =====================================================================
-     GAMES  (improvement: tic-tac-toe vs AI, dice, coin)
-     ===================================================================== */
+  /* ============ GAMES ============ */
   function gameTab(id,el){ document.querySelectorAll('#games .tab').forEach(t=>t.classList.remove('on')); el.classList.add('on');
-    document.querySelectorAll('#games .tabpane').forEach(p=>p.classList.remove('on')); document.getElementById('game-'+id).classList.add('on'); }
+    document.querySelectorAll('#games .tabpane').forEach(p=>p.classList.remove('on')); document.getElementById('game-'+id).classList.add('on');
+    if (id === 'snake') snakeNew();
+  }
   let ttt=Array(9).fill(''), tttOver=false;
   function tttRender(){ document.getElementById('tttBoard').innerHTML=ttt.map((c,i)=>`<div class="ttt-cell ${c.toLowerCase()}" onclick="tttPlay(${i})">${c}</div>`).join(''); }
   function tttPlay(i){
@@ -1231,9 +1202,59 @@
   function flipCoin(){ const c=document.getElementById('coinFace'); c.classList.remove('flip'); void c.offsetWidth; c.classList.add('flip'); haptic(20);
     setTimeout(()=>{ c.textContent=Math.random()<.5?'Cara':'Cruz'; beep(660,.1); },550); }
 
-  /* =====================================================================
-     CONVERTER  (improvement: length / currency / tip)
-     ===================================================================== */
+  // Snake
+  const sCanvas = document.getElementById('snakeCanvas');
+  const sCtx = sCanvas ? sCanvas.getContext('2d') : null;
+  let snake, sDir, sFood, sTimer, sAlive, sPts;
+  const sCell = 12, sCols = 20, sRows = 20;
+  function snakeNew(){
+    if (!sCtx) return;
+    snake = [{x:10,y:10},{x:9,y:10},{x:8,y:10}];
+    sDir = {x:1,y:0}; sPts = 0; sAlive = true;
+    document.getElementById('snakeScore').textContent = '0';
+    sPlaceFood(); drawSnake();
+    clearInterval(sTimer);
+    sTimer = setInterval(snakeStep, 130);
+  }
+  function sPlaceFood(){
+    do { sFood = {x: Math.floor(Math.random()*sCols), y: Math.floor(Math.random()*sRows)}; }
+    while (snake.some(s => s.x === sFood.x && s.y === sFood.y));
+  }
+  function drawSnake(){
+    if (!sCtx) return;
+    sCtx.fillStyle = '#0a0a14';
+    sCtx.fillRect(0, 0, sCanvas.width, sCanvas.height);
+    sCtx.fillStyle = '#ef4444';
+    sCtx.beginPath(); sCtx.arc(sFood.x*sCell+sCell/2, sFood.y*sCell+sCell/2, sCell/2-1, 0, Math.PI*2); sCtx.fill();
+    snake.forEach((s, i) => {
+      sCtx.fillStyle = i === 0 ? '#4ade80' : '#22c55e';
+      sCtx.fillRect(s.x*sCell+1, s.y*sCell+1, sCell-2, sCell-2);
+    });
+  }
+  function snakeStep(){
+    if (!sAlive) return;
+    const head = {x: snake[0].x + sDir.x, y: snake[0].y + sDir.y};
+    if (head.x < 0 || head.x >= sCols || head.y < 0 || head.y >= sRows || snake.some(s => s.x === head.x && s.y === head.y)) {
+      sAlive = false; clearInterval(sTimer);
+      toast('💀 Game Over · ' + sPts + ' pts');
+      return;
+    }
+    snake.unshift(head);
+    if (head.x === sFood.x && head.y === sFood.y) { sPts += 10; document.getElementById('snakeScore').textContent = sPts; sPlaceFood(); beep(700,.04); }
+    else snake.pop();
+    drawSnake();
+  }
+  document.addEventListener('keydown', e => {
+    if (current !== 'games') return;
+    if (!sAlive) return;
+    const k = e.key;
+    if (k === 'ArrowUp' && sDir.y === 0) { sDir = {x:0,y:-1}; e.preventDefault(); }
+    else if (k === 'ArrowDown' && sDir.y === 0) { sDir = {x:0,y:1}; e.preventDefault(); }
+    else if (k === 'ArrowLeft' && sDir.x === 0) { sDir = {x:-1,y:0}; e.preventDefault(); }
+    else if (k === 'ArrowRight' && sDir.x === 0) { sDir = {x:1,y:0}; e.preventDefault(); }
+  });
+
+  /* ============ CONVERTER ============ */
   function convTab(id,el){ document.querySelectorAll('#convert .tab').forEach(t=>t.classList.remove('on')); el.classList.add('on');
     document.querySelectorAll('#convert .tabpane').forEach(p=>p.classList.remove('on')); document.getElementById('conv-'+id).classList.add('on'); }
   function doLen(){ const v=+document.getElementById('lenVal').value, f=+document.getElementById('lenFrom').value, t=+document.getElementById('lenTo').value;
@@ -1244,15 +1265,11 @@
     const tip=b*p/100; setTxt('tipRes','Total: '+(b+tip).toFixed(2)+' (propina '+tip.toFixed(2)+')'); }
   doLen(); doCur(); doTip();
 
-  /* =====================================================================
-     BROWSER  (improvement: fake page loader)
-     ===================================================================== */
+  /* ============ BROWSER ============ */
   function browse(){ const u=document.getElementById('urlBar').value||'david.dev';
     document.getElementById('browserPage').innerHTML=`<svg viewBox="0 0 24 24" style="width:50px;height:50px;fill:var(--accent)"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/></svg><b style="color:var(--text)">${esc(u)}</b><p>Página cargada (demo).</p>`; beep(500,.05); }
 
-  /* =====================================================================
-     SETTINGS + THEMES  (improvement: switches, brightness, wallpapers)
-     ===================================================================== */
+  /* ============ SETTINGS + THEMES ============ */
   let wifiOn=LS.get('wifi',true);
   const THEMES=[
     {id:'default', c:'linear-gradient(160deg,#1e293b,#312e81)'},
@@ -1292,9 +1309,29 @@
   function setBrightness(v){ screen_.style.filter=`brightness(${v/100})`; }
   function resetAll(){ if(confirm('¿Borrar todos los datos de davidPhone?')){ ['notes','todos','chat','photos','battery','theme','wifi','haptic'].forEach(LS.del); location.reload(); } }
 
-  /* =====================================================================
-     AUTO-LOCK  (improvement: locks after inactivity)
-     ===================================================================== */
+  /* ============ PASSWORD GEN ============ */
+  function genPassword(){
+    const len = +document.getElementById('pwLen').value || 16;
+    let chars = 'abcdefghijklmnopqrstuvwxyz';
+    if (document.getElementById('pwUp').classList.contains('on')) chars += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    if (document.getElementById('pwNum').classList.contains('on')) chars += '0123456789';
+    if (document.getElementById('pwSym').classList.contains('on')) chars += '!@#$%^&*()_+-=[]{}|;:,.<>?';
+    let out = '';
+    for (let i = 0; i < len; i++) out += chars[Math.floor(Math.random()*chars.length)];
+    document.getElementById('pwOut').textContent = out;
+  }
+
+  /* ============ CONTACTS ============ */
+  const contacts = [
+    { n: 'David', p: '+507 6000-0000' },
+    { n: 'María', p: '+507 6111-2222' },
+    { n: 'Carlos', p: '+507 6333-4444' },
+    { n: 'Ana', p: '+507 6555-6666' },
+    { n: 'Luis', p: '+507 6777-8888' }
+  ];
+  document.getElementById('contactsList').innerHTML = contacts.map(c => `<div class="todo-item"><span class="txt"><b>${c.n}</b><br><small style="color:var(--muted)">${c.p}</small></span></div>`).join('');
+
+  /* ============ AUTO-LOCK ============ */
   let idleTimer;
   function resetIdle(){ clearTimeout(idleTimer); idleTimer=setTimeout(()=>{ if(!lock.classList.contains('hidden'))return; lockPhone(); goHome(); }, 60000); }
   ['click','keydown','touchstart'].forEach(ev=>window.addEventListener(ev,resetIdle,{passive:true}));
