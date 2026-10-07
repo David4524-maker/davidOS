@@ -382,6 +382,8 @@
     <div class="ctx-item" onclick="ctxAction('refresh')" data-i18n="ctx.refresh">🔄 Actualizar escritorio</div>
     <div class="ctx-item" onclick="ctxAction('wallpaper')" data-i18n="ctx.wallpaper">🖼️ Cambiar fondo</div>
     <div class="ctx-item" onclick="ctxAction('sort')" data-i18n="ctx.sort">🔤 Ordenar iconos</div>
+    <div class="ctx-item" onclick="ctxAction('newfolder')" data-i18n="ctx.newfolder">📁 Crear nueva carpeta</div>
+    <div class="ctx-item" onclick="ctxAction('newshortcut')" data-i18n="ctx.newshortcut">🔗 Crear nuevo acceso directo</div>
     <div class="ctx-sep"></div>
     <div class="ctx-item" onclick="ctxAction('newnote')" data-i18n="ctx.newnote">📝 Nueva nota rápida</div>
     <div class="ctx-item" onclick="ctxAction('sticky')" data-i18n="ctx.sticky">🗒️ Nueva nota adhesiva</div>
@@ -555,14 +557,14 @@
         'lock.locked':'Pantalla bloqueada','lock.unlock':'Desbloquear','lock.hint':'Contraseña por defecto: (vacía) · Presiona Enter',
         'lock.wrong':'🔒 Contraseña incorrecta','lock.unlocked':'🔓 Pantalla desbloqueada',
         'maint.banner':'🔧 Aviso de mantenimiento programado',
-        'ctx.refresh':'🔄 Actualizar escritorio','ctx.wallpaper':'🖼️ Cambiar fondo','ctx.sort':'🔤 Ordenar iconos',
+        'ctx.refresh':'🔄 Actualizar escritorio','ctx.wallpaper':'🖼️ Cambiar fondo','ctx.sort':'🔤 Ordenar iconos','ctx.newfolder':'📁 Crear nueva carpeta','ctx.newshortcut':'🔗 Crear nuevo acceso directo',
         'ctx.newnote':'📝 Nueva nota rápida','ctx.sticky':'🗒️ Nueva nota adhesiva',
         'ctx.cascade':'🗂️ Ventanas en cascada','ctx.tile':'🧱 Ventanas en mosaico',
         'ctx.about':'ℹ️ Acerca de davidOS','ctx.settings':'⚙️ Ajustes',
         'login.signin':'Iniciar Sesión','login.wifi':'Wi-Fi','login.nonet':'Sin Red','login.lang':'Idioma','login.edition':'Edición',
         'login.userreq':'Ingresa un nombre de usuario.',
         'login.welcome':'Bienvenido, {0} 👋 ({1})',
-        'start.title':'Aplicaciones de davidOS','start.results':'Resultados para "{0}"',
+        'desk.allapps':'Todas las apps','start.title':'Aplicaciones de davidOS','start.results':'Resultados para "{0}"',
         'start.pinned':'📌 Fijados','start.recent':'🕘 Recientes',
         'start.noresults':'🔍 No se encontró ninguna app llamada "{0}"',
         'start.apps':'{0} app(s)','start.power':'⏻ Encendido',
@@ -785,14 +787,14 @@
         'lock.locked':'Screen locked','lock.unlock':'Unlock','lock.hint':'Default password: (empty) · Press Enter',
         'lock.wrong':'🔒 Wrong password','lock.unlocked':'🔓 Screen unlocked',
         'maint.banner':'🔧 Scheduled maintenance notice',
-        'ctx.refresh':'🔄 Refresh desktop','ctx.wallpaper':'🖼️ Change wallpaper','ctx.sort':'🔤 Sort icons',
+        'ctx.refresh':'🔄 Refresh desktop','ctx.wallpaper':'🖼️ Change wallpaper','ctx.sort':'🔤 Sort icons','ctx.newfolder':'📁 Create new folder','ctx.newshortcut':'🔗 Create new shortcut',
         'ctx.newnote':'📝 New quick note','ctx.sticky':'🗒️ New sticky note',
         'ctx.cascade':'🗂️ Cascade windows','ctx.tile':'🧱 Tile windows',
         'ctx.about':'ℹ️ About davidOS','ctx.settings':'⚙️ Settings',
         'login.signin':'Sign In','login.wifi':'Wi-Fi','login.nonet':'No Network','login.lang':'Language','login.edition':'Edition',
         'login.userreq':'Please enter a username.',
         'login.welcome':'Welcome, {0} 👋 ({1})',
-        'start.title':'davidOS Applications','start.results':'Results for "{0}"',
+        'desk.allapps':'All apps','start.title':'davidOS Applications','start.results':'Results for "{0}"',
         'start.pinned':'📌 Pinned','start.recent':'🕘 Recent',
         'start.noresults':'🔍 No app found named "{0}"',
         'start.apps':'{0} app(s)','start.power':'⏻ Power',
@@ -1195,7 +1197,19 @@
       { id: 'chatgpt', name: 'ChatGPT', icon: '🤖', type: 'frame', url: 'https://chatgpt.com/' },
       { id: 'firefox', name: 'Firefox', icon: '🦊', type: 'frame', url: 'https://www.wikipedia.org' },
       { id: 'opera', name: 'Opera', icon: '🔴', type: 'frame', url: 'https://www.bing.com' },
-      { id: 'gimp', name: 'GIMP', icon: '🖌️', type: 'frame', url: 'https://www.photopea.com' }
+      { id: 'gimp', name: 'GIMP', icon: '🖌️', type: 'frame', url: 'https://www.photopea.com' },
+      { id: 'excalidraw', name: 'Excalidraw', icon: '✏️', type: 'frame', url: 'https://excalidraw.com' },
+      { id: 'desmos', name: 'Desmos Calculadora', icon: '📈', type: 'frame', url: 'https://www.desmos.com/scientific' },
+      { id: 'piskel', name: 'Piskel', icon: '👾', type: 'frame', url: 'https://www.piskelapp.com' },
+      { id: 'pixlr', name: 'Pixlr', icon: '🎨', type: 'frame', url: 'https://pixlr.com/x/' },
+      { id: 'hextris', name: 'Hextris', icon: '⬡', type: 'frame', url: 'https://hextris.io' },
+      { id: 'pacman', name: 'Pac-Man', icon: '🟡', type: 'frame', url: 'https://freepacman.org' },
+      { id: 'dino', name: 'Dino Run', icon: '🦖', type: 'frame', url: 'https://chromedino.com' },
+      { id: 'flappy', name: 'Flappy Bird', icon: '🐤', type: 'frame', url: 'https://flappybird.io' },
+      { id: 'win93', name: 'Windows 93', icon: '🪟', type: 'frame', url: 'https://www.windows93.net' },
+      { id: 'archive', name: 'Internet Archive', icon: '📚', type: 'frame', url: 'https://archive.org' },
+      { id: 'wikipedia', name: 'Wikipedia', icon: '📖', type: 'frame', url: 'https://es.wikipedia.org' },
+      { id: 'jspaint', name: 'JS Paint', icon: '🖍️', type: 'frame', url: 'https://jspaint.app' }
     ];
 
     const editionLimits = {
@@ -1516,7 +1530,7 @@
       const dGrid = document.getElementById('desktop-grid');
       dGrid.innerHTML = '';
       if (window.__showIcons === false) return;
-      apps.forEach(app => {
+      apps.filter(a => pinnedApps.includes(a.id)).forEach(app => {
         const pinned = pinnedApps.includes(app.id);
         const allowed = isAppAllowedInEdition(app.id);
         const lockBadge = !allowed ? '<span style="position:absolute; top:2px; left:6px; font-size:10px;" title="Locked">🔒</span>' : '';
@@ -1538,6 +1552,20 @@
         dIcon.innerHTML = iconHtml;
         dGrid.appendChild(dIcon);
       });
+      const allBtn = document.createElement('div');
+      allBtn.className = 'icon';
+      allBtn.tabIndex = 0;
+      allBtn.setAttribute('role', 'button');
+      allBtn.setAttribute('aria-label', t('desk.allapps'));
+      allBtn.innerHTML = `<div class="icon-img" style="${window.__iconSize ? 'font-size:' + window.__iconSize + 'px;' : ''}">🗂️</div><div class="icon-name">${t('desk.allapps')}</div>`;
+      allBtn.onclick = (e) => {
+        if (e && e.stopPropagation) e.stopPropagation();
+        document.getElementById('emoji-menu').classList.remove('active');
+        filterApps('');
+        document.getElementById('start-menu').classList.add('active');
+      };
+      allBtn.onkeydown = (e) => { if (e.key === 'Enter') allBtn.onclick(e); };
+      dGrid.appendChild(allBtn);
       filterApps('');
     }
     function togglePin(e, appId) {
@@ -1606,6 +1634,7 @@
           document.querySelector('.taskbar-search').value = '';
           filterApps('');
         };
+        item.oncontextmenu = (e) => window.__iconContextMenu && window.__iconContextMenu(e, app.id);
         const lock = !allowed ? '<span style="position:absolute; top:2px; left:6px; font-size:10px;">🔒</span>' : '';
         item.innerHTML = `${lock}<div class="icon-img" style="${!allowed ? 'opacity:0.45;' : ''}">${app.icon}</div><div style="${!allowed ? 'opacity:0.6;' : ''}">${name}</div>`;
         grid.appendChild(item);
@@ -2146,28 +2175,153 @@
       }
     }
 
+    /* ===== Explorador de archivos mejorado ===== */
+    const __EXP = { sel: null, back: [], fwd: [], view: localStorage.getItem('davidos-expview') || 'list' };
+    try { const sv = JSON.parse(localStorage.getItem('davidos-vfs') || 'null'); if (sv && sv.vfs && sv.fileContents) { vfs = sv.vfs; fileContents = sv.fileContents; } } catch (e) {}
+    function __saveVfs() { try { localStorage.setItem('davidos-vfs', JSON.stringify({ vfs, fileContents })); } catch (e) {} }
+    window.addEventListener('beforeunload', __saveVfs);
+    document.head.insertAdjacentHTML('beforeend', `<style>
+      .exp-bar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:6px;background:rgba(255,255,255,0.05);border-radius:6px;margin-bottom:6px;font-size:12px}
+      .exp-bar .app-btn{padding:3px 9px}
+      .app-btn:disabled{opacity:.35;cursor:default}
+      .exp-path{flex:1;min-width:120px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+      .exp-crumb{cursor:pointer;padding:1px 3px;border-radius:3px}.exp-crumb:hover{background:rgba(255,255,255,0.15)}
+      .exp-side{width:130px;flex-shrink:0;display:flex;flex-direction:column;gap:3px;font-size:12px}
+      .exp-side .exp-item{margin:0;padding:5px 8px}
+      #exp-list.exp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px;align-content:start}
+      #exp-list.exp-grid .exp-item{flex-direction:column;text-align:center;margin:0;padding:10px 4px;word-break:break-word}
+      #exp-list.exp-grid .exp-ic{font-size:30px}
+      .exp-ic{font-size:18px}.exp-nm{flex:1;overflow:hidden;text-overflow:ellipsis}
+      .exp-item small{opacity:.55;font-size:10px}
+      .exp-item.exp-sel{outline:2px solid var(--accent-color,#4da3ff);background:rgba(77,163,255,0.22)}
+      #exp-status{font-size:11px;opacity:.65;padding:5px 2px 0}
+    </style>`);
+    const __expX = (es, en) => window.currentLang === 'en' ? en : es;
+    const __expEsc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const __expJoin = (p, n) => p === '/' ? '/' + n : p + '/' + n;
+    const __expIcons = { txt:'📄', md:'📝', ez:'⚡', png:'🖼️', jpg:'🖼️', jpeg:'🖼️', gif:'🖼️', webp:'🖼️', mp3:'🎵', wav:'🎵', mp4:'🎬', pdf:'📕', docx:'📘', xlsx:'📗', pptx:'📙', zip:'🗜️', json:'🧾', html:'🌐', js:'🟨', css:'🎨' };
+    const __expIcon = (p, n) => vfs[p] ? '📁' : (__expIcons[(n.split('.').pop() || '').toLowerCase()] || '🗎');
+    const __expSize = c => c == null ? '' : (c.length < 1024 ? c.length + ' B' : (c.length / 1024).toFixed(1) + ' KB');
+
     function refreshExplorer() {
       const body = document.getElementById('explorer-body');
       if (!body) return;
-      const items = vfs[currentPath] || [];
+      if (!vfs['/']) vfs['/'] = [];
+      if (!vfs[currentPath]) currentPath = '/';
+      const X = __expX, E = __expEsc;
+      const items = (vfs[currentPath] || []).slice().sort((a, b) => {
+        const fa = !!vfs[__expJoin(currentPath, a)], fb = !!vfs[__expJoin(currentPath, b)];
+        return fa !== fb ? (fa ? -1 : 1) : a.localeCompare(b, undefined, { numeric: true });
+      });
+      if (__EXP.sel && !items.includes(__EXP.sel)) __EXP.sel = null;
+      let acc = '';
+      const crumbs = '<span class="exp-crumb" data-p="/">🏠</span>' + currentPath.split('/').filter(Boolean).map(p => { acc += '/' + p; return ' › <span class="exp-crumb" data-p="' + E(acc) + '">' + E(p) + '</span>'; }).join('');
+      const side = [['🏠', X('Inicio', 'Home'), '/home/david'], ['📄', X('Documentos', 'Documents'), '/documents'], ['💻', X('Raíz', 'Root'), '/'], ['🗑️', X('Papelera', 'Recycle bin'), '__trash']]
+        .filter(s => s[2] === '__trash' || vfs[s[2]])
+        .map(s => `<div class="exp-item" data-go="${E(s[2])}">${s[0]} <span>${s[1]}</span></div>`).join('');
       body.innerHTML = `
-        <div style="padding:6px; background:rgba(255,255,255,0.05); font-size:12px; margin-bottom:8px; border-radius:4px; display:flex; gap:6px; align-items:center;">
-          <span>${t('exp.path')} <span class="exp-crumb" onclick="navigateTo('/')">/root</span> ${currentPath}</span>
-          <input type="text" placeholder="${t('exp.search')}" style="margin-left:auto; font-size:11px; padding:3px 8px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1); border-radius:4px; color:white; outline:none;" oninput="window.__filterExplorer(this.value)">
+        <div class="exp-bar">
+          <button class="app-btn" id="exp-back" onclick="__expAct('back')" title="${X('Atrás', 'Back')}" ${__EXP.back.length ? '' : 'disabled'}>◀</button>
+          <button class="app-btn" id="exp-fwd" onclick="__expAct('fwd')" title="${X('Adelante', 'Forward')}" ${__EXP.fwd.length ? '' : 'disabled'}>▶</button>
+          <button class="app-btn" onclick="__expAct('up')" title="${X('Subir', 'Up')}" ${currentPath === '/' ? 'disabled' : ''}>⬆</button>
+          <span class="exp-path">${crumbs}</span>
+          <input type="text" placeholder="${t('exp.search')}" style="font-size:11px; padding:3px 8px; width:130px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1); border-radius:4px; color:inherit; outline:none;" oninput="window.__filterExplorer && window.__filterExplorer(this.value)">
         </div>
-        <div style="flex:1; overflow-y:auto;" id="exp-list">
-          ${items.map(item => `
-            <div class="exp-item" data-name="${item}" onclick="openExplorerItem('${item}')">
-              📁 <span>${item}</span>
-            </div>
-          `).join('')}
-        </div>`;
+        <div class="exp-bar">
+          <button class="app-btn" onclick="__expAct('nf')">📁+ ${X('Carpeta', 'Folder')}</button>
+          <button class="app-btn" onclick="__expAct('nfile')">📄+ ${X('Archivo', 'File')}</button>
+          <button class="app-btn" onclick="__expAct('ren')" title="F2">✏️ ${X('Renombrar', 'Rename')}</button>
+          <button class="app-btn" onclick="__expAct('del')" title="Supr">🗑️ ${X('Eliminar', 'Delete')}</button>
+          <button class="app-btn" onclick="__expAct('cp')">📋 ${X('Copiar ruta', 'Copy path')}</button>
+          <button class="app-btn" style="margin-left:auto" onclick="__expAct('view')" title="${X('Cambiar vista', 'Switch view')}">${__EXP.view === 'grid' ? '☰' : '▦'}</button>
+        </div>
+        <div style="display:flex; flex:1; min-height:0; gap:8px;">
+          <div class="exp-side">${side}</div>
+          <div style="flex:1; overflow-y:auto;" id="exp-list"></div>
+        </div>
+        <div id="exp-status"></div>`;
+      body.querySelectorAll('.exp-crumb').forEach(c => c.onclick = () => navigateTo(c.dataset.p));
+      body.querySelectorAll('[data-go]').forEach(c => c.onclick = () => c.dataset.go === '__trash' ? openApp('recyclebin') : navigateTo(c.dataset.go));
+      const list = body.querySelector('#exp-list');
+      list.className = __EXP.view === 'grid' ? 'exp-grid' : '';
+      if (!items.length) list.innerHTML = `<div style="opacity:.55; padding:20px; text-align:center;">${X('Esta carpeta está vacía', 'This folder is empty')}</div>`;
+      items.forEach(name => {
+        const p = __expJoin(currentPath, name);
+        const el = document.createElement('div');
+        el.className = 'exp-item' + (__EXP.sel === name ? ' exp-sel' : '');
+        el.dataset.name = name; el.tabIndex = 0;
+        const ic = document.createElement('span'); ic.className = 'exp-ic'; ic.textContent = __expIcon(p, name);
+        const nm = document.createElement('span'); nm.className = 'exp-nm'; nm.textContent = name;
+        el.append(ic, nm);
+        if (!vfs[p]) { const sz = document.createElement('small'); sz.textContent = __expSize(fileContents[p]); el.append(sz); }
+        el.onclick = () => { __EXP.sel = name; list.querySelectorAll('.exp-sel').forEach(x => x.classList.remove('exp-sel')); el.classList.add('exp-sel'); __expStatus(); };
+        el.ondblclick = () => openExplorerItem(name);
+        el.onkeydown = e => { if (e.key === 'Enter') openExplorerItem(name); else if (e.key === 'Delete') __expAct('del'); else if (e.key === 'F2') __expAct('ren'); };
+        list.append(el);
+      });
+      __expStatus();
+      __saveVfs();
     }
-    function navigateTo(path) { currentPath = path; refreshExplorer(); }
+    function __expStatus() {
+      const el = document.getElementById('exp-status'); if (!el) return;
+      const n = (vfs[currentPath] || []).length;
+      el.textContent = n + ' ' + __expX('elemento(s)', 'item(s)') + (__EXP.sel ? ' · ' + __EXP.sel : '') + ' · ' + currentPath;
+    }
+    function navigateTo(path, push = true) {
+      if (push && path !== currentPath) { __EXP.back.push(currentPath); __EXP.fwd = []; }
+      currentPath = path; __EXP.sel = null; refreshExplorer();
+    }
     function openExplorerItem(name) {
-      const newPath = currentPath === '/' ? '/' + name : currentPath + '/' + name;
-      if (vfs[newPath]) { currentPath = newPath; refreshExplorer(); }
-      else if (fileContents[newPath]) { showNotification(`📄 ${name}: ${fileContents[newPath]}`); }
+      const p = __expJoin(currentPath, name);
+      if (vfs[p]) { navigateTo(p); return; }
+      if (fileContents[p] !== undefined) {
+        openApp('notepad');
+        setTimeout(() => { const el = document.getElementById('notepad-text'); if (el) { el.value = fileContents[p]; if (window.__notepadCount) window.__notepadCount(); } }, 300);
+        showToast('📄 ' + name);
+      }
+    }
+    function __expMove(oldP, newP) {
+      [vfs, fileContents].forEach(o => Object.keys(o).forEach(k => {
+        if (k === oldP || k.startsWith(oldP + '/')) { o[newP + k.slice(oldP.length)] = o[k]; delete o[k]; }
+      }));
+    }
+    function __expRemove(p) {
+      [vfs, fileContents].forEach(o => Object.keys(o).forEach(k => { if (k === p || k.startsWith(p + '/')) delete o[k]; }));
+    }
+    function __expAskName(msg, def) {
+      const n = prompt(msg, def || '');
+      if (n === null) return null;
+      const v = n.trim();
+      if (!v || v.includes('/')) { showToast(__expX('⚠️ Nombre no válido', '⚠️ Invalid name')); return null; }
+      if ((vfs[currentPath] || []).includes(v) && v !== def) { showToast(__expX('⚠️ Ya existe ese nombre', '⚠️ That name already exists')); return null; }
+      return v;
+    }
+    function __expAct(a) {
+      const sel = __EXP.sel, need = () => { if (!sel) { showToast(__expX('Selecciona un elemento primero', 'Select an item first')); return false; } return true; };
+      if (a === 'back' && __EXP.back.length) { __EXP.fwd.push(currentPath); navigateTo(__EXP.back.pop(), false); }
+      else if (a === 'fwd' && __EXP.fwd.length) { __EXP.back.push(currentPath); navigateTo(__EXP.fwd.pop(), false); }
+      else if (a === 'up' && currentPath !== '/') navigateTo(currentPath.split('/').slice(0, -1).join('/') || '/');
+      else if (a === 'view') { __EXP.view = __EXP.view === 'grid' ? 'list' : 'grid'; localStorage.setItem('davidos-expview', __EXP.view); refreshExplorer(); }
+      else if (a === 'nf') { const n = __expAskName(__expX('Nombre de la carpeta:', 'Folder name:'), ''); if (n) { vfs[currentPath].push(n); vfs[__expJoin(currentPath, n)] = []; __EXP.sel = n; refreshExplorer(); } }
+      else if (a === 'nfile') { const n = __expAskName(__expX('Nombre del archivo:', 'File name:'), ''); if (n) { vfs[currentPath].push(n); fileContents[__expJoin(currentPath, n)] = ''; __EXP.sel = n; refreshExplorer(); } }
+      else if (a === 'ren' && need()) {
+        const n = __expAskName(__expX('Nuevo nombre:', 'New name:'), sel);
+        if (n && n !== sel) { const arr = vfs[currentPath]; arr[arr.indexOf(sel)] = n; __expMove(__expJoin(currentPath, sel), __expJoin(currentPath, n)); __EXP.sel = n; refreshExplorer(); }
+      }
+      else if (a === 'del' && need()) {
+        if (!confirm(__expX('¿Mover "' + sel + '" a la papelera?', 'Move "' + sel + '" to the recycle bin?'))) return;
+        vfs[currentPath] = vfs[currentPath].filter(x => x !== sel);
+        __expRemove(__expJoin(currentPath, sel));
+        const tr = JSON.parse(localStorage.getItem('davidos-trash') || '["captura_antigua.png","informe_borrador.docx","tarea_vieja.txt"]');
+        tr.unshift(sel); localStorage.setItem('davidos-trash', JSON.stringify(tr));
+        __EXP.sel = null; refreshExplorer();
+        showToast('🗑️ ' + __expX('Movido a la papelera', 'Moved to recycle bin'));
+      }
+      else if (a === 'cp') {
+        const p = sel ? __expJoin(currentPath, sel) : currentPath;
+        if (navigator.clipboard) navigator.clipboard.writeText(p).then(() => showToast('📋 ' + p), () => showToast(p));
+        else showToast(p);
+      }
     }
 
     function triggerBSOD() {
@@ -10004,5 +10158,298 @@
     }
   </style>
 
+
+<script>
+/* ==========================================================================
+   Mejoras de escritorio, navegadores y davidconsole
+   ========================================================================== */
+(function(){
+  'use strict';
+  const ld=(k,d)=>{try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}};
+  const sv=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+  const X=(es,en)=>window.currentLang==='en'?en:es;
+  const E=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  document.head.insertAdjacentHTML('beforeend','<style>.icon[data-key]{touch-action:none}.br-tab{padding:4px 8px;border-radius:6px 6px 0 0;font-size:11px;display:flex;gap:6px;align-items:center;cursor:pointer;max-width:150px;background:rgba(255,255,255,.08)}.br-tab.on{background:rgba(255,255,255,.22)}.br-tab span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.br-bm{padding:2px 8px;font-size:11px;border-radius:10px;background:rgba(255,255,255,.1);cursor:pointer;white-space:nowrap}</style>');
+
+  /* ---------- Menú contextual genérico ---------- */
+  function showMenu(e, html, handler){
+    e.preventDefault(); e.stopPropagation();
+    const m=document.getElementById('context-menu');
+    m.innerHTML=html;
+    m.onclick=ev=>{const a=ev.target.closest('[data-a]'); if(!a)return; m.classList.remove('active'); handler(a.dataset.a);};
+    m.style.left=Math.min(e.clientX,innerWidth-230)+'px';
+    m.style.top=Math.min(e.clientY,innerHeight-230)+'px';
+    m.classList.add('active');
+  }
+
+  /* ---------- Anclar en la barra de tareas ---------- */
+  const pinBox=document.createElement('div');
+  pinBox.id='taskbar-pins'; pinBox.style.cssText='display:flex;gap:4px;margin-left:6px';
+  const tbLeft=document.querySelector('.taskbar-left');
+  tbLeft.insertBefore(pinBox, document.getElementById('taskbar-running'));
+  let tpins=ld('davidos-taskpins',[]);
+  function renderTP(){
+    pinBox.innerHTML='';
+    tpins.forEach(id=>{
+      const a=apps.find(x=>x.id===id); if(!a)return;
+      const b=document.createElement('button');
+      b.className='start-btn'; b.textContent=a.icon; b.title=getAppName(a);
+      b.onclick=()=>a.id==='emojis'?toggleEmojiMenu():openApp(a.id);
+      b.oncontextmenu=e=>showMenu(e,`<div class="ctx-item" data-a="un">📌 ${X('Desanclar de la barra de tareas','Unpin from taskbar')}</div>`,()=>toggleTP(id));
+      pinBox.append(b);
+    });
+  }
+  function toggleTP(id){
+    const on=tpins.includes(id);
+    tpins=on?tpins.filter(x=>x!==id):[...tpins,id]; sv('davidos-taskpins',tpins); renderTP();
+    showToast(on?X('📌 Desanclada de la barra de tareas','📌 Unpinned from taskbar'):X('📌 Anclada en la barra de tareas','📌 Pinned to taskbar'));
+  }
+
+  /* ---------- Clic derecho en una app (escritorio e Inicio) ---------- */
+  window.__iconContextMenu=function(e,id){
+    const onDesk=pinnedApps.includes(id), onTb=tpins.includes(id);
+    showMenu(e,`<div class="ctx-item" data-a="open">🚀 ${X('Abrir','Open')}</div><div class="ctx-sep"></div>
+      <div class="ctx-item" data-a="desk">🖥️ ${onDesk?X('Quitar del escritorio','Unpin from desktop'):X('Anclar al escritorio','Pin to desktop')}</div>
+      <div class="ctx-item" data-a="tb">📌 ${onTb?X('Desanclar de la barra de tareas','Unpin from taskbar'):X('Anclar en la barra de tareas','Pin to taskbar')}</div>`,a=>{
+      if(a==='open') id==='emojis'?toggleEmojiMenu():openApp(id);
+      else if(a==='desk') togglePin({stopPropagation(){}},id);
+      else toggleTP(id);
+    });
+  };
+
+  /* ---------- Carpetas y accesos directos del escritorio ---------- */
+  let ditems=ld('davidos-deskitems',[]);
+  const saveD=()=>sv('davidos-deskitems',ditems);
+  const DESK='/home/david/Escritorio';
+  function openTarget(t){
+    const q=(t||'').trim().toLowerCase(); if(!q)return;
+    const a=apps.find(x=>x.id.toLowerCase()===q||getAppName(x).toLowerCase()===q)||apps.find(x=>getAppName(x).toLowerCase().includes(q));
+    if(a) a.id==='emojis'?toggleEmojiMenu():openApp(a.id);
+    else if(/^https?:\/\//i.test(t)||/\.[a-z]{2,}(\/|$)/i.test(q)) window.open(/^https?:/i.test(t)?t:'https://'+t,'_blank','noopener');
+    else showToast(X('⚠️ No se encontró el destino','⚠️ Target not found'));
+  }
+  function newFolder(){
+    const n=(prompt(X('Nombre de la carpeta:','Folder name:'),X('Nueva carpeta','New folder'))||'').trim();
+    if(!n||n.includes('/'))return;
+    if(!vfs[DESK]){vfs[DESK]=[]; if(!vfs['/home/david'].includes('Escritorio'))vfs['/home/david'].push('Escritorio');}
+    if(vfs[DESK].includes(n)){showToast(X('⚠️ Ya existe ese nombre','⚠️ That name already exists'));return;}
+    vfs[DESK].push(n); vfs[DESK+'/'+n]=[];
+    ditems.push({id:'f'+Date.now(),type:'folder',name:n}); saveD(); renderIcons();
+    showToast(X('📁 Carpeta creada','📁 Folder created'));
+  }
+  function newShortcut(){
+    const n=(prompt(X('Nombre del acceso directo:','Shortcut name:'),'')||'').trim(); if(!n)return;
+    const t=(prompt(X('Destino (nombre de una app o una dirección web):','Target (app name or web address):'),'')||'').trim(); if(!t)return;
+    ditems.push({id:'s'+Date.now(),type:'shortcut',name:n,target:t}); saveD(); renderIcons();
+    showToast(X('🔗 Acceso directo creado','🔗 Shortcut created'));
+  }
+  function itemMenu(e,it){
+    showMenu(e,`<div class="ctx-item" data-a="open">🚀 ${X('Abrir','Open')}</div><div class="ctx-item" data-a="ren">✏️ ${X('Cambiar nombre','Rename')}</div><div class="ctx-item" data-a="del">🗑️ ${X('Eliminar','Delete')}</div>`,a=>{
+      if(a==='open') openItem(it);
+      else if(a==='ren'){
+        const n=(prompt(X('Nuevo nombre:','New name:'),it.name)||'').trim(); if(!n||n===it.name||n.includes('/'))return;
+        if(it.type==='folder'){ const arr=vfs[DESK]||[]; if(arr.includes(n))return showToast(X('⚠️ Ya existe ese nombre','⚠️ That name already exists')); arr[arr.indexOf(it.name)]=n; __expMove(DESK+'/'+it.name,DESK+'/'+n); }
+        it.name=n; saveD(); renderIcons();
+      } else if(confirm(X('¿Eliminar "'+it.name+'"?','Delete "'+it.name+'"?'))){
+        if(it.type==='folder'){ vfs[DESK]=(vfs[DESK]||[]).filter(x=>x!==it.name); __expRemove(DESK+'/'+it.name); }
+        ditems=ditems.filter(x=>x!==it); saveD(); renderIcons();
+      }
+    });
+  }
+  function openItem(it){
+    if(it.type==='folder'){ currentPath=DESK+'/'+it.name; openApp('explorer'); }
+    else openTarget(it.target);
+  }
+
+  /* ---------- Renderizado + arrastre de iconos ---------- */
+  let pos=ld('davidos-iconpos',{});
+  const _ri=window.renderIcons;
+  window.renderIcons=function(){
+    _ri();
+    renderTP();
+    const g=document.getElementById('desktop-grid');
+    if(window.__showIcons!==false){
+      const list=apps.filter(a=>pinnedApps.includes(a.id)), icons=[...g.querySelectorAll('.icon')], last=g.lastElementChild;
+      list.forEach((a,i)=>{ if(icons[i]) icons[i].dataset.key=a.id; });
+      ditems.forEach(it=>{
+        const el=document.createElement('div');
+        el.className='icon'; el.tabIndex=0; el.dataset.key='d:'+it.id;
+        el.innerHTML=`<div class="icon-img">${it.type==='folder'?'📁':'🔗'}</div><div class="icon-name"></div>`;
+        el.querySelector('.icon-name').textContent=it.name;
+        el.onclick=()=>openItem(it);
+        el.onkeydown=e=>{if(e.key==='Enter')openItem(it)};
+        el.oncontextmenu=e=>itemMenu(e,it);
+        g.insertBefore(el,last);
+      });
+      g.querySelectorAll('.icon[data-key]').forEach(el=>{
+        const p=pos[el.dataset.key];
+        if(p){el.style.position='absolute';el.style.left=p[0]+'px';el.style.top=p[1]+'px';}
+      });
+    }
+  };
+  let drag=null;
+  document.getElementById('desktop-grid').addEventListener('pointerdown',e=>{
+    if(e.button!==0||e.target.closest('.icon-pin'))return;
+    const el=e.target.closest('.icon[data-key]'); if(!el)return;
+    const r=el.getBoundingClientRect();
+    drag={el,dx:e.clientX-r.left,dy:e.clientY-r.top,sx:e.clientX,sy:e.clientY,moved:false};
+  });
+  document.addEventListener('pointermove',e=>{
+    if(!drag)return;
+    if(!drag.moved&&Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)<6)return;
+    drag.moved=true;
+    const el=drag.el;
+    el.style.position='absolute'; el.style.zIndex=5; el.style.opacity='.8';
+    el.style.left=Math.max(0,Math.min(innerWidth-80,e.clientX-drag.dx))+'px';
+    el.style.top=Math.max(0,Math.min(innerHeight-130,e.clientY-drag.dy))+'px';
+  });
+  document.addEventListener('pointerup',()=>{
+    if(!drag)return;
+    const d=drag; drag=null; if(!d.moved)return;
+    const el=d.el;
+    const x=Math.max(15,15+Math.round((parseFloat(el.style.left)-15)/90)*90), y=Math.max(15,15+Math.round((parseFloat(el.style.top)-15)/95)*95);
+    el.style.left=x+'px'; el.style.top=y+'px'; el.style.opacity=''; el.style.zIndex='';
+    pos[el.dataset.key]=[x,y]; sv('davidos-iconpos',pos);
+    const stop=ev=>{ev.stopImmediatePropagation();ev.preventDefault()};
+    el.addEventListener('click',stop,{capture:true,once:true});
+    setTimeout(()=>el.removeEventListener('click',stop,{capture:true}),80);
+  });
+  const _ca=window.ctxAction;
+  window.ctxAction=function(a){
+    if(a==='newfolder'){document.getElementById('context-menu').classList.remove('active');newFolder();}
+    else if(a==='newshortcut'){document.getElementById('context-menu').classList.remove('active');newShortcut();}
+    else { if(a==='sort'){pos={};sv('davidos-iconpos',pos);} _ca(a); }
+  };
+
+  /* ---------- Navegadores (OSC Browser y Google Chrome) ---------- */
+  const BR={}, BM_DEF=[['Wikipedia','https://es.wikipedia.org'],['Bing','https://www.bing.com'],['Archive.org','https://archive.org'],['Wikimedia','https://commons.wikimedia.org']];
+  const host=u=>{try{return new URL(u).hostname.replace(/^www\./,'')||u}catch(e){return u}};
+  const brNorm=v=>{v=(v||'').trim(); if(!v)return 'https://www.bing.com'; if(/^https?:\/\//i.test(v))return v; if(!/\s/.test(v)&&/\.[a-z]{2,}(\/|:|$)/i.test(v))return 'https://'+v; return 'https://www.bing.com/search?q='+encodeURIComponent(v);};
+  const brTab=()=>({url:'https://www.bing.com',h:['https://www.bing.com'],i:0});
+  const brSt=id=>BR[id]||(BR[id]={tabs:[brTab()],cur:0,bm:ld('davidos-bm-'+id,BM_DEF)});
+  function brGo(T,u){T.h=T.h.slice(0,T.i+1);T.h.push(u);T.i=T.h.length-1;T.url=u;}
+  window.__brAct=function(id,a,v){
+    const S=brSt(id), T=S.tabs[S.cur];
+    if(a==='go') brGo(T,brNorm(v));
+    else if(a==='home') brGo(T,'https://www.bing.com');
+    else if(a==='back'&&T.i>0){T.i--;T.url=T.h[T.i];}
+    else if(a==='fwd'&&T.i<T.h.length-1){T.i++;T.url=T.h[T.i];}
+    else if(a==='new'){S.tabs.push(brTab());S.cur=S.tabs.length-1;}
+    else if(a==='tab') S.cur=+v;
+    else if(a==='close'&&S.tabs.length>1){S.tabs.splice(+v,1);if(S.cur>=S.tabs.length||+v<S.cur)S.cur=Math.max(0,S.cur-1);}
+    else if(a==='bm'){const i=S.bm.findIndex(b=>b[1]===T.url); i>=0?S.bm.splice(i,1):S.bm.push([host(T.url),T.url]); sv('davidos-bm-'+id,S.bm);}
+    else if(a==='bmgo') brGo(T,S.bm[+v][1]);
+    else if(a==='ext'){window.open(T.url,'_blank','noopener');return;}
+    brRender(id);
+  };
+  function brRender(id){
+    const box=document.getElementById('br-'+id); if(!box)return;
+    const S=brSt(id), T=S.tabs[S.cur], col=id==='osc'?'#0f4c81':'#202124', starred=S.bm.some(b=>b[1]===T.url);
+    const btn=(a,l,t,d)=>`<button class="app-btn" style="background:rgba(255,255,255,0.1);" ${d?'disabled':''} title="${t}" onclick="__brAct('${id}','${a}')">${l}</button>`;
+    box.innerHTML=`
+      <div style="background:${col};padding:4px 6px 0;display:flex;gap:3px;align-items:flex-end;overflow-x:auto">
+        ${S.tabs.map((t,i)=>`<div class="br-tab ${i===S.cur?'on':''}" onclick="__brAct('${id}','tab',${i})"><span>${E(host(t.url))}</span><b onclick="event.stopPropagation();__brAct('${id}','close',${i})">✕</b></div>`).join('')}
+        <button class="app-btn" style="padding:2px 8px;margin-bottom:2px" onclick="__brAct('${id}','new')" title="${X('Nueva pestaña','New tab')}">＋</button>
+      </div>
+      <div class="app-toolbar" style="background:${col};padding:6px;gap:6px;margin-bottom:0">
+        ${btn('back','◀',X('Atrás','Back'),T.i<=0)}${btn('fwd','▶',X('Adelante','Forward'),T.i>=T.h.length-1)}<button class="app-btn" data-x="1" style="background:rgba(255,255,255,0.1);" title="${X('Recargar','Reload')}">🔄</button>${btn('home','🏠',X('Inicio','Home'))}
+        <input type="text" id="url-${id}" value="${E(T.url)}" class="login-input" style="flex:1;text-align:left;font-size:12px;padding:4px 10px;" placeholder="${X('Busca o escribe una dirección','Search or type an address')}" onfocus="this.select()" onkeydown="if(event.key==='Enter')__brAct('${id}','go',this.value)">
+        ${btn('bm',starred?'⭐':'☆',X('Marcador','Bookmark'))}${btn('ext','↗',X('Abrir en una pestaña real','Open in a real tab'))}
+      </div>
+      <div style="display:flex;gap:6px;padding:4px 6px;background:${col};border-bottom:1px solid #333;overflow-x:auto">
+        ${S.bm.map((b,i)=>`<span class="br-bm" onclick="__brAct('${id}','bmgo',${i})">${E(b[0])}</span>`).join('')}
+      </div>
+      <iframe id="frame-${id}" style="flex:1;width:100%;border:none;background:white;" src="${E(T.url)}" referrerpolicy="no-referrer"></iframe>
+      <div style="font-size:10px;opacity:.6;padding:2px 8px">${X('Si una página no carga, ese sitio no permite mostrarse aquí: usa ↗.','If a page does not load, that site blocks embedding: use ↗.')}</div>`;
+    const rl=box.querySelector('[data-x]'); if(rl){rl.removeAttribute('onclick');rl.onclick=()=>{document.getElementById('frame-'+id).src=T.url;};}
+  }
+  const _gac=window.getAppContent;
+  window.getAppContent=function(id){
+    if(id==='osc'||id==='chrome'){ setTimeout(()=>brRender(id),0); return `<div id="br-${id}" style="display:flex;flex-direction:column;height:100%"></div>`; }
+    return _gac(id);
+  };
+
+  /* ---------- davidconsole: más comandos ---------- */
+  const prevTK=window.handleTermKey, hist=[]; let hi=0;
+  const abs=p=>{ if(!p)return currentPath; const o=[]; (p.startsWith('/')?p:currentPath+'/'+p).split('/').forEach(s=>{ if(!s||s==='.')return; if(s==='..')o.pop(); else if(s==='~'){o.length=0;o.push('home','david');} else o.push(s); }); return '/'+o.join('/'); };
+  const par=p=>p.split('/').slice(0,-1).join('/')||'/', base=p=>p.split('/').pop(), join=(a,b)=>a==='/'?'/'+b:a+'/'+b;
+  const isDir=p=>!!vfs[p], isFile=p=>fileContents[p]!==undefined;
+  const sync=()=>{ if(typeof refreshExplorer==='function'&&document.getElementById('explorer-body')) refreshExplorer(); };
+  const tree=(p,pre)=>(vfs[p]||[]).slice().sort().map((n,i,a)=>{ const last=i===a.length-1, q=join(p,n); return pre+(last?'└── ':'├── ')+n+(isDir(q)?'/':'')+(isDir(q)?'\n'+tree(q,pre+(last?'    ':'│   ')):''); }).join('\n').replace(/\n$/,'');
+  const FORT=['Sé el cambio que quieres ver en el sistema.','Un bug es solo una feature sin documentar.','sudo hazme un sándwich.','Funciona en mi máquina.','Hoy es un buen día para compilar.'];
+  const A=(a,def)=>a.length?a.join(' '):def;
+  const C={
+    help:()=>'Comandos de davidconsole:\n  Archivos: ls ll cd pwd mkdir touch rm cp mv cat echo tree find grep wc head tail\n  Sistema:  date time uptime hostname uname whoami id edition neofetch free df ps top kill env history clear\n  Utilidades: calc random dice coin uuid fortune cowsay base64 rev upper lower cal ping\n  Apps:     open apps appslist store theme notify\n  Energía:  reboot shutdown bsod',
+    pwd:()=>currentPath,
+    ls:a=>{ const l=a.includes('-l'), p=abs(a.filter(x=>x[0]!=='-')[0]); if(!isDir(p))return isFile(p)?base(p):'ls: no existe: '+p; const it=vfs[p].slice().sort(); if(!it.length)return '(vacío)'; return l?it.map(n=>{const q=join(p,n);return (isDir(q)?'d ':'- ')+(isDir(q)?'   -':String((fileContents[q]||'').length).padStart(4)+' B')+'  '+n}).join('\n'):it.map(n=>n+(isDir(join(p,n))?'/':'')).join('   '); },
+    ll:a=>C.ls(['-l',...a]),
+    cd:a=>{ const p=abs(a[0]||'~'); if(!isDir(p))return 'cd: no existe el directorio: '+(a[0]||''); currentPath=p; sync(); return ''; },
+    mkdir:a=>{ if(!a[0])return 'uso: mkdir nombre'; const p=abs(a[0]); if(!isDir(par(p)))return 'mkdir: no existe: '+par(p); if(isDir(p)||isFile(p))return 'mkdir: ya existe'; vfs[par(p)].push(base(p)); vfs[p]=[]; sync(); return ''; },
+    touch:a=>{ if(!a[0])return 'uso: touch archivo'; const p=abs(a[0]); if(!isDir(par(p)))return 'touch: no existe: '+par(p); if(!isDir(p)&&!isFile(p)){vfs[par(p)].push(base(p));fileContents[p]='';} sync(); return ''; },
+    rm:a=>{ const r=a.includes('-r')||a.includes('-rf'), t=a.filter(x=>x[0]!=='-')[0]; if(!t)return 'uso: rm [-r] nombre'; const p=abs(t); if(p==='/')return 'rm: operación no permitida'; if(!isDir(p)&&!isFile(p))return 'rm: no existe: '+t; if(isDir(p)&&!r)return 'rm: es un directorio (usa -r)'; vfs[par(p)]=vfs[par(p)].filter(x=>x!==base(p)); __expRemove(p); sync(); return ''; },
+    cp:a=>{ if(a.length<2)return 'uso: cp origen destino'; const s=abs(a[0]); let d=abs(a[1]); if(!isFile(s))return 'cp: solo se copian archivos'; if(isDir(d))d=join(d,base(s)); if(!isDir(par(d)))return 'cp: destino no válido'; if(!isFile(d))vfs[par(d)].push(base(d)); fileContents[d]=fileContents[s]; sync(); return ''; },
+    mv:a=>{ if(a.length<2)return 'uso: mv origen destino'; const s=abs(a[0]); let d=abs(a[1]); if(!isDir(s)&&!isFile(s))return 'mv: no existe: '+a[0]; if(isDir(d))d=join(d,base(s)); if(!isDir(par(d))||isDir(d)||isFile(d))return 'mv: destino no válido'; vfs[par(s)]=vfs[par(s)].filter(x=>x!==base(s)); vfs[par(d)].push(base(d)); __expMove(s,d); sync(); return ''; },
+    cat:a=>a.length?a.map(f=>{const p=abs(f);return isFile(p)?fileContents[p]:'cat: no existe: '+f}).join('\n'):'uso: cat archivo',
+    echo:(a,r)=>{ const m=r.match(/^(.*?)\s*(>>?)\s*(\S+)$/); if(!m)return r; const p=abs(m[3]); if(!isDir(par(p)))return 'echo: ruta no válida'; if(!isFile(p)){vfs[par(p)].push(base(p));fileContents[p]='';} fileContents[p]=m[2]==='>>'?fileContents[p]+(fileContents[p]?'\n':'')+m[1]:m[1]; sync(); return ''; },
+    tree:a=>{ const p=abs(a[0]); return isDir(p)?(p+'\n'+(tree(p,'')||'(vacío)')):'tree: no existe'; },
+    find:a=>{ if(!a[0])return 'uso: find texto'; const q=a[0].toLowerCase(), r=[...Object.keys(vfs),...Object.keys(fileContents)].filter(k=>k!=='/'&&base(k).toLowerCase().includes(q)); return [...new Set(r)].sort().join('\n')||'Sin resultados'; },
+    grep:a=>{ if(a.length<2)return 'uso: grep texto archivo'; const p=abs(a[1]); if(!isFile(p))return 'grep: no existe: '+a[1]; return fileContents[p].split('\n').filter(l=>l.toLowerCase().includes(a[0].toLowerCase())).join('\n')||'Sin coincidencias'; },
+    wc:a=>{ const p=abs(a[0]); if(!isFile(p))return 'uso: wc archivo'; const t=fileContents[p]; return `${t.split('\n').length} líneas  ${t.trim()?t.trim().split(/\s+/).length:0} palabras  ${t.length} caracteres`; },
+    head:a=>{ const p=abs(a[0]); return isFile(p)?fileContents[p].split('\n').slice(0,5).join('\n'):'uso: head archivo'; },
+    tail:a=>{ const p=abs(a[0]); return isFile(p)?fileContents[p].split('\n').slice(-5).join('\n'):'uso: tail archivo'; },
+    time:()=>new Date().toLocaleTimeString(),
+    uptime:()=>{ const s=Math.floor((Date.now()-sessionStart)/1000); return `Encendido hace ${Math.floor(s/60)} min ${s%60} s · procesos: ${davidKernel.processes.length}`; },
+    hostname:()=>'davidos',
+    id:()=>`uid=1000(${activeUser}) gid=1000 edición=${window.currentEdition||'Pro'}`,
+    neofetch:()=>`   ____        _     _  ___  ____\n  |  _ \\  __ _| |_ _(_)|   |/ ___|   ${activeUser}@davidos\n  | | | |/ _\` | \\ \\ / / || | |\\___ \\   SO: davidOS ${window.currentEdition||'Pro'}\n  | |_| | (_| | |\\ V /| || |_| |___) |  Kernel: v${davidKernel.version}\n  |____/ \\__,_|_| \\_/ |_||___/|____/   Apps: ${apps.length}\n                                       Memoria: ${davidKernel.allocatedMemoryMB}/${davidKernel.maxMemoryMB} MB\n                                       Tema: ${document.body.classList.contains('light-mode')?'claro':'oscuro'}`,
+    free:()=>`Memoria total: ${davidKernel.maxMemoryMB} MB\nEn uso:        ${davidKernel.allocatedMemoryMB} MB\nLibre:         ${davidKernel.maxMemoryMB-davidKernel.allocatedMemoryMB} MB`,
+    df:()=>`Sistema de archivos virtual\nCarpetas: ${Object.keys(vfs).length}  Archivos: ${Object.keys(fileContents).length}\nEspacio usado: ${(JSON.stringify(fileContents).length/1024).toFixed(1)} KB`,
+    top:()=>'PID\tPROCESO\t\t\tMEMORIA\n'+davidKernel.processes.map(p=>`${p.pid}\t${p.name.padEnd(20,' ')}\t${p.memory} MB`).join('\n'),
+    kill:a=>{ const pid=+a[0]; if(!pid)return 'uso: kill PID'; if(!davidKernel.processes.some(p=>p.pid===pid))return 'kill: no existe el proceso '+pid; endTask(pid); return 'Proceso '+pid+' terminado'; },
+    env:()=>`USER=${activeUser}\nHOME=/home/david\nPWD=${currentPath}\nSHELL=davidconsole\nLANG=${window.currentLang||'es'}\nEDITION=${window.currentEdition||'Pro'}`,
+    history:()=>hist.map((h,i)=>`${String(i+1).padStart(3)}  ${h}`).join('\n')||'(sin historial)',
+    calc:(a,r)=>{ if(!/^[\d+\-*/().%\s^]+$/.test(r)||!r)return 'uso: calc 2+2*5'; try{ const v=Function('"use strict";return ('+r.replace(/\^/g,'**')+')')(); return Number.isFinite(v)?String(v):'Error: resultado no válido'; }catch(e){ return 'Error en la expresión'; } },
+    random:a=>{ const lo=+a[0]||0, hi=a[1]!==undefined?+a[1]:100; return String(Math.floor(Math.random()*(Math.max(lo,hi)-Math.min(lo,hi)+1))+Math.min(lo,hi)); },
+    dice:a=>'🎲 '+(Math.floor(Math.random()*(+a[0]||6))+1),
+    coin:()=>Math.random()<.5?'🪙 Cara':'🪙 Cruz',
+    uuid:()=>crypto.randomUUID?crypto.randomUUID():'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>(Math.random()*16|0).toString(16)),
+    fortune:()=>FORT[Math.floor(Math.random()*FORT.length)],
+    cowsay:(a,r)=>{ const t=r||'Muuu'; return ` ${'_'.repeat(t.length+2)}\n< ${t} >\n ${'-'.repeat(t.length+2)}\n        \\   ^__^\n         \\  (oo)\\_______\n            (__)\\       )\\/\\\n                ||----w |\n                ||     ||`; },
+    base64:a=>{ try{ return a[0]==='-d'?decodeURIComponent(escape(atob(a.slice(1).join(' ')))):btoa(unescape(encodeURIComponent(a.join(' ')))); }catch(e){ return 'base64: entrada no válida'; } },
+    rev:(a,r)=>[...r].reverse().join(''),
+    upper:(a,r)=>r.toUpperCase(), lower:(a,r)=>r.toLowerCase(),
+    cal:()=>{ const d=new Date(), y=d.getFullYear(), m=d.getMonth(), f=(new Date(y,m,1).getDay()+6)%7, n=new Date(y,m+1,0).getDate(); let o=d.toLocaleString('es',{month:'long',year:'numeric'}).toUpperCase()+'\nLu Ma Mi Ju Vi Sa Do\n'+'   '.repeat(f); for(let i=1;i<=n;i++){ o+=(i===d.getDate()?'*':' ')+String(i).padStart(2).slice(-2)+((i+f)%7===0?'\n':''); } return o; },
+    ping:a=>{ const h=a[0]||'davidos.local'; return [1,2,3,4].map(i=>`Respuesta de ${h}: tiempo=${Math.floor(Math.random()*40+8)}ms TTL=64 seq=${i}`).join('\n'); },
+    open:(a,r)=>{ const q=r.toLowerCase(); if(!q)return 'uso: open nombre_de_app'; const f=apps.find(x=>x.id.toLowerCase()===q||getAppName(x).toLowerCase()===q)||apps.find(x=>getAppName(x).toLowerCase().includes(q)); if(!f)return 'open: no se encontró la app "'+r+'"'; f.id==='emojis'?toggleEmojiMenu():openApp(f.id); return 'Abriendo '+getAppName(f)+'...'; },
+    store:()=>'David Store ('+storeCatalog.length+' apps):\n'+storeCatalog.map(s=>`  ${s.icon} ${s.name}`).join('\n'),
+    theme:a=>{ const w=(a[0]||'').toLowerCase(); if(!['dark','light','oscuro','claro'].includes(w))return 'uso: theme dark|light'; const wantLight=w==='light'||w==='claro', isLight=document.body.classList.contains('light-mode'); if(wantLight!==isLight)toggleLightMode({stopPropagation(){},preventDefault(){}}); return 'Tema '+(wantLight?'claro':'oscuro')+' activado'; },
+    notify:(a,r)=>{ showNotification(r||'¡Hola desde davidconsole!'); return ''; },
+    reboot:()=>{ powerAction('restart'); return 'Reiniciando...'; },
+    shutdown:()=>{ powerAction('shutdown'); return 'Apagando...'; }
+  };
+  C.clear=undefined; delete C.clear;
+  document.addEventListener('keydown',e=>{
+    if(!e.target||e.target.id!=='term-input')return;
+    if(e.key==='ArrowUp'){e.preventDefault();hi=Math.max(0,hi-1);e.target.value=hist[hi]||'';}
+    else if(e.key==='ArrowDown'){e.preventDefault();hi=Math.min(hist.length,hi+1);e.target.value=hist[hi]||'';}
+  });
+  window.handleTermKey=function(e){
+    if(e.key!=='Enter')return prevTK&&prevTK(e);
+    const inp=document.getElementById('term-input'), out=document.getElementById('term-out');
+    const raw=inp?inp.value.trim():'';
+    if(raw){hist.push(raw);hi=hist.length;}
+    const parts=raw.split(/\s+/), name=(parts[0]||'').toLowerCase(), args=parts.slice(1), rest=raw.slice(parts[0].length).trim();
+    if(C[name]){
+      out.innerText+=`\ndavid@os:${currentPath==='/home/david'?'~':currentPath}$ ${raw}`;
+      let r; try{ r=C[name](args,rest); }catch(err){ r='Error: '+err.message; }
+      if(r) out.innerText+='\n'+r;
+      inp.value=''; out.scrollTop=out.scrollHeight; return;
+    }
+    return prevTK&&prevTK(e);
+  };
+
+  try{ window.renderIcons(); }catch(e){}
+})();
+</script>
 </body>
 </html>
