@@ -317,6 +317,9 @@
 .aa-app:hover{background:rgba(255,255,255,.14);transform:translateY(-2px)}
 .aa-app .ai{font-size:30px;filter:drop-shadow(0 3px 5px rgba(0,0,0,.4))}
 .aa-foot{font-size:11px;opacity:.5;padding-top:8px}
+body.light-mode #allapps,body.light-mode #allapps *{color:#17171c;text-shadow:none}
+body.light-mode #allapps .aa-cat.on{color:#fff}
+body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
 #sfx-btn{cursor:pointer;font-size:14px;margin-right:4px}
 </style>
 </head>
@@ -10275,7 +10278,7 @@
     if(!vfs[DESK]){vfs[DESK]=[]; if(!vfs['/home/david'].includes('Escritorio'))vfs['/home/david'].push('Escritorio');}
     if(vfs[DESK].includes(n)){showToast(X('⚠️ Ya existe ese nombre','⚠️ That name already exists'));return;}
     vfs[DESK].push(n); vfs[DESK+'/'+n]=[];
-    ditems.push({id:'f'+Date.now(),type:'folder',name:n}); saveD(); renderIcons();
+    ditems.push({id:'f'+Date.now(),type:'folder',name:n}); saveD(); __saveVfs(); renderIcons();
     showToast(X('📁 Carpeta creada','📁 Folder created'));
   }
   function newShortcut(){
@@ -10290,10 +10293,10 @@
       else if(a==='ren'){
         const n=(prompt(X('Nuevo nombre:','New name:'),it.name)||'').trim(); if(!n||n===it.name||n.includes('/'))return;
         if(it.type==='folder'){ const arr=vfs[DESK]||[]; if(arr.includes(n))return showToast(X('⚠️ Ya existe ese nombre','⚠️ That name already exists')); arr[arr.indexOf(it.name)]=n; __expMove(DESK+'/'+it.name,DESK+'/'+n); }
-        it.name=n; saveD(); renderIcons();
+        it.name=n; saveD(); __saveVfs(); renderIcons();
       } else if(confirm(X('¿Eliminar "'+it.name+'"?','Delete "'+it.name+'"?'))){
         if(it.type==='folder'){ vfs[DESK]=(vfs[DESK]||[]).filter(x=>x!==it.name); __expRemove(DESK+'/'+it.name); }
-        ditems=ditems.filter(x=>x!==it); saveD(); renderIcons();
+        ditems=ditems.filter(x=>x!==it); saveD(); __saveVfs(); renderIcons();
       }
     });
   }
@@ -10307,6 +10310,7 @@
   const _ri=window.renderIcons;
   window.renderIcons=function(){
     _ri();
+    const n0=ditems.length; ditems=ditems.filter(it=>it.type!=='folder'||vfs[DESK+'/'+it.name]); if(ditems.length!==n0)saveD();
     renderTP();
     const g=document.getElementById('desktop-grid');
     if(window.__showIcons!==false){
@@ -10415,7 +10419,7 @@
   const abs=p=>{ if(!p)return currentPath; const o=[]; (p.startsWith('/')?p:currentPath+'/'+p).split('/').forEach(s=>{ if(!s||s==='.')return; if(s==='..')o.pop(); else if(s==='~'){o.length=0;o.push('home','david');} else o.push(s); }); return '/'+o.join('/'); };
   const par=p=>p.split('/').slice(0,-1).join('/')||'/', base=p=>p.split('/').pop(), join=(a,b)=>a==='/'?'/'+b:a+'/'+b;
   const isDir=p=>!!vfs[p], isFile=p=>fileContents[p]!==undefined;
-  const sync=()=>{ if(typeof refreshExplorer==='function'&&document.getElementById('explorer-body')) refreshExplorer(); };
+  const sync=()=>{ if(!vfs[currentPath])currentPath='/'; __saveVfs(); if(typeof refreshExplorer==='function'&&document.getElementById('explorer-body')) refreshExplorer(); };
   const tree=(p,pre)=>(vfs[p]||[]).slice().sort().map((n,i,a)=>{ const last=i===a.length-1, q=join(p,n); return pre+(last?'└── ':'├── ')+n+(isDir(q)?'/':'')+(isDir(q)?'\n'+tree(q,pre+(last?'    ':'│   ')):''); }).join('\n').replace(/\n$/,'');
   const FORT=['Sé el cambio que quieres ver en el sistema.','Un bug es solo una feature sin documentar.','sudo hazme un sándwich.','Funciona en mi máquina.','Hoy es un buen día para compilar.'];
   const A=(a,def)=>a.length?a.join(' '):def;
@@ -10429,7 +10433,7 @@
     touch:a=>{ if(!a[0])return 'uso: touch archivo'; const p=abs(a[0]); if(!isDir(par(p)))return 'touch: no existe: '+par(p); if(!isDir(p)&&!isFile(p)){vfs[par(p)].push(base(p));fileContents[p]='';} sync(); return ''; },
     rm:a=>{ const r=a.includes('-r')||a.includes('-rf'), t=a.filter(x=>x[0]!=='-')[0]; if(!t)return 'uso: rm [-r] nombre'; const p=abs(t); if(p==='/')return 'rm: operación no permitida'; if(!isDir(p)&&!isFile(p))return 'rm: no existe: '+t; if(isDir(p)&&!r)return 'rm: es un directorio (usa -r)'; vfs[par(p)]=vfs[par(p)].filter(x=>x!==base(p)); __expRemove(p); sync(); return ''; },
     cp:a=>{ if(a.length<2)return 'uso: cp origen destino'; const s=abs(a[0]); let d=abs(a[1]); if(!isFile(s))return 'cp: solo se copian archivos'; if(isDir(d))d=join(d,base(s)); if(!isDir(par(d)))return 'cp: destino no válido'; if(!isFile(d))vfs[par(d)].push(base(d)); fileContents[d]=fileContents[s]; sync(); return ''; },
-    mv:a=>{ if(a.length<2)return 'uso: mv origen destino'; const s=abs(a[0]); let d=abs(a[1]); if(!isDir(s)&&!isFile(s))return 'mv: no existe: '+a[0]; if(isDir(d))d=join(d,base(s)); if(!isDir(par(d))||isDir(d)||isFile(d))return 'mv: destino no válido'; vfs[par(s)]=vfs[par(s)].filter(x=>x!==base(s)); vfs[par(d)].push(base(d)); __expMove(s,d); sync(); return ''; },
+    mv:a=>{ if(a.length<2)return 'uso: mv origen destino'; const s=abs(a[0]); let d=abs(a[1]); if(!isDir(s)&&!isFile(s))return 'mv: no existe: '+a[0]; if(isDir(d))d=join(d,base(s)); if(d===s||d.startsWith(s+'/'))return 'mv: no se puede mover una carpeta dentro de sí misma'; if(!isDir(par(d))||isDir(d)||isFile(d))return 'mv: destino no válido'; vfs[par(s)]=vfs[par(s)].filter(x=>x!==base(s)); vfs[par(d)].push(base(d)); __expMove(s,d); sync(); return ''; },
     cat:a=>a.length?a.map(f=>{const p=abs(f);return isFile(p)?fileContents[p]:'cat: no existe: '+f}).join('\n'):'uso: cat archivo',
     echo:(a,r)=>{ const m=r.match(/^(.*?)\s*(>>?)\s*(\S+)$/); if(!m)return r; const p=abs(m[3]); if(!isDir(par(p)))return 'echo: ruta no válida'; if(!isFile(p)){vfs[par(p)].push(base(p));fileContents[p]='';} fileContents[p]=m[2]==='>>'?fileContents[p]+(fileContents[p]?'\n':'')+m[1]:m[1]; sync(); return ''; },
     tree:a=>{ const p=abs(a[0]); return isDir(p)?(p+'\n'+(tree(p,'')||'(vacío)')):'tree: no existe'; },
@@ -10513,7 +10517,7 @@
     const m=(pct.textContent||'').match(/(\d+)/); if(!m)return;
     const p=+m[1]; boot.style.setProperty('--bp',Math.max(3,p)+'%');
     const l=MSG.find(x=>p<x[0]); msg.textContent=l?X(l[1],l[2]):'';
-    if(p>=90)boot.classList.add('opening');
+    boot.classList.toggle('opening',p>=90);
   }).observe(pct,{childList:true,characterData:true,subtree:true});
 
   /* ---------- 2. Fondos rápidos ---------- */
@@ -10555,10 +10559,11 @@
   }
   window.__openAllApps=function(){
     document.getElementById('start-menu').classList.remove('active'); document.getElementById('emoji-menu').classList.remove('active');
+    allb.textContent='🗂️ '+X('Todas las apps ›','All apps ›'); sb.title=X('Sonidos del sistema','System sounds');
     cat='all'; q.value=''; renderAA(); aa.classList.add('on'); q.focus();
   };
   const closeAA=()=>aa.classList.remove('on');
-  q.oninput=renderAA; aa.querySelector('#aa-x').onclick=closeAA;
+  q.oninput=renderAA; q.onkeydown=e=>{ if(e.key==='Enter'){const f=aa.querySelector('.aa-app'); if(f)f.click();} }; aa.querySelector('#aa-x').onclick=closeAA;
   aa.querySelector('.aa-cats').onclick=e=>{const c=e.target.closest('[data-c]'); if(c){cat=c.dataset.c;renderAA();}};
   const grid=aa.querySelector('.aa-grid');
   grid.onclick=e=>{const a=e.target.closest('.aa-app'); if(!a)return; closeAA(); a.dataset.id==='emojis'?toggleEmojiMenu():openApp(a.dataset.id);};
@@ -10583,10 +10588,9 @@
   const paint=()=>sb.textContent=sfxOn()?'🔊':'🔇'; paint();
   sb.onclick=()=>{localStorage.setItem('davidos-sfx',sfxOn()?'0':'1');paint();tone(SND.notif);};
   document.querySelector('.taskbar-right').prepend(sb);
-  const _oa=window.openApp;
-  window.openApp=function(id){ const had=document.getElementById('win-'+id); const r=_oa.apply(this,arguments); if(!had&&document.getElementById('win-'+id))tone(SND.open); return r; };
-  const _cw=window.closeWin;
-  window.closeWin=function(id){ const el=document.getElementById(id); if(!el||el.dataset.closing)return _cw(id); el.dataset.closing='1'; el.classList.add('win-closing'); tone(SND.close); setTimeout(()=>_cw(id),150); };
+  const _oa=window.openApp, _cw=window.closeWin;
+  window.openApp=function(id){ const ex=document.getElementById('win-'+id); if(ex&&ex.dataset.closing)_cw(ex.id); const had=document.getElementById('win-'+id); const r=_oa.apply(this,arguments); if(!had&&document.getElementById('win-'+id))tone(SND.open); return r; };
+  window.closeWin=function(id){ const el=document.getElementById(id); if(!el||el.dataset.closing)return _cw(id); el.dataset.closing='1'; el.classList.add('win-closing'); tone(SND.close); setTimeout(()=>{ if(document.getElementById(id)===el)_cw(id); },150); };
   const _sn=window.showNotification;
   window.showNotification=function(){ tone(SND.notif); return _sn.apply(this,arguments); };
 
@@ -10599,7 +10603,7 @@
     const grip=document.createElement('div'); grip.textContent='◢'; grip.style.cssText='position:absolute;right:-6px;bottom:-10px;cursor:nwse-resize;font-size:15px;opacity:0;transition:opacity .2s'; w.append(grip);
     w.onmouseenter=()=>grip.style.opacity='.85'; w.onmouseleave=()=>grip.style.opacity='0';
     let mode=null,o={};
-    w.addEventListener('pointerdown',e=>{ const r=w.getBoundingClientRect(); mode=e.target===grip?'size':'move'; o={px:e.clientX,py:e.clientY,x:r.left,y:r.top,s:st.s}; e.preventDefault(); });
+    w.addEventListener('pointerdown',e=>{ const r=w.getBoundingClientRect(); mode=e.target===grip?'size':'move'; if(st.x==null){st.x=r.left;st.y=r.top;apply();} o={px:e.clientX,py:e.clientY,x:r.left,y:r.top,s:st.s}; e.preventDefault(); });
     document.addEventListener('pointermove',e=>{
       if(!mode)return;
       if(mode==='move'){ st.x=Math.max(0,Math.min(innerWidth-60,o.x+e.clientX-o.px)); st.y=Math.max(0,Math.min(innerHeight-80,o.y+e.clientY-o.py)); }
