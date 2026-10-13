@@ -2,8 +2,7 @@
 
 ---
 
-Bienvenido a davidOS!! la ultima version fue la 5.0 y en esa version tiene 1008 lineas de codigo, los trabajos que hagas en davidOS se guardan mediante `localStorage`
-a si qué puedes continuar tu trabajo si quieres
+Mi propio SO
 
 # davidPhone
 
