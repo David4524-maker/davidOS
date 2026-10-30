@@ -19,7 +19,7 @@ USO
 ---
   1. Coloca este script junto a index_davidos.html
   2. IDLE → F5   (o:  python build_davidos_iso.py)
-  3. Se genera davidOS.iso en la misma carpeta
+  3. Se genera davidos.iso en la misma carpeta
 
 DEPENDENCIA
 -----------
@@ -39,7 +39,7 @@ from pathlib import Path
 #  Configuración
 # ----------------------------------------------------------------------------
 HTML_CANDIDATES = ("index_davidos.html", "davidos.html", "index.html")
-ISO_NAME        = "davidOS.iso"
+ISO_NAME        = "davidos.iso"
 VOLUME_LABEL    = "DAVIDOS_WEB"
 VOLUME_SET      = "davidOS Web Edition"
 PUBLISHER       = "davidOS"
@@ -63,8 +63,15 @@ def pip_install(package: str) -> None:
             [sys.executable, "-m", "pip", "install",
              "--quiet", "--disable-pip-version-check", package]
         )
-    except subprocess.CalledProcessError as exc:
-        die(f"No se pudo instalar {package}: {exc}")
+    except subprocess.CalledProcessError:
+        # Linux con PEP 668 (Debian/Ubuntu): reintentar permitiendo el paquete
+        try:
+            subprocess.check_call(
+                [sys.executable, "-m", "pip", "install", "--quiet",
+                 "--disable-pip-version-check", "--break-system-packages", package]
+            )
+        except subprocess.CalledProcessError as exc:
+            die(f"No se pudo instalar {package}: {exc}")
 
 def ensure_pycdlib():
     try:
@@ -139,6 +146,9 @@ def build_iso(html_path: Path, iso_path: Path) -> None:
         "----------------\r\n"
         "  · Kernel simulado + BIOS + escritorio de ventanas.\r\n"
         "  · 70+ aplicaciones incluidas en un único HTML.\r\n"
+        "  · 32 idiomas (es, en, fr, de, it, pt, ru, zh, ja, ko, ar, hi, tr, nl,\r\n"
+        "    pl, sv, uk, cs, el, he, id, vi, th, ro, hu, da, fi, nb, ca, bn, fa, ms).\r\n"
+        "    Se cambia en el login o en Ajustes → Sistema.\r\n"
         "  · No requiere instalación ni conexión a internet.\r\n"
         "  · Gradientes, temas, animaciones y efectos originales intactos.\r\n"
         "  · Los iframes pesados (YouTube, ChatGPT, Minecraft, etc.) se\r\n"
