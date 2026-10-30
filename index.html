@@ -448,7 +448,7 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
     </div>
     <div class="login-footer">
       <label>📶 <span data-i18n="login.wifi">Wi-Fi</span>: <select id="login-wifi" class="login-input" style="padding:2px 5px;" onchange="updateWifiStatus(this.value)"><option>DavidNet_5G</option><option data-i18n="login.nonet">Sin Red</option></select></label>
-      <label>🌐 <span data-i18n="login.lang">Idioma</span>: <select id="login-lang" class="login-input" style="padding:2px 5px;" onchange="updateLanguage(this.value)"><option value="es">Español</option><option value="en">English</option></select></label>
+      <label>🌐 <span data-i18n="login.lang">Idioma</span>: <select id="login-lang" class="login-input" style="padding:2px 5px;" onchange="updateLanguage(this.value)"></select></label>
       <label>👑 <span data-i18n="login.edition">Edición</span>:
         <select id="login-edition" class="login-input" style="padding:2px 5px;" onchange="updateEdition(this.value)">
           <option selected>Pro</option><option>Starter</option><option>Home</option><option>Professional</option><option>Ultimate</option>
@@ -1018,9 +1018,36 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
       }
     };
 
+
+    /* ==========================================================================
+       IDIOMAS — 32 en total (es, en + 30 nuevos). Cadena de respaldo: idioma → inglés → español.
+       Los textos no traducidos de un idioma nuevo se muestran en inglés.
+       ========================================================================== */
+    (function(){
+      const KEYS=["login.signin", "login.lang", "login.edition", "login.nonet", "desk.allapps", "start.pinned", "start.recent", "start.power", "tb.search", "power.sleep", "power.restart", "power.shutdown", "power.logout", "power.lock", "ctx.refresh", "ctx.wallpaper", "ctx.settings", "qs.title", "lock.unlock", "shutdown.closing", "app.calc", "app.notepad", "app.explorer", "notif.title"];
+      const PFX=["", "", "", "", "", "📌 ", "🕘 ", "⏻ ", "🔍 ", "🌙 ", "🔄 ", "⏻ ", "🚪 ", "🔒 ", "🔄 ", "🖼️ ", "⚙️ ", "", "", "", "", "", "", "🔔 "];
+      const DATA={"fr":{"n":"Français","l":"fr-FR","v":["Se connecter","Langue","Édition","Pas de réseau","Toutes les applis","Épinglées","Récentes","Alimentation","Rechercher des applis","Veille","Redémarrer","Éteindre","Se déconnecter","Verrouiller","Actualiser le bureau","Changer le fond d’écran","Paramètres","Paramètres rapides","Déverrouiller","Fermeture de davidOS…","Calculatrice","Bloc-notes","Explorateur de fichiers","Centre de notifications"]},"de":{"n":"Deutsch","l":"de-DE","v":["Anmelden","Sprache","Edition","Kein Netzwerk","Alle Apps","Angeheftet","Zuletzt verwendet","Ein/Aus","Apps suchen","Standby","Neu starten","Herunterfahren","Abmelden","Sperren","Desktop aktualisieren","Hintergrund ändern","Einstellungen","Schnelleinstellungen","Entsperren","davidOS wird beendet …","Rechner","Editor","Datei-Explorer","Benachrichtigungen"]},"it":{"n":"Italiano","l":"it-IT","v":["Accedi","Lingua","Edizione","Nessuna rete","Tutte le app","Bloccate","Recenti","Alimentazione","Cerca app","Sospendi","Riavvia","Arresta","Esci","Blocca","Aggiorna desktop","Cambia sfondo","Impostazioni","Impostazioni rapide","Sblocca","Chiusura di davidOS…","Calcolatrice","Blocco note","Esplora file","Centro notifiche"]},"pt":{"n":"Português","l":"pt-BR","v":["Entrar","Idioma","Edição","Sem rede","Todos os apps","Fixados","Recentes","Energia","Pesquisar apps","Suspender","Reiniciar","Desligar","Sair","Bloquear","Atualizar área de trabalho","Alterar plano de fundo","Configurações","Configurações rápidas","Desbloquear","Encerrando o davidOS…","Calculadora","Bloco de notas","Explorador de arquivos","Central de notificações"]},"ru":{"n":"Русский","l":"ru-RU","v":["Войти","Язык","Выпуск","Нет сети","Все приложения","Закреплённые","Недавние","Питание","Поиск приложений","Спящий режим","Перезагрузить","Выключить","Выйти","Заблокировать","Обновить рабочий стол","Сменить обои","Параметры","Быстрые настройки","Разблокировать","Завершение работы davidOS…","Калькулятор","Блокнот","Проводник","Центр уведомлений"]},"zh":{"n":"中文（简体）","l":"zh-CN","v":["登录","语言","版本","无网络","所有应用","已固定","最近","电源","搜索应用","睡眠","重新启动","关机","注销","锁定","刷新桌面","更换壁纸","设置","快速设置","解锁","正在关闭 davidOS…","计算器","记事本","文件资源管理器","通知中心"]},"ja":{"n":"日本語","l":"ja-JP","v":["サインイン","言語","エディション","ネットワークなし","すべてのアプリ","ピン留め","最近使った項目","電源","アプリを検索","スリープ","再起動","シャットダウン","サインアウト","ロック","デスクトップを更新","壁紙を変更","設定","クイック設定","ロック解除","davidOS を終了しています…","電卓","メモ帳","エクスプローラー","通知センター"]},"ko":{"n":"한국어","l":"ko-KR","v":["로그인","언어","에디션","네트워크 없음","모든 앱","고정됨","최근","전원","앱 검색","절전","다시 시작","시스템 종료","로그아웃","잠금","바탕 화면 새로 고침","배경 화면 변경","설정","빠른 설정","잠금 해제","davidOS 종료 중…","계산기","메모장","파일 탐색기","알림 센터"]},"ar":{"n":"العربية","l":"ar-SA","v":["تسجيل الدخول","اللغة","الإصدار","لا توجد شبكة","كل التطبيقات","المثبّتة","الأخيرة","الطاقة","ابحث عن التطبيقات","السكون","إعادة التشغيل","إيقاف التشغيل","تسجيل الخروج","قفل","تحديث سطح المكتب","تغيير الخلفية","الإعدادات","الإعدادات السريعة","فتح القفل","جارٍ إغلاق davidOS…","الآلة الحاسبة","المفكرة","مستكشف الملفات","مركز الإشعارات"]},"hi":{"n":"हिन्दी","l":"hi-IN","v":["साइन इन","भाषा","संस्करण","नेटवर्क नहीं","सभी ऐप्स","पिन किए गए","हाल के","पावर","ऐप्स खोजें","स्लीप","रीस्टार्ट","शट डाउन","साइन आउट","लॉक करें","डेस्कटॉप रीफ़्रेश करें","वॉलपेपर बदलें","सेटिंग्स","त्वरित सेटिंग्स","अनलॉक करें","davidOS बंद हो रहा है…","कैलकुलेटर","नोटपैड","फ़ाइल एक्सप्लोरर","सूचना केंद्र"]},"tr":{"n":"Türkçe","l":"tr-TR","v":["Oturum aç","Dil","Sürüm","Ağ yok","Tüm uygulamalar","Sabitlenenler","Son kullanılanlar","Güç","Uygulama ara","Uyku","Yeniden başlat","Kapat","Oturumu kapat","Kilitle","Masaüstünü yenile","Duvar kâğıdını değiştir","Ayarlar","Hızlı ayarlar","Kilidi aç","davidOS kapatılıyor…","Hesap makinesi","Not Defteri","Dosya Gezgini","Bildirim merkezi"]},"nl":{"n":"Nederlands","l":"nl-NL","v":["Aanmelden","Taal","Editie","Geen netwerk","Alle apps","Vastgemaakt","Recent","Aan/uit","Apps zoeken","Slaapstand","Opnieuw opstarten","Afsluiten","Afmelden","Vergrendelen","Bureaublad vernieuwen","Achtergrond wijzigen","Instellingen","Snelle instellingen","Ontgrendelen","davidOS wordt afgesloten…","Rekenmachine","Kladblok","Verkenner","Berichtencentrum"]},"pl":{"n":"Polski","l":"pl-PL","v":["Zaloguj","Język","Edycja","Brak sieci","Wszystkie aplikacje","Przypięte","Ostatnie","Zasilanie","Szukaj aplikacji","Uśpij","Uruchom ponownie","Zamknij system","Wyloguj","Zablokuj","Odśwież pulpit","Zmień tapetę","Ustawienia","Szybkie ustawienia","Odblokuj","Zamykanie davidOS…","Kalkulator","Notatnik","Eksplorator plików","Centrum powiadomień"]},"sv":{"n":"Svenska","l":"sv-SE","v":["Logga in","Språk","Utgåva","Inget nätverk","Alla appar","Fästa","Senaste","Ström","Sök appar","Viloläge","Starta om","Stäng av","Logga ut","Lås","Uppdatera skrivbordet","Byt bakgrund","Inställningar","Snabbinställningar","Lås upp","Avslutar davidOS…","Kalkylator","Anteckningar","Filutforskaren","Aviseringscenter"]},"uk":{"n":"Українська","l":"uk-UA","v":["Увійти","Мова","Випуск","Немає мережі","Усі програми","Закріплені","Нещодавні","Живлення","Пошук програм","Сплячий режим","Перезавантажити","Вимкнути","Вийти","Заблокувати","Оновити робочий стіл","Змінити шпалери","Параметри","Швидкі налаштування","Розблокувати","Завершення роботи davidOS…","Калькулятор","Блокнот","Провідник","Центр сповіщень"]},"cs":{"n":"Čeština","l":"cs-CZ","v":["Přihlásit se","Jazyk","Edice","Bez sítě","Všechny aplikace","Připnuté","Nedávné","Napájení","Hledat aplikace","Spánek","Restartovat","Vypnout","Odhlásit se","Zamknout","Obnovit plochu","Změnit pozadí","Nastavení","Rychlá nastavení","Odemknout","Ukončování davidOS…","Kalkulačka","Poznámkový blok","Průzkumník souborů","Centrum oznámení"]},"el":{"n":"Ελληνικά","l":"el-GR","v":["Σύνδεση","Γλώσσα","Έκδοση","Χωρίς δίκτυο","Όλες οι εφαρμογές","Καρφιτσωμένες","Πρόσφατες","Τροφοδοσία","Αναζήτηση εφαρμογών","Αναστολή λειτουργίας","Επανεκκίνηση","Τερματισμός","Αποσύνδεση","Κλείδωμα","Ανανέωση επιφάνειας εργασίας","Αλλαγή φόντου","Ρυθμίσεις","Γρήγορες ρυθμίσεις","Ξεκλείδωμα","Κλείσιμο του davidOS…","Αριθμομηχανή","Σημειωματάριο","Εξερεύνηση αρχείων","Κέντρο ειδοποιήσεων"]},"he":{"n":"עברית","l":"he-IL","v":["כניסה","שפה","מהדורה","אין רשת","כל היישומים","מוצמדים","אחרונים","הפעלה/כיבוי","חיפוש יישומים","שינה","הפעלה מחדש","כיבוי","יציאה","נעילה","רענון שולחן העבודה","שינוי רקע","הגדרות","הגדרות מהירות","ביטול נעילה","davidOS נסגר…","מחשבון","פנקס רשימות","סייר הקבצים","מרכז ההתראות"]},"id":{"n":"Bahasa Indonesia","l":"id-ID","v":["Masuk","Bahasa","Edisi","Tidak ada jaringan","Semua aplikasi","Disematkan","Terbaru","Daya","Cari aplikasi","Tidur","Mulai ulang","Matikan","Keluar","Kunci","Segarkan desktop","Ubah wallpaper","Pengaturan","Pengaturan cepat","Buka kunci","Menutup davidOS…","Kalkulator","Notepad","File Explorer","Pusat notifikasi"]},"vi":{"n":"Tiếng Việt","l":"vi-VN","v":["Đăng nhập","Ngôn ngữ","Phiên bản","Không có mạng","Tất cả ứng dụng","Đã ghim","Gần đây","Nguồn","Tìm ứng dụng","Ngủ","Khởi động lại","Tắt máy","Đăng xuất","Khóa","Làm mới màn hình nền","Đổi hình nền","Cài đặt","Cài đặt nhanh","Mở khóa","Đang đóng davidOS…","Máy tính","Notepad","Trình khám phá tệp","Trung tâm thông báo"]},"th":{"n":"ไทย","l":"th-TH","v":["ลงชื่อเข้าใช้","ภาษา","รุ่น","ไม่มีเครือข่าย","แอปทั้งหมด","ปักหมุด","ล่าสุด","พลังงาน","ค้นหาแอป","สลีป","รีสตาร์ท","ปิดเครื่อง","ออกจากระบบ","ล็อก","รีเฟรชเดสก์ท็อป","เปลี่ยนวอลเปเปอร์","การตั้งค่า","การตั้งค่าด่วน","ปลดล็อก","กำลังปิด davidOS…","เครื่องคิดเลข","แผ่นจดบันทึก","ตัวสำรวจไฟล์","ศูนย์การแจ้งเตือน"]},"ro":{"n":"Română","l":"ro-RO","v":["Conectare","Limbă","Ediție","Fără rețea","Toate aplicațiile","Fixate","Recente","Alimentare","Caută aplicații","Repaus","Repornește","Oprește","Deconectare","Blochează","Reîmprospătează desktopul","Schimbă fundalul","Setări","Setări rapide","Deblochează","Se închide davidOS…","Calculator","Notepad","Explorator de fișiere","Centru de notificări"]},"hu":{"n":"Magyar","l":"hu-HU","v":["Bejelentkezés","Nyelv","Kiadás","Nincs hálózat","Összes alkalmazás","Rögzített","Legutóbbi","Működés","Alkalmazások keresése","Alvó mód","Újraindítás","Leállítás","Kijelentkezés","Zárolás","Asztal frissítése","Háttér módosítása","Beállítások","Gyorsbeállítások","Feloldás","davidOS leállítása…","Számológép","Jegyzettömb","Fájlkezelő","Értesítési központ"]},"da":{"n":"Dansk","l":"da-DK","v":["Log ind","Sprog","Udgave","Intet netværk","Alle apps","Fastgjorte","Seneste","Strøm","Søg efter apps","Slumre","Genstart","Luk ned","Log ud","Lås","Opdater skrivebord","Skift baggrund","Indstillinger","Hurtige indstillinger","Lås op","Lukker davidOS…","Lommeregner","Notesblok","Filstifinder","Meddelelsescenter"]},"fi":{"n":"Suomi","l":"fi-FI","v":["Kirjaudu sisään","Kieli","Versio","Ei verkkoa","Kaikki sovellukset","Kiinnitetyt","Viimeaikaiset","Virta","Hae sovelluksia","Lepotila","Käynnistä uudelleen","Sammuta","Kirjaudu ulos","Lukitse","Päivitä työpöytä","Vaihda taustakuva","Asetukset","Pika-asetukset","Poista lukitus","Suljetaan davidOS…","Laskin","Muistio","Resurssienhallinta","Ilmoituskeskus"]},"nb":{"n":"Norsk bokmål","l":"nb-NO","v":["Logg på","Språk","Utgave","Ingen nettverk","Alle apper","Festede","Nylige","Strøm","Søk etter apper","Hvilemodus","Start på nytt","Slå av","Logg av","Lås","Oppdater skrivebordet","Endre bakgrunn","Innstillinger","Hurtiginnstillinger","Lås opp","Avslutter davidOS…","Kalkulator","Notisblokk","Filutforsker","Varslingssenter"]},"ca":{"n":"Català","l":"ca-ES","v":["Inicia la sessió","Idioma","Edició","Sense xarxa","Totes les aplicacions","Fixades","Recents","Energia","Cerca aplicacions","Suspèn","Reinicia","Apaga","Tanca la sessió","Bloqueja","Actualitza l’escriptori","Canvia el fons","Configuració","Configuració ràpida","Desbloqueja","Tancant davidOS…","Calculadora","Bloc de notes","Explorador de fitxers","Centre de notificacions"]},"bn":{"n":"বাংলা","l":"bn-BD","v":["সাইন ইন","ভাষা","সংস্করণ","নেটওয়ার্ক নেই","সব অ্যাপ","পিন করা","সাম্প্রতিক","পাওয়ার","অ্যাপ খুঁজুন","স্লিপ","রিস্টার্ট","বন্ধ করুন","সাইন আউট","লক","ডেস্কটপ রিফ্রেশ","ওয়ালপেপার পরিবর্তন","সেটিংস","দ্রুত সেটিংস","আনলক","davidOS বন্ধ হচ্ছে…","ক্যালকুলেটর","নোটপ্যাড","ফাইল এক্সপ্লোরার","বিজ্ঞপ্তি কেন্দ্র"]},"fa":{"n":"فارسی","l":"fa-IR","v":["ورود","زبان","نسخه","بدون شبکه","همه برنامه‌ها","سنجاق‌شده","اخیر","روشن/خاموش","جستجوی برنامه‌ها","خواب","راه‌اندازی مجدد","خاموش کردن","خروج","قفل","بازخوانی میزکار","تغییر تصویر زمینه","تنظیمات","تنظیمات سریع","بازکردن قفل","در حال بستن davidOS…","ماشین‌حساب","دفترچه یادداشت","مدیر فایل","مرکز اعلان‌ها"]},"ms":{"n":"Bahasa Melayu","l":"ms-MY","v":["Log masuk","Bahasa","Edisi","Tiada rangkaian","Semua apl","Disemat","Terkini","Kuasa","Cari apl","Tidur","Mulakan semula","Matikan","Log keluar","Kunci","Muat semula desktop","Tukar kertas dinding","Tetapan","Tetapan pantas","Buka kunci","Menutup davidOS…","Kalkulator","Notepad","Penjelajah Fail","Pusat pemberitahuan"]}};
+      const RTL=['ar','he','fa'];
+      window.LANGS={es:{name:'Español',locale:'es-ES'},en:{name:'English',locale:'en-US'}};
+      Object.keys(DATA).forEach(function(c){
+        const d=DATA[c], o={};
+        KEYS.forEach(function(k,i){ o[k]=PFX[i]+d.v[i]+(k==='tb.search'?'…':''); });
+        o['app.settings']=d.v[16]; o['app.calc']=d.v[20];
+        o['notif.welcome']=null; delete o['notif.welcome'];
+        I18N[c]=o;
+        window.LANGS[c]={name:d.n,locale:d.l,rtl:RTL.indexOf(c)>=0};
+      });
+      window.__locale=function(){ return (window.LANGS[window.currentLang||'es']||window.LANGS.es).locale; };
+      window.__langOptions=function(sel){
+        return Object.keys(window.LANGS).map(function(c){
+          return '<option value="'+c+'"'+(c===sel?' selected':'')+'>'+window.LANGS[c].name+'</option>';
+        }).join('');
+      };
+    })();
+
     function t(key, ...args){
       const lang = window.currentLang || 'es';
-      let s = (I18N[lang] && I18N[lang][key]) || (I18N.es[key]) || key;
+      let s = (I18N[lang] && I18N[lang][key]) || (I18N.en && I18N.en[key]) || (I18N.es[key]) || key;
       args.forEach((a, i) => { s = s.replace('{' + i + '}', a); });
       return s;
     }
@@ -1030,7 +1057,7 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
       if (!app) return '';
       const k = 'app.' + app.id;
       const lang = window.currentLang || 'es';
-      const translated = (I18N[lang] && I18N[lang][k]) || null;
+      const translated = (I18N[lang] && I18N[lang][k]) || (lang !== 'es' && I18N.en && I18N.en[k]) || null;
       return translated || app.name;
     }
     window.getAppName = getAppName;
@@ -1391,15 +1418,15 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
     function updateClock() {
       const d = new Date();
       const showSec = window.__showSeconds;
-      document.getElementById('clock-display').innerText = d.toLocaleTimeString(window.currentLang === 'en' ? 'en-US' : [], showSec ? { hour: '2-digit', minute: '2-digit', second: '2-digit' } : { hour: '2-digit', minute: '2-digit' });
-      document.getElementById('clock-display').title = d.toLocaleDateString(window.currentLang === 'en' ? 'en-US' : [], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      document.getElementById('clock-display').innerText = d.toLocaleTimeString(window.__locale(), showSec ? { hour: '2-digit', minute: '2-digit', second: '2-digit' } : { hour: '2-digit', minute: '2-digit' });
+      document.getElementById('clock-display').title = d.toLocaleDateString(window.__locale(), { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     }
 
     function updateLoginClock() {
       const el = document.getElementById('login-clock');
       if (!el) return;
       const d = new Date();
-      el.innerText = d.toLocaleTimeString(window.currentLang === 'en' ? 'en-US' : [], { hour: '2-digit', minute: '2-digit' }) + ' · ' + d.toLocaleDateString(window.currentLang === 'en' ? 'en-US' : []);
+      el.innerText = d.toLocaleTimeString(window.__locale(), { hour: '2-digit', minute: '2-digit' }) + ' · ' + d.toLocaleDateString(window.__locale());
     }
 
     function unlockDesktop() {
@@ -1422,8 +1449,8 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
     }
 
     function updateWifiStatus(val) {
-      const connected = val !== 'Sin Red' && val !== 'No Network';
-      document.getElementById('wifi-display').innerText = connected ? `📶 ${val}` : (window.currentLang === 'en' ? '📵 No connection' : '📵 Sin conexión');
+      const connected = val !== 'Sin Red' && val !== 'No Network' && val !== t('login.nonet');
+      document.getElementById('wifi-display').innerText = connected ? `📶 ${val}` : (window.currentLang !== 'es' ? '📵 No connection' : '📵 Sin conexión');
     }
     function updateEdition(val) {
       window.currentEdition = val;
@@ -1435,6 +1462,7 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
       window.currentLang = val;
       localStorage.setItem('davidos-lang', val);
       document.documentElement.lang = val;
+      document.documentElement.dir = ((window.LANGS[val]||{}).rtl) ? 'rtl' : 'ltr';
       applyStaticTranslations();
       renderIcons();
       renderEmojiPicker();
@@ -1451,7 +1479,7 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
       });
       updateClock();
       updateLoginClock();
-      showToast(val === 'en' ? 'Language set to English' : 'Idioma cambiado a Español');
+      showToast('🌐 ' + ((window.LANGS[val]||{}).name || val));
       if (document.getElementById('bios-screen').classList.contains('active')) {
         const activeTab = Array.from(document.querySelectorAll('.bios-menu-item')).findIndex(el => el.classList.contains('active'));
         const tabs = ['main','kernel','boot','security'];
@@ -2179,7 +2207,7 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
         else if (cmd === 'clear') out.innerText = '';
         else if (cmd === 'date') out.innerText += `\n${new Date().toString()}`;
         else if (cmd === 'whoami') out.innerText += `\n${activeUser}`;
-        else if (cmd === 'edition') out.innerText += `\n${window.currentLang === 'en' ? 'Active edition' : 'Edición activa'}: ${window.currentEdition || 'Pro'}`;
+        else if (cmd === 'edition') out.innerText += `\n${window.currentLang !== 'es' ? 'Active edition' : 'Edición activa'}: ${window.currentEdition || 'Pro'}`;
         else if (cmd === 'uname') out.innerText += `\ndavidOS Kernel v${davidKernel.version} (${davidKernel.build})`;
         else if (cmd === 'bsod' || cmd === 'crash') { triggerBSOD(); }
         else if (cmd === 'ps') {
@@ -2191,7 +2219,7 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
         else if (cmd.startsWith('cat ')) {
           const fname = cmd.substring(4).trim();
           const path = currentPath + '/' + fname;
-          out.innerText += `\n${fileContents[path] || (window.currentLang === 'en' ? 'File not found' : 'Archivo no encontrado')}`;
+          out.innerText += `\n${fileContents[path] || (window.currentLang !== 'es' ? 'File not found' : 'Archivo no encontrado')}`;
         }
         else if (cmd !== '') out.innerText += `\n${t('terminal.unknown', cmd)}`;
         input.value = '';
@@ -2240,7 +2268,7 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
       .exp-item.exp-sel{outline:2px solid var(--accent-color,#4da3ff);background:rgba(77,163,255,0.22)}
       #exp-status{font-size:11px;opacity:.65;padding:5px 2px 0}
     </style>`);
-    const __expX = (es, en) => window.currentLang === 'en' ? en : es;
+    const __expX = (es, en) => window.currentLang !== 'es' ? en : es;
     const __expEsc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     const __expJoin = (p, n) => p === '/' ? '/' + n : p + '/' + n;
     const __expIcons = { txt:'📄', md:'📝', ez:'⚡', png:'🖼️', jpg:'🖼️', jpeg:'🖼️', gif:'🖼️', webp:'🖼️', mp3:'🎵', wav:'🎵', mp4:'🎬', pdf:'📕', docx:'📘', xlsx:'📗', pptx:'📙', zip:'🗜️', json:'🧾', html:'🌐', js:'🟨', css:'🎨' };
@@ -2480,7 +2508,7 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
         if (wifiEl && wifiEl.parentNode) wifiEl.parentNode.insertBefore(el, wifiEl);
       }
       const icon = davidBattery.charging ? '🔌' : (davidBattery.level > 60 ? '🔋' : '🪫');
-      const est = davidBattery.charging ? (window.currentLang === 'en' ? 'Charging' : 'Cargando') : `~${Math.round(davidBattery.level * 0.8)} ${window.currentLang === 'en' ? 'min left' : 'min restantes'}`;
+      const est = davidBattery.charging ? (window.currentLang !== 'es' ? 'Charging' : 'Cargando') : `~${Math.round(davidBattery.level * 0.8)} ${window.currentLang !== 'es' ? 'min left' : 'min restantes'}`;
       el.innerText = `${icon} ${davidBattery.level}% · ${est}`;
       el.style.color = (davidBattery.level <= 15 && !davidBattery.charging) ? '#ff5f56' : '';
     }
@@ -2640,7 +2668,7 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
                   const upEl = document.createElement('span');
                   upEl.className = 'uptime-extra-info';
                   upEl.style.cssText = 'font-size:11px; opacity:0.5;';
-                  upEl.innerText = (window.currentLang === 'en' ? 'Session time: ' : 'Tiempo de sesión activa: ') + `${mins}m ${secs}s`;
+                  upEl.innerText = (window.currentLang !== 'es' ? 'Session time: ' : 'Tiempo de sesión activa: ') + `${mins}m ${secs}s`;
                   body.appendChild(upEl);
                 }
               }
@@ -2693,7 +2721,7 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
       bin.tabIndex = 0;
       bin.setAttribute('role', 'button');
       bin.setAttribute('aria-label', 'Recycle Bin');
-      bin.innerHTML = `<div class="icon-img">🗑️</div><div class="icon-name">${window.currentLang === 'en' ? 'Recycle Bin' : 'Papelera'}</div>`;
+      bin.innerHTML = `<div class="icon-img">🗑️</div><div class="icon-name">${window.currentLang !== 'es' ? 'Recycle Bin' : 'Papelera'}</div>`;
       bin.onclick = () => openApp('recyclebin');
       bin.onkeydown = (e) => { if (e.key === 'Enter') openApp('recyclebin'); };
       desktopEl.appendChild(bin);
@@ -2711,7 +2739,7 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
         const d = document.getElementById('widget-date');
         if (!t || !d) return;
         const now = new Date();
-        const loc = window.currentLang === 'en' ? 'en-US' : 'es-ES';
+        const loc = window.__locale();
         t.innerText = now.toLocaleTimeString(loc, { hour: '2-digit', minute: '2-digit' });
         d.innerText = now.toLocaleDateString(loc, { weekday: 'long', day: 'numeric', month: 'long' });
       }
@@ -2856,7 +2884,7 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
         } else if (key === 'wifi') {
           const el = document.getElementById('wifi-display');
           if (el.innerText.includes('Sin') || el.innerText.includes('No ')) { el.innerText = '📶 DavidNet_5G'; showToast(t('qs.wifi.on')); }
-          else { el.innerText = window.currentLang === 'en' ? '📵 No connection' : '📵 Sin conexión'; showToast(t('qs.wifi.off')); }
+          else { el.innerText = window.currentLang !== 'es' ? '📵 No connection' : '📵 Sin conexión'; showToast(t('qs.wifi.off')); }
         } else if (key === 'bt') {
           document.getElementById('qs-bt').classList.toggle('active');
           showToast(document.getElementById('qs-bt').classList.contains('active')?t('qs.bt.on'):t('qs.bt.off'));
@@ -2949,13 +2977,13 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
         const v = parseFloat(d.innerText) ** 2; calcCurrent = v.toString(); d.innerText = calcCurrent;
       };
       window.__openCalcHistory = function(){
-        if (!window.__calcHistory.length) { showToast('📜 ' + (window.currentLang === 'en' ? 'No history' : 'Sin historial')); return; }
-        alert((window.currentLang === 'en' ? 'Calculation history:' : 'Historial de cálculo:') + '\n\n' + window.__calcHistory.join('\n'));
+        if (!window.__calcHistory.length) { showToast('📜 ' + (window.currentLang !== 'es' ? 'No history' : 'Sin historial')); return; }
+        alert((window.currentLang !== 'es' ? 'Calculation history:' : 'Historial de cálculo:') + '\n\n' + window.__calcHistory.join('\n'));
       };
 
       window.__notepadSave = function(){
         const text = document.getElementById('notepad-text').value;
-        const name = prompt(window.currentLang === 'en' ? 'File name:' : 'Nombre del archivo:', 'nota_' + Date.now() + '.txt');
+        const name = prompt(window.currentLang !== 'es' ? 'File name:' : 'Nombre del archivo:', 'nota_' + Date.now() + '.txt');
         if (!name) return;
         const path = currentPath + '/' + name;
         if (!vfs[currentPath].includes(name)) vfs[currentPath].push(name);
@@ -2965,7 +2993,7 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
       window.__notepadOpen = function(){
         const files = Object.keys(fileContents);
         if (!files.length) { showToast(t('notepad.noFiles')); return; }
-        const name = prompt((window.currentLang === 'en' ? 'Open file:\n\n' : 'Abrir archivo:\n\n') + files.join('\n') + (window.currentLang === 'en' ? '\n\nType full path:' : '\n\nEscribe la ruta completa:'));
+        const name = prompt((window.currentLang !== 'es' ? 'Open file:\n\n' : 'Abrir archivo:\n\n') + files.join('\n') + (window.currentLang !== 'es' ? '\n\nType full path:' : '\n\nEscribe la ruta completa:'));
         if (!name) return;
         if (fileContents[name]) document.getElementById('notepad-text').value = fileContents[name];
         else showToast(t('notepad.notFound'));
@@ -2973,7 +3001,7 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
       window.__notepadCount = function(){
         const t2 = document.getElementById('notepad-text').value;
         const el = document.getElementById('notepad-counter');
-        if (el) el.innerText = `${t2.length} ${window.currentLang === 'en' ? 'chars' : 'caracteres'} · ${t2.trim()?t2.trim().split(/\s+/).length:0} ${window.currentLang === 'en' ? 'words' : 'palabras'}`;
+        if (el) el.innerText = `${t2.length} ${window.currentLang !== 'es' ? 'chars' : 'caracteres'} · ${t2.trim()?t2.trim().split(/\s+/).length:0} ${window.currentLang !== 'es' ? 'words' : 'palabras'}`;
       };
       window.__notepadAutoSave = function(){
         clearTimeout(window.__npSaveTimer);
@@ -2996,7 +3024,7 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
       };
       window.__restoreLastTrash = function(){
         const trash = LSg('davidos-trash', []);
-        if (!trash.length) { showToast(window.currentLang === 'en' ? 'Empty bin' : 'Papelera vacía'); return; }
+        if (!trash.length) { showToast(window.currentLang !== 'es' ? 'Empty bin' : 'Papelera vacía'); return; }
         window.__restoreTrashItem(0);
       };
 
@@ -3019,7 +3047,7 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
         const cats = document.getElementById('emoji-cats');
         if (!cats) return;
         const L = window.currentLang || 'es';
-        const ranges = L === 'en' ? [
+        const ranges = L !== 'es' ? [
           {name:'All', start:0, end:emojiList.length},
           {name:'😀 Faces', start:0, end:119},
           {name:'👋 Hands', start:120, end:141},
@@ -3135,9 +3163,9 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
         const menu = document.getElementById('context-menu');
         const L = window.currentLang || 'es';
         menu.innerHTML = `
-          <div class="ctx-item" onclick="openApp('${appId}'); document.getElementById('context-menu').classList.remove('active');">🚀 ${L==='en'?'Open':'Abrir'}</div>
-          <div class="ctx-item" onclick="openApp('${appId}'); document.getElementById('context-menu').classList.remove('active');">🗔 ${L==='en'?'Open in new window':'Abrir en nueva ventana'}</div>
-          <div class="ctx-item" onclick="togglePin(event,'${appId}'); document.getElementById('context-menu').classList.remove('active');">📌 ${L==='en'?'Pin/Unpin':'Fijar/Desfijar'}</div>
+          <div class="ctx-item" onclick="openApp('${appId}'); document.getElementById('context-menu').classList.remove('active');">🚀 ${L !== 'es'?'Open':'Abrir'}</div>
+          <div class="ctx-item" onclick="openApp('${appId}'); document.getElementById('context-menu').classList.remove('active');">🗔 ${L !== 'es'?'Open in new window':'Abrir en nueva ventana'}</div>
+          <div class="ctx-item" onclick="togglePin(event,'${appId}'); document.getElementById('context-menu').classList.remove('active');">📌 ${L !== 'es'?'Pin/Unpin':'Fijar/Desfijar'}</div>
         `;
         menu.style.left = Math.min(e.clientX, window.innerWidth - 220) + 'px';
         menu.style.top  = Math.min(e.clientY, window.innerHeight - 220) + 'px';
@@ -3287,7 +3315,7 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
               <div class="sysinfo-row"><span>${t('sysinfo.lang')}</span><b>${navigator.language}</b></div>
             </div>`;
           case 'shortcuts': {
-            const S = window.currentLang === 'en' ? [
+            const S = window.currentLang !== 'es' ? [
               ['Ctrl + K', 'Open command palette'],
               ['Ctrl + Alt + T', 'Open terminal'],
               ['Alt + F4', 'Close active window'],
@@ -3426,9 +3454,9 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
         const y = now.getFullYear(), m = now.getMonth();
         const first = new Date(y, m, 1).getDay();
         const days = new Date(y, m+1, 0).getDate();
-        const loc = window.currentLang === 'en' ? 'en-US' : 'es-ES';
+        const loc = window.__locale();
         title.innerText = now.toLocaleDateString(loc, { month:'long', year:'numeric' });
-        const head = window.currentLang === 'en' ? ['S','M','T','W','T','F','S'] : ['D','L','M','X','J','V','S'];
+        const head = window.currentLang !== 'es' ? ['S','M','T','W','T','F','S'] : ['D','L','M','X','J','V','S'];
         let html = head.map(h => `<div style="opacity:0.5;">${h}</div>`).join('');
         for (let i=0;i<first;i++) html += '<div></div>';
         for (let d=1; d<=days; d++) {
@@ -3465,7 +3493,7 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
         document.querySelectorAll('.wc-time').forEach(el => {
           const tz = el.dataset.tz;
           if (!tz) return;
-          try { el.innerText = new Date().toLocaleTimeString(window.currentLang === 'en' ? 'en-US' : 'es-ES', { timeZone: tz, hour:'2-digit', minute:'2-digit' }); } catch(e){}
+          try { el.innerText = new Date().toLocaleTimeString(window.__locale(), { timeZone: tz, hour:'2-digit', minute:'2-digit' }); } catch(e){}
         });
         const su = document.getElementById('sysinfo-uptime');
         if (su) { const s = Math.floor((Date.now()-sessionStart)/1000); su.innerText = `${Math.floor(s/3600)}h ${Math.floor((s%3600)/60)}m ${s%60}s`; }
@@ -3582,7 +3610,7 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
 
       setTimeout(() => {
         const bi = document.getElementById('battery-indicator');
-        if (bi) bi.title = window.currentLang === 'en' ? 'Simulated battery — click to toggle charging' : 'Batería simulada — clic para alternar carga';
+        if (bi) bi.title = window.currentLang !== 'es' ? 'Simulated battery — click to toggle charging' : 'Batería simulada — clic para alternar carga';
       }, 1000);
 
       window.__autoLockEnabled = LSg('dv-autolock', true);
@@ -3679,7 +3707,7 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
       window.__wordContent = LSg('dv-word', '');
       window.__pptSlides = LSg('dv-ppt', null);
       if (!window.__pptSlides) {
-        window.__pptSlides = [{ title: (window.currentLang === 'en' ? 'Welcome to davidOS' : 'Bienvenido a davidOS'), body: (window.currentLang === 'en' ? 'Presentation generated with davidOS PowerPoint.\n\nUse arrows ◀ ▶ to navigate slides.' : 'Presentación generada con davidOS PowerPoint.\n\nUsa las flechas ◀ ▶ para navegar entre diapositivas.') }];
+        window.__pptSlides = [{ title: (window.currentLang !== 'es' ? 'Welcome to davidOS' : 'Bienvenido a davidOS'), body: (window.currentLang !== 'es' ? 'Presentation generated with davidOS PowerPoint.\n\nUse arrows ◀ ▶ to navigate slides.' : 'Presentación generada con davidOS PowerPoint.\n\nUsa las flechas ◀ ▶ para navegar entre diapositivas.') }];
       }
       window.__pptCurrent = 0;
       window.__geminiMessages = LSg('dv-gemini', null);
@@ -3760,7 +3788,7 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
             <div style="padding:14px; display:flex; flex-direction:column; gap:12px; height:100%; overflow-y:auto;">
               <div style="display:flex; align-items:center; gap:10px;">
                 <div style="font-size:32px;">🎛️</div>
-                <div><b>${window.currentLang==='en'?'Control Panel':'Panel de Control'}</b><div style="font-size:11px; opacity:0.7;">${t('control.subtitle')}</div></div>
+                <div><b>${window.currentLang !== 'es'?'Control Panel':'Panel de Control'}</b><div style="font-size:11px; opacity:0.7;">${t('control.subtitle')}</div></div>
               </div>
               <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(170px,1fr)); gap:8px;">
                 ${[
@@ -3803,7 +3831,7 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
             return `
               <div style="display:flex; flex-direction:column; height:100%;">
                 <div class="app-toolbar">
-                  <b style="font-size:12px;">📊 ${window.currentLang==='en'?'Sheet1':'Hoja1'}</b>
+                  <b style="font-size:12px;">📊 ${window.currentLang !== 'es'?'Sheet1':'Hoja1'}</b>
                   <input type="text" id="excel-formula" placeholder="${t('excel.formula')}" class="login-input" style="flex:1; font-family:monospace; text-align:left; padding:4px 10px; font-size:12px;" onkeypress="if(event.key==='Enter') window.__excelFormula(this.value)">
                   <button class="app-btn" onclick="window.__excelSave()">${t('excel.save')}</button>
                   <button class="app-btn" style="background:rgba(255,255,255,0.1);" onclick="window.__excelClear()">${t('excel.clear')}</button>
@@ -3831,7 +3859,7 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
               </div>
               <div id="word-editor" contenteditable="true" spellcheck="false"
                    style="flex:1; background:white; color:#000; padding:24px; outline:none; overflow-y:auto; font-family:'Georgia',serif; font-size:14px; border-radius:4px;"
-                   oninput="window.__wordAutoSave(this.innerHTML)">${window.__wordContent || '<h1 style="font-family:Georgia; color:#1a1a1a;">'+(window.currentLang==='en'?'New document':'Documento nuevo')+'</h1><p style="color:#333;">'+(window.currentLang==='en'?'Start typing here…':'Empieza a escribir aquí…')+'</p>'}</div>
+                   oninput="window.__wordAutoSave(this.innerHTML)">${window.__wordContent || '<h1 style="font-family:Georgia; color:#1a1a1a;">'+(window.currentLang !== 'es'?'New document':'Documento nuevo')+'</h1><p style="color:#333;">'+(window.currentLang !== 'es'?'Start typing here…':'Empieza a escribir aquí…')+'</p>'}</div>
               <div style="font-size:11px; opacity:0.6; padding:4px;" id="word-stats">${t('word.words', 0)}</div>
             </div>`;
 
@@ -3895,7 +3923,7 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
 
           case 'youtube': {
             const L = window.currentLang;
-            const videos = L === 'en' ? [
+            const videos = L !== 'es' ? [
               { t:'How to build davidOS in HTML', ch:'David Dev', v:'1.2M', dur:'12:34' },
               { t:'Top 10 JavaScript tricks', ch:'Code Master', v:'450K', dur:'8:21' },
               { t:'Web Audio API in 5 minutes', ch:'SoundLab', v:'88K', dur:'5:02' },
@@ -3936,7 +3964,7 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
             <div style="padding:16px; display:flex; flex-direction:column; gap:14px; height:100%;">
               <div style="display:flex; align-items:center; gap:10px;">
                 <span style="font-size:28px;">🏃</span>
-                <div><b>${window.currentLang==='en'?'Run':'Ejecutar'}</b><div style="font-size:11px; opacity:0.7;">${t('run.subtitle')}</div></div>
+                <div><b>${window.currentLang !== 'es'?'Run':'Ejecutar'}</b><div style="font-size:11px; opacity:0.7;">${t('run.subtitle')}</div></div>
               </div>
               <div style="display:flex; gap:6px;">
                 <input type="text" id="run-input" placeholder="${t('run.placeholder')}" class="login-input" style="flex:1; text-align:left; font-family:monospace; font-size:13px;" onkeypress="if(event.key==='Enter') window.__runExec()" autofocus>
@@ -4004,12 +4032,12 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
       window.__ezpackAdd = function(){
         const name = 'file_' + (window.__ezpackQueue.length+1) + '.dat';
         window.__ezpackQueue.push(name);
-        window.__ezpackLog.push(`➕ ${window.currentLang==='en'?'Added':'Añadido'}: ${name}`);
+        window.__ezpackLog.push(`➕ ${window.currentLang !== 'es'?'Added':'Añadido'}: ${name}`);
         if (window.__ezpackLog.length > 8) window.__ezpackLog.shift();
         refreshEzpack();
       };
       window.__ezpackCompress = function(){
-        if (!window.__ezpackQueue.length) { showToast(window.currentLang==='en'?'📦 Empty queue':'📦 Cola vacía'); return; }
+        if (!window.__ezpackQueue.length) { showToast(window.currentLang !== 'es'?'📦 Empty queue':'📦 Cola vacía'); return; }
         const wrap = document.getElementById('ezpack-progress-wrap');
         const bar = document.getElementById('ezpack-bar');
         const txt = document.getElementById('ezpack-progress-text');
@@ -4023,8 +4051,8 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
           p += Math.random()*18 + 6;
           if (p >= 100) {
             p = 100; clearInterval(iv);
-            window.__ezpackLog.push(`🗜️ ${window.currentLang==='en'?'Compressed':'Comprimidos'} ${total} (${sizeBefore} → ${sizeAfter} KB, -58%)`);
-            window.__ezpackLog.push(`✨ IA ${window.currentLang==='en'?'applied':'aplicada'}: ratio ${window.currentLang==='en'?'optimal':'óptimo'}`);
+            window.__ezpackLog.push(`🗜️ ${window.currentLang !== 'es'?'Compressed':'Comprimidos'} ${total} (${sizeBefore} → ${sizeAfter} KB, -58%)`);
+            window.__ezpackLog.push(`✨ IA ${window.currentLang !== 'es'?'applied':'aplicada'}: ratio ${window.currentLang !== 'es'?'optimal':'óptimo'}`);
             window.__ezpackQueue = [];
             setTimeout(() => { wrap.style.display='none'; bar.style.width='0%'; refreshEzpack(); }, 800);
             showNotification(t('ezpack.done'));
@@ -4034,11 +4062,11 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
         }, 200);
       };
       window.__ezpackExtract = function(){
-        window.__ezpackLog.push('📂 ' + (window.currentLang==='en'?'Extracting files...':'Extrayendo archivos...'));
+        window.__ezpackLog.push('📂 ' + (window.currentLang !== 'es'?'Extracting files...':'Extrayendo archivos...'));
         if (window.__ezpackLog.length > 8) window.__ezpackLog.shift();
         refreshEzpack();
         setTimeout(() => {
-          window.__ezpackLog.push('✅ ' + (window.currentLang==='en'?'Extraction complete':'Extracción completada'));
+          window.__ezpackLog.push('✅ ' + (window.currentLang !== 'es'?'Extraction complete':'Extracción completada'));
           refreshEzpack();
         }, 900);
         showNotification(t('ezpack.extracting'));
@@ -4052,10 +4080,10 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
       }
 
       window.__controlOpen = function(app){
-        if (app === 'users') return showNotification((window.currentLang==='en'?'👤 Active user: ':'👤 Usuario activo: ') + activeUser);
+        if (app === 'users') return showNotification((window.currentLang !== 'es'?'👤 Active user: ':'👤 Usuario activo: ') + activeUser);
         if (app === 'network') return showNotification('🌐 ' + document.getElementById('wifi-display').innerText);
-        if (app === 'devices') return showNotification(window.currentLang==='en'?'🖨️ 3 devices connected':'🖨️ 3 dispositivos conectados');
-        if (app === 'updates') return showNotification(window.currentLang==='en'?'🔄 System is up to date':'🔄 El sistema está actualizado');
+        if (app === 'devices') return showNotification(window.currentLang !== 'es'?'🖨️ 3 devices connected':'🖨️ 3 dispositivos conectados');
+        if (app === 'updates') return showNotification(window.currentLang !== 'es'?'🔄 System is up to date':'🔄 El sistema está actualizado');
         if (app === 'datetime') return showNotification('📅 ' + new Date().toLocaleString());
         openApp(app);
       };
@@ -4110,7 +4138,7 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
 
       function refreshPPT(){ const b = document.getElementById('body-powerpoint'); if (b) b.innerHTML = getAppContent('powerpoint'); }
       function savePPT(){ LSs('dv-ppt', window.__pptSlides); }
-      window.__pptAdd = function(){ window.__pptSlides.push({ title:(window.currentLang==='en'?'New slide':'Nueva diapositiva'), body:'' }); window.__pptCurrent = window.__pptSlides.length-1; savePPT(); refreshPPT(); };
+      window.__pptAdd = function(){ window.__pptSlides.push({ title:(window.currentLang !== 'es'?'New slide':'Nueva diapositiva'), body:'' }); window.__pptCurrent = window.__pptSlides.length-1; savePPT(); refreshPPT(); };
       window.__pptDel = function(){ if (window.__pptSlides.length <= 1) return; window.__pptSlides.splice(window.__pptCurrent,1); window.__pptCurrent = Math.max(0, window.__pptCurrent-1); savePPT(); refreshPPT(); };
       window.__pptGo = function(i){ window.__pptCurrent = i; refreshPPT(); };
       window.__pptPrev = function(){ window.__pptCurrent = Math.max(0, window.__pptCurrent-1); refreshPPT(); };
@@ -4160,7 +4188,7 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
         renderGemini();
         window.__unlockAchievement('ai-chat');
         setTimeout(() => {
-          const arr = window.currentLang === 'en' ? GEMINI_REPLIES_EN : GEMINI_REPLIES_ES;
+          const arr = window.currentLang !== 'es' ? GEMINI_REPLIES_EN : GEMINI_REPLIES_ES;
           const reply = arr[Math.floor(Math.random()*arr.length)];
           window.__geminiMessages.push({ role:'ai', text: reply });
           LSs('dv-gemini', window.__geminiMessages);
@@ -4311,10 +4339,12 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
 
     /* Restaurar idioma guardado */
     (function initLang(){
+      (function(){ const sl=document.getElementById('login-lang'); if(sl) sl.innerHTML=window.__langOptions(localStorage.getItem('davidos-lang')||'es'); })();
       const saved = localStorage.getItem('davidos-lang');
       if (saved) {
         window.currentLang = saved;
         document.documentElement.lang = saved;
+        document.documentElement.dir = ((window.LANGS[saved]||{}).rtl) ? 'rtl' : 'ltr';
         const sel = document.getElementById('login-lang');
         if (sel) sel.value = saved;
         applyStaticTranslations();
@@ -4437,8 +4467,7 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
             <div>
               <b>${t('settings.system.lang')}</b><br>
               <select class="login-input" style="padding:4px 8px; margin-top:6px; text-align:left;" onchange="updateLanguage(this.value)">
-                <option value="es" ${window.currentLang !== 'en' ? 'selected' : ''}>Español</option>
-                <option value="en" ${window.currentLang === 'en' ? 'selected' : ''}>English</option>
+                ${window.__langOptions(window.currentLang||'es')}
               </select>
               <p style="font-size:12px; opacity:0.7; margin-top:8px;">${t('settings.system.edition')} <b>davidOS ${window.currentEdition || 'Pro'}</b></p>
             </div>
@@ -4892,7 +4921,7 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
       window.__speak = function(text){
         if (!('speechSynthesis' in window)) { showToast('⚠️ TTS no soportado'); return; }
         const u = new SpeechSynthesisUtterance(text || 'Hola, soy davidOS');
-        u.lang = window.currentLang === 'en' ? 'en-US' : 'es-ES';
+        u.lang = window.__locale();
         speechSynthesis.speak(u);
       };
 
@@ -5015,10 +5044,10 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
         const menu = document.getElementById('context-menu');
         const L = window.currentLang || 'es';
         menu.innerHTML = `
-          <div class="ctx-item" onclick="openApp('${appId}'); document.getElementById('context-menu').classList.remove('active');">🚀 ${L==='en'?'Open':'Abrir'}</div>
-          <div class="ctx-item" onclick="closeWin('win-${appId}'); document.getElementById('context-menu').classList.remove('active');">❌ ${L==='en'?'Close':'Cerrar'}</div>
+          <div class="ctx-item" onclick="openApp('${appId}'); document.getElementById('context-menu').classList.remove('active');">🚀 ${L !== 'es'?'Open':'Abrir'}</div>
+          <div class="ctx-item" onclick="closeWin('win-${appId}'); document.getElementById('context-menu').classList.remove('active');">❌ ${L !== 'es'?'Close':'Cerrar'}</div>
           <div class="ctx-sep"></div>
-          <div class="ctx-item" onclick="togglePin(event,'${appId}'); document.getElementById('context-menu').classList.remove('active');">📌 ${L==='en'?'Pin':'Fijar'}</div>
+          <div class="ctx-item" onclick="togglePin(event,'${appId}'); document.getElementById('context-menu').classList.remove('active');">📌 ${L !== 'es'?'Pin':'Fijar'}</div>
         `;
         menu.style.left = e.clientX + 'px';
         menu.style.top = (e.clientY - 150) + 'px';
@@ -6549,7 +6578,7 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
       try {
         window.speechSynthesis.cancel();
         const u = new SpeechSynthesisUtterance(text);
-        u.rate = rate; u.pitch = pitch; u.lang = (window.currentLang === 'en') ? 'en-US' : 'es-ES';
+        u.rate = rate; u.pitch = pitch; u.lang = window.__locale();
         window.speechSynthesis.speak(u);
       } catch(e){ showNotification && showNotification('⚠️ Síntesis de voz no disponible'); }
     };
@@ -10211,7 +10240,7 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
   'use strict';
   const ld=(k,d)=>{try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}};
   const sv=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
-  const X=(es,en)=>window.currentLang==='en'?en:es;
+  const X=(es,en)=>window.currentLang !== 'es'?en:es;
   const E=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   document.head.insertAdjacentHTML('beforeend','<style>.icon[data-key]{touch-action:none}.br-tab{padding:4px 8px;border-radius:6px 6px 0 0;font-size:11px;display:flex;gap:6px;align-items:center;cursor:pointer;max-width:150px;background:rgba(255,255,255,.08)}.br-tab.on{background:rgba(255,255,255,.22)}.br-tab span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.br-bm{padding:2px 8px;font-size:11px;border-radius:10px;background:rgba(255,255,255,.1);cursor:pointer;white-space:nowrap}</style>');
 
@@ -10503,7 +10532,7 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
    ========================================================================== */
 (function(){
   'use strict';
-  const X=(es,en)=>window.currentLang==='en'?en:es;
+  const X=(es,en)=>window.currentLang !== 'es'?en:es;
   const ld=(k,d)=>{try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}};
   const sv=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
 
