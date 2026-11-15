@@ -10673,5 +10673,536 @@ body.light-mode .aa-head input{background:rgba(0,0,0,.06)}
   };
 })();
 </script>
+<!-- ===================================================================
+     BIOS UPDATE 2.0  -  se instala / desinstala desde Ajustes > davidOS Update
+     Mientras no esté instalada, la BIOS se comporta exactamente como antes.
+     =================================================================== -->
+<style id="bios-upd-css">
+/* ---------- BIOS 3.2 (solo con la actualización instalada) ---------- */
+body.bios2 .bios-container{min-height:0;overflow:hidden}
+body.bios2 #bios-content-area{overflow-y:auto;padding-right:8px}
+.bios-menu-item.bios-new{color:#55ffff}
+.bios-menu-item.bios-new.active{color:#fff}
+.bios-footer .bios-new{opacity:.9}
+.bios-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:3px 6px;margin:2px 0;border:1px solid transparent}
+.bios-row:hover{border-color:#5555ff;background:rgba(85,85,255,.25)}
+.bios-row .bios-lbl{flex:1}
+.bios-field{font:inherit;background:#000080;color:#ffff55;border:1px solid #fff;padding:1px 8px;min-width:150px;text-align:center;cursor:pointer;border-radius:0}
+.bios-field:hover,.bios-field:focus{background:#ffff55;color:#0000aa;outline:none}
+.bios-mini{font:inherit;background:#5555ff;color:#fff;border:1px solid #fff;padding:0 7px;cursor:pointer;border-radius:0}
+.bios-mini:hover,.bios-mini:focus{background:#fff;color:#0000aa;outline:none}
+.bios-bar{display:inline-block;height:10px;width:150px;background:#000080;border:1px solid #fff;position:relative;flex-shrink:0}
+.bios-bar i{position:absolute;left:0;top:0;bottom:0;background:#55ff55;transition:width .5s}
+.bios-bar i.warn{background:#ffff55}
+.bios-bar i.hot{background:#ff5555}
+.bios-hl{color:#55ffff}
+.bios-warn{color:#ffff55;margin-top:8px}
+.bios-note{color:#aaaaaa;font-size:12px;margin-top:10px}
+.bios-log{max-height:230px;overflow-y:auto;border:1px solid #fff;padding:6px;font-size:12px;margin-top:6px}
+.bios-input{font:inherit;background:#000;color:#fff;border:1px solid #fff;padding:2px 6px;width:220px;border-radius:0;margin:2px 0}
+.bios-btn{font:inherit;background:#5555ff;color:#fff;border:1px solid #fff;padding:2px 12px;cursor:pointer;border-radius:0;margin:6px 8px 0 0}
+.bios-btn:hover,.bios-btn:focus{background:#fff;color:#0000aa;outline:none}
+
+/* ---------- Estética 16 bits (aviso + flasheo) ---------- */
+#bu16{position:fixed;inset:0;z-index:20000000;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.6);background-image:repeating-linear-gradient(0deg,rgba(0,0,0,.35) 0 1px,transparent 1px 3px)}
+#bu16.on{display:flex}
+.bu16-win{width:470px;max-width:92vw;background:#c0c0c0 !important;color:#000 !important;font-family:'Courier New',monospace !important;font-size:14px;border:2px solid;border-color:#fff #404040 #404040 #fff;box-shadow:3px 3px 0 #000;border-radius:0 !important;-webkit-font-smoothing:none;text-rendering:optimizeSpeed}
+.bu16-title{background:#0000a8;color:#fff;font-weight:bold;padding:3px 6px;letter-spacing:1px;display:flex;justify-content:space-between;align-items:center}
+.bu16-title span:last-child{background:#c0c0c0;color:#000;border:2px solid;border-color:#fff #404040 #404040 #fff;padding:0 6px;line-height:14px;font-size:10px}
+.bu16-body{display:flex;gap:16px;padding:18px 16px 6px;align-items:flex-start}
+.bu16-body svg{flex-shrink:0;image-rendering:pixelated}
+.bu16-msg{flex:1;line-height:1.4}
+.bu16-btns{display:flex;justify-content:center;gap:18px;padding:12px 16px 16px}
+.bu16-btn{min-width:96px;padding:5px 16px;background:#c0c0c0 !important;color:#000 !important;font:bold 14px 'Courier New',monospace !important;border:2px solid !important;border-color:#fff #404040 #404040 #fff !important;border-radius:0 !important;cursor:pointer;box-shadow:1px 1px 0 #000}
+.bu16-btn:active{border-color:#404040 #fff #fff #404040 !important;transform:translate(1px,1px)}
+.bu16-btn:focus{outline:1px dotted #000;outline-offset:-5px}
+.bu16-btn.def{box-shadow:0 0 0 2px #000,1px 1px 0 2px #000}
+#bu16-flash{position:fixed;inset:0;z-index:20000001;background:#0000a8;color:#fff;font-family:'Courier New',monospace;display:none;flex-direction:column;padding:28px 34px;box-sizing:border-box;font-size:15px;line-height:1.5;overflow:hidden;-webkit-font-smoothing:none}
+#bu16-flash.on{display:flex}
+#bu16-flash .fl-head{background:#c0c0c0;color:#000;padding:2px 10px;font-weight:bold;margin-bottom:16px}
+#bu16-flash .fl-bar{font-size:18px;white-space:pre;color:#55ff55}
+#bu16-flash .fl-log{flex:1;overflow:hidden;color:#c0c0c0}
+#bu16-flash .fl-warn{color:#ffff55;margin-top:10px;animation:bu16blink 1s steps(2,start) infinite}
+#bu16-flash .fl-ok{color:#55ff55;margin-top:10px}
+@keyframes bu16blink{to{visibility:hidden}}
+</style>
+
+<script id="bios-update-script">
+(function(){
+'use strict';
+if (typeof davidBIOS === 'undefined' || typeof setBiosTab !== 'function') return;
+
+const $ = id => document.getElementById(id);
+const L = (es, en) => ((window.currentLang || 'es') === 'es') ? es : en;
+const K_INST = 'davidos-bios-update', K_CFG = 'davidos-bios-cfg', K_LOG = 'davidos-bios-log';
+const SSD = 'Virtual SSD (davidOS)';
+const rd = k => { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } };
+const wr = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } };
+const rm = k => { try { localStorage.removeItem(k); } catch (e) {} };
+
+/* ---------- configuración ---------- */
+const DEF = { cpu:'4.40', turbo:true, ram:'3200', xmp:false, fan:'standard', acrec:'off', wol:false,
+              secureBoot:true, fast:true, verbose:false, beep:true, boot:[SSD, 'Network PXE', 'USB Flash Drive'] };
+const OPTS = { cpu:['4.40','4.60','4.80','5.00'], ram:['3200','3600','4000'], fan:['silent','standard','turbo'],
+               acrec:['off','on','last'], turbo:[true,false], xmp:[true,false], wol:[true,false],
+               secureBoot:[true,false], fast:[true,false], verbose:[false,true], beep:[true,false] };
+const installed = () => { const v = rd(K_INST); return !!(v && v.v === '2.0'); };
+const getCfg = () => {
+  const s = rd(K_CFG) || {}; const c = Object.assign({}, DEF, s);
+  c.boot = (Array.isArray(s.boot) && s.boot.length === 3) ? s.boot.slice() : DEF.boot.slice();
+  return c;
+};
+const putCfg = c => wr(K_CFG, c);
+const hash = s => { let x = 5381; for (const ch of String(s)) x = ((x << 5) + x + ch.charCodeAt(0)) | 0; return 'h' + (x >>> 0).toString(16); };
+
+const ORIG_CFG = { secureBoot: davidBIOS.config.secureBoot, cpuFrequency: davidBIOS.config.cpuFrequency,
+                   ramSpeed: davidBIOS.config.ramSpeed, bootOrder: davidBIOS.config.bootOrder.slice() };
+function syncCfg(c) {
+  davidBIOS.config.secureBoot = c.secureBoot; davidBIOS.config.cpuFrequency = c.cpu + ' GHz';
+  davidBIOS.config.ramSpeed = c.ram + ' MHz'; davidBIOS.config.bootOrder = c.boot.slice();
+}
+function restoreCfg() {
+  davidBIOS.config.secureBoot = ORIG_CFG.secureBoot; davidBIOS.config.cpuFrequency = ORIG_CFG.cpuFrequency;
+  davidBIOS.config.ramSpeed = ORIG_CFG.ramSpeed; davidBIOS.config.bootOrder = ORIG_CFG.bootOrder.slice();
+}
+
+/* ---------- registro de eventos ---------- */
+const getLog = () => rd(K_LOG) || [];
+function log(msg) { const a = getLog(); a.push({ t: Date.now(), m: msg }); wr(K_LOG, a.slice(-40)); }
+
+/* ---------- textos de la BIOS (solo cambian con la actualización) ---------- */
+const KEYS = ['bios.copyright','bios.title','bios.biosver','bios.cpu','bios.processor','bios.memory'];
+const SAVED = {};
+function patchI18N(on, apply) {
+  if (typeof I18N === 'undefined') return;
+  ['es','en'].forEach(lang => {
+    const o = I18N[lang]; if (!o) return;
+    KEYS.forEach(k => { if (!((lang + k) in SAVED)) SAVED[lang + k] = o[k]; });
+    if (on) {
+      const c = getCfg();
+      o['bios.copyright'] = 'davidOS BIOS (C) 2026 David Corp. Release 3.2 [BIOS Update 2.0]';
+      o['bios.title']     = 'davidOS BIOS Setup Utility - Version 3.2.0 (BIOS Update 2.0)';
+      o['bios.biosver']   = 'BIOS Version: davidOS UEFI v3.2 (BIOS Update 2.0)';
+      o['bios.cpu']       = 'CPU: Intel(R) Core(TM) i5-1235U @ ' + c.cpu + 'GHz';
+      o['bios.processor'] = 'Processor: Intel(R) Core(TM) i5-1235U CPU @ ' + c.cpu + 'GHz';
+      o['bios.memory']    = 'System Memory: 16384 MB DDR4 @ ' + c.ram + ' MHz';
+    } else {
+      KEYS.forEach(k => { if (SAVED[lang + k] !== undefined) o[k] = SAVED[lang + k]; });
+    }
+  });
+  if (apply) { try { applyStaticTranslations(); } catch (e) {} }
+}
+
+/* ---------- pitido ---------- */
+let ac = null;
+function beep(force, f, d) {
+  if (!force && !(installed() && getCfg().beep)) return;
+  try {
+    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = 'square'; o.frequency.value = f || 880; g.gain.value = 0.03;
+    o.connect(g); g.connect(ac.destination); o.start(); o.stop(ac.currentTime + (d || 0.05));
+  } catch (e) {}
+}
+
+/* ---------- POST ampliado ---------- */
+const origRunPost = davidBIOS.runPost.bind(davidBIOS);
+davidBIOS.runPost = function (onComplete) {
+  if (!installed()) return origRunPost(onComplete);
+  const c = getCfg(); syncCfg(c);
+  const postLog = $('post-log');
+  const logs = [ '*** BIOS Update 2.0 detected - extended POST enabled ***', t('bios.post.1'),
+    'Testing System RAM: 16384 MB OK @ ' + c.ram + ' MHz' + (c.xmp ? ' [XMP]' : ''),
+    'Initializing CPU: Intel Core i5-1235U [10 Cores / 12 Threads] OK @ ' + c.cpu + ' GHz' + (c.turbo ? ' (Turbo Boost)' : '') ];
+  if (c.verbose) logs.push('TPM 2.0 module ... OK', 'Secure Boot: ' + (c.secureBoot ? 'ENABLED' : 'DISABLED'),
+    'PCIe Gen4 x4 NVMe link ... OK', 'USB 3.2 controller ... OK', 'Network adapter MAC 00:1A:2B:3C:4D:5E ... link up',
+    'Fan profile: ' + c.fan.toUpperCase() + ' | Wake on LAN: ' + (c.wol ? 'ON' : 'OFF'));
+  logs.push(t('bios.post.4'));
+  const ssdAt = c.boot.indexOf(SSD);
+  for (let i = 0; i < ssdAt; i++) logs.push('Boot device: ' + c.boot[i] + ' ... no bootable media, trying next');
+  logs.push('Booting from ' + SSD + ' ...', t('bios.post.5'), t('bios.post.6'));
+  beep(false, 1000, 0.08);
+  let i = 0;
+  const iv = setInterval(() => {
+    if (davidBIOS.bootedToSetup) { clearInterval(iv); return; }
+    if (i < logs.length) { const d = document.createElement('div'); d.textContent = '> ' + logs[i]; postLog.appendChild(d); i++; }
+    else {
+      clearInterval(iv); log('System boot completed (Fast Boot ' + (c.fast ? 'ON' : 'OFF') + ')');
+      setTimeout(() => { $('post-screen').style.display = 'none'; onComplete(); }, c.fast ? 300 : 800);
+    }
+  }, c.fast ? 160 : 380);
+};
+
+/* ---------- interfaz de la BIOS ---------- */
+let pending = null, locked = false, tries = 0, curTab = 'main', timer = null;
+const stopTimers = () => { if (timer) clearInterval(timer); timer = null; };
+const TAB_ORDER = ['main', 'kernel', 'perf', 'hwmon', 'boot', 'security', 'log'];
+const clonePending = () => { const p = getCfg(); delete p.pass; return p; };
+
+function hl(tab) {
+  document.querySelectorAll('.bios-menu-item').forEach(el =>
+    el.classList.toggle('active', (el.getAttribute('onclick') || '').indexOf("'" + tab + "'") > -1));
+}
+function mkItem(onclick, es, en) {
+  const d = document.createElement('div'); d.className = 'bios-menu-item bios-new';
+  d.setAttribute('onclick', onclick); d.textContent = L(es, en); return d;
+}
+function decorateUi() {
+  document.body.classList.add('bios2');
+  document.querySelectorAll('.bios-new').forEach(e => e.remove());
+  const side = document.querySelector('.bios-sidebar'); if (!side) return;
+  const items = Array.from(side.querySelectorAll('.bios-menu-item')); // main, kernel, boot, security, exit
+  if (items.length < 5) return;
+  side.insertBefore(mkItem("setBiosTab('perf')", '+ Rendimiento / Energía', '+ Performance / Power'), items[2]);
+  side.insertBefore(mkItem("setBiosTab('hwmon')", '+ Monitor de Hardware', '+ Hardware Monitor'), items[2]);
+  side.insertBefore(mkItem("setBiosTab('log')", '+ Registro de Eventos', '+ Event Log'), items[4]);
+  side.insertBefore(mkItem('__biosUpd.defaults()', '+ Cargar Predeterminados', '+ Load Defaults'), items[4]);
+  const f = document.querySelector('.bios-footer');
+  if (f) { const s = document.createElement('span'); s.className = 'bios-new';
+    s.textContent = L('↑↓ Menú · F9 Predeterminados · Esc Salir sin guardar', '↑↓ Menu · F9 Defaults · Esc Discard & exit');
+    f.insertBefore(s, f.lastElementChild); }
+}
+
+/* --- formato de valores --- */
+function fmt(k, v) {
+  if (k === 'cpu') return v + ' GHz';
+  if (k === 'ram') return v + ' MHz';
+  if (k === 'fan') return { silent: L('Silencioso','Silent'), standard: 'Standard', turbo: 'Turbo' }[v];
+  if (k === 'acrec') return { off: 'Power Off', on: 'Power On', last: 'Last State' }[v];
+  if (k === 'verbose') return v ? 'Verbose' : 'Normal';
+  return v ? 'Enabled' : 'Disabled';
+}
+function row(label, key, p) {
+  return '<div class="bios-row"><span class="bios-lbl">' + label + '</span><span>' +
+    '<button class="bios-mini" onclick="__biosUpd.step(\'' + key + '\',-1)">◄</button> ' +
+    '<button class="bios-field" onclick="__biosUpd.step(\'' + key + '\',1)">' + fmt(key, p[key]) + '</button> ' +
+    '<button class="bios-mini" onclick="__biosUpd.step(\'' + key + '\',1)">►</button></span></div>';
+}
+const note = (es, en) => '<p class="bios-note">' + L(es, en) + '</p>';
+
+/* --- pestañas nuevas / mejoradas --- */
+function rMain() {
+  const c = getCfg();
+  return '<h3>' + L('Información del sistema', 'System Information') + '</h3><br>' +
+    '<p>BIOS Version: <span class="bios-hl">davidOS UEFI v3.2.0 (BIOS Update 2.0)</span></p>' +
+    '<p>BIOS Build: 2026.11.U2 &middot; ' + L('Fecha', 'Date') + ': 11/14/2026</p>' +
+    '<p>Processor: Intel(R) Core(TM) i5-1235U CPU @ ' + c.cpu + ' GHz' + (c.turbo ? ' (Turbo)' : '') + '</p>' +
+    '<p>Baseboard: HP 24-cb1009la Virtual Mainboard</p>' +
+    '<p>System Memory: 16384 MB DDR4 @ ' + c.ram + ' MHz' + (c.xmp ? ' [XMP]' : '') + '</p>' +
+    '<p>Storage: NVMe davidOS-Drive (512 GB)</p>' +
+    '<p>TPM: 2.0 ' + L('Presente', 'Present') + ' &middot; Secure Boot: <b>' + (c.secureBoot ? 'ENABLED' : 'DISABLED') + '</b></p><br>' +
+    '<p>' + L('Hora del sistema', 'System Time') + ': <span id="bios-clock">' + new Date().toLocaleTimeString() + '</span></p>' +
+    note('Usa ↑ ↓ para moverte por el menú, F10 para guardar y salir.', 'Use ↑ ↓ to move through the menu, F10 to save & exit.');
+}
+function rPerf() {
+  const p = pending;
+  return '<h3>' + L('Rendimiento y energía', 'Performance & Power') + '</h3><br>' +
+    row('CPU Frequency', 'cpu', p) + row('Turbo Boost', 'turbo', p) + row('DRAM Frequency', 'ram', p) +
+    row('XMP Profile', 'xmp', p) + row('Fan Profile', 'fan', p) + row('AC Power Recovery', 'acrec', p) +
+    row('Wake on LAN', 'wol', p) +
+    (parseFloat(p.cpu) >= 5 ? '<p class="bios-warn">! ' + L('Overclock agresivo: la temperatura subirá bastante.', 'Aggressive overclock: temperatures will rise a lot.') + '</p>' : '') +
+    note('Los cambios se aplican al elegir Save & Exit (F10).', 'Changes apply when you choose Save & Exit (F10).');
+}
+function sensors() {
+  const c = getCfg(), f = parseFloat(c.cpu), procs = (davidKernel.processes || []).length;
+  const load = Math.min(98, 6 + procs * 5 + Math.random() * 9);
+  const fanOff = { silent: 6, standard: 0, turbo: -7 }[c.fan], fanBase = { silent: 950, standard: 1550, turbo: 2700 }[c.fan];
+  const cpu = 33 + (f - 4.4) * 16 + (c.turbo ? 3 : 0) + load * 0.24 + fanOff + Math.random() * 1.5;
+  return { cpu: cpu, fan: fanBase + Math.max(0, cpu - 35) * 28 + Math.random() * 40,
+           vcore: 1.02 + (f - 4.4) * 0.2 + (c.turbo ? 0.02 : 0) + Math.random() * 0.006,
+           dram: (c.xmp ? 1.40 : 1.35) + Math.random() * 0.004, load: load, ssd: 35 + load * 0.05 + Math.random() };
+}
+const HW = [['cpu', 'CPU Temperature', 100], ['fan', 'CPU Fan', 3500], ['vcore', 'Vcore', 1.5],
+            ['dram', 'DRAM Voltage', 1.5], ['load', 'CPU Load', 100], ['ssd', 'NVMe Temperature', 80]];
+function rHw() {
+  return '<h3>' + L('Monitor de hardware', 'Hardware Monitor') + '</h3><br>' + HW.map(h =>
+    '<div class="bios-row"><span class="bios-lbl">' + h[1] + '</span><span id="hw-' + h[0] + '" style="min-width:90px;text-align:right">--</span>' +
+    '<span class="bios-bar"><i id="hwb-' + h[0] + '" style="width:0"></i></span></div>').join('') +
+    note('Valores en tiempo real según la configuración guardada.', 'Live values based on the saved configuration.');
+}
+function updHw() {
+  const s = sensors(), unit = { cpu: ' °C', fan: ' RPM', vcore: ' V', dram: ' V', load: ' %', ssd: ' °C' };
+  HW.forEach(h => {
+    const v = s[h[0]], e = $('hw-' + h[0]), b = $('hwb-' + h[0]); if (!e || !b) return;
+    e.textContent = (h[0] === 'vcore' || h[0] === 'dram' ? v.toFixed(3) : Math.round(v)) + unit[h[0]];
+    b.style.width = Math.min(100, v / h[2] * 100) + '%';
+    b.className = (h[0] === 'cpu' || h[0] === 'ssd') ? (v >= 80 ? 'hot' : v >= 65 ? 'warn' : '') : '';
+  });
+}
+const ORD = ['1st', '2nd', '3rd'];
+function rBoot() {
+  const p = pending;
+  return '<h3>' + L('Configuración de arranque', 'Boot Configuration') + '</h3><br>' + p.boot.map((d, i) =>
+    '<div class="bios-row"><span class="bios-lbl">' + ORD[i] + ' Boot Device</span><span>' +
+    '<button class="bios-mini" onclick="__biosUpd.move(' + i + ',-1)">▲</button> <b style="display:inline-block;min-width:190px;text-align:center">' + d + '</b> ' +
+    '<button class="bios-mini" onclick="__biosUpd.move(' + i + ',1)">▼</button></span></div>').join('') + '<br>' +
+    row('Fast Boot', 'fast', p) + row('POST Messages', 'verbose', p) + row('BIOS Beep', 'beep', p) +
+    note('Si el SSD no es el primero, el POST probará los anteriores antes de arrancar.', 'If the SSD is not first, POST will try the earlier devices before booting.');
+}
+function rSec() {
+  const p = pending, has = !!getCfg().pass;
+  return '<h3>' + L('Seguridad', 'Security') + '</h3><br>' + row('Secure Boot', 'secureBoot', p) + '<br>' +
+    '<p>Administrator Password: <b>' + (has ? '[SET]' : '[NOT SET]') + '</b></p>' +
+    '<p>User Password: [NOT SET]</p><br>' +
+    '<input id="bios-pw1" class="bios-input" type="password" autocomplete="off" placeholder="' + L('Nueva contraseña', 'New password') + '"><br>' +
+    '<input id="bios-pw2" class="bios-input" type="password" autocomplete="off" placeholder="' + L('Confirmar contraseña', 'Confirm password') + '"><br>' +
+    '<button class="bios-btn" onclick="__biosUpd.setPass()">' + L('Establecer', 'Set') + '</button>' +
+    (has ? '<button class="bios-btn" onclick="__biosUpd.removePass()">' + L('Quitar', 'Remove') + '</button>' : '') +
+    '<p id="bios-msg" class="bios-warn"></p>' +
+    note('Con contraseña, la BIOS la pedirá al pulsar F2/Supr. Desinstalar la actualización la elimina.', 'With a password set, the BIOS asks for it on F2/Del. Uninstalling the update removes it.');
+}
+function rLog() {
+  const a = getLog().slice().reverse(), loc = (window.__locale ? window.__locale() : undefined);
+  return '<h3>' + L('Registro de eventos', 'Event Log') + '</h3><br><div class="bios-log">' +
+    (a.length ? a.map(e => '<p>[' + new Date(e.t).toLocaleString(loc) + '] ' + e.m + '</p>').join('') : '<p>' + L('(vacío)', '(empty)') + '</p>') +
+    '</div><button class="bios-btn" onclick="__biosUpd.clearLog()">' + L('Borrar registro', 'Clear log') + '</button>';
+}
+function msg(t) { const e = $('bios-msg'); if (e) e.textContent = t; }
+
+function show(tab) {
+  stopTimers(); curTab = tab;
+  const R = { main: rMain, perf: rPerf, hwmon: rHw, boot: rBoot, security: rSec, log: rLog };
+  if (R[tab]) {
+    if (!pending) pending = clonePending();
+    $('bios-content-area').innerHTML = R[tab](); hl(tab);
+    if (tab === 'main') timer = setInterval(() => { const e = $('bios-clock'); if (e) e.textContent = new Date().toLocaleTimeString(); }, 1000);
+    if (tab === 'hwmon') { updHw(); timer = setInterval(updHw, 1000); }
+  } else { origSet(tab); hl(tab); }
+}
+
+/* --- contraseña de administrador --- */
+function showLogin() {
+  $('bios-content-area').innerHTML = '<h3>' + L('Contraseña de administrador', 'Administrator password') + '</h3><br>' +
+    '<p>' + L('Introduce la contraseña para entrar a la configuración:', 'Enter the password to access Setup:') + '</p><br>' +
+    '<input id="bios-login" class="bios-input" type="password" autocomplete="off" onkeydown="if(event.key===\'Enter\')__biosUpd.login()">' +
+    '<p id="bios-msg" class="bios-warn"></p>' + note('Esc: continuar con el arranque', 'Esc: continue booting');
+  setTimeout(() => { const i = $('bios-login'); if (i) i.focus(); }, 30);
+}
+
+/* --- envolver funciones originales --- */
+const origSet = window.setBiosTab;
+window.setBiosTab = function (tab) {
+  if (!installed()) { stopTimers(); origSet(tab); hl(tab); return; }
+  if (locked) { showLogin(); return; }
+  beep(); show(tab);
+};
+const origExit = window.exitBios;
+function commit() {
+  if (!pending) return;
+  const cur = getCfg(), merged = Object.assign({}, cur, pending);
+  if (JSON.stringify(cur) !== JSON.stringify(merged)) {
+    putCfg(merged); syncCfg(merged); patchI18N(true, false);
+    log('Setup saved: CPU ' + merged.cpu + ' GHz, RAM ' + merged.ram + ' MHz, Fan ' + merged.fan + ', Secure Boot ' + (merged.secureBoot ? 'ON' : 'OFF'));
+  }
+}
+window.exitBios = function (discard) {
+  stopTimers();
+  if (installed()) { if (discard !== true && !locked) commit(); pending = null; locked = false; tries = 0; }
+  origExit();
+};
+const origOpen = davidBIOS.openSetup.bind(davidBIOS);
+davidBIOS.openSetup = function () {
+  if (!installed()) { origOpen(); hl('main'); return; }
+  pending = clonePending(); locked = !!getCfg().pass; tries = 0; curTab = 'main';
+  decorateUi(); log('Entered BIOS Setup'); origOpen();
+};
+
+/* --- teclado --- */
+document.addEventListener('keydown', function (e) {
+  const scr = $('bios-screen');
+  if (!scr || !scr.classList.contains('active') || !installed()) return;
+  const inField = /INPUT|SELECT|TEXTAREA/.test(e.target.tagName || '');
+  if (e.key === 'Escape') { e.preventDefault(); window.exitBios(true); }
+  else if (e.key === 'F10') { e.preventDefault(); window.exitBios(); }
+  else if (e.key === 'F9' && !locked) { e.preventDefault(); API.defaults(); }
+  else if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && !inField && !locked) {
+    e.preventDefault();
+    const i = Math.max(0, TAB_ORDER.indexOf(curTab)), n = (i + (e.key === 'ArrowDown' ? 1 : -1) + TAB_ORDER.length) % TAB_ORDER.length;
+    window.setBiosTab(TAB_ORDER[n]);
+  }
+}, true);
+
+/* --- acciones de la BIOS --- */
+const API = {
+  step(k, dir) { const a = OPTS[k]; let i = a.indexOf(pending[k]); i = (i + dir + a.length) % a.length; pending[k] = a[i]; beep(); show(curTab); },
+  move(i, dir) { const j = i + dir, b = pending.boot; if (j < 0 || j > 2) return; const x = b[i]; b[i] = b[j]; b[j] = x; beep(); show('boot'); },
+  defaults() { if (!installed() || locked) return; pending = Object.assign({}, DEF, { boot: DEF.boot.slice() }); beep(); show(curTab); },
+  login() {
+    const i = $('bios-login'); if (!i) return;
+    if (hash(i.value) === getCfg().pass) { locked = false; log('Setup unlocked'); show('main'); return; }
+    tries++; log('Wrong BIOS password (' + tries + '/3)'); i.value = '';
+    msg(L('Contraseña incorrecta (' + tries + '/3)', 'Wrong password (' + tries + '/3)'));
+    if (tries >= 3) { msg(L('Demasiados intentos. Continuando con el arranque...', 'Too many attempts. Continuing boot...')); setTimeout(() => window.exitBios(true), 1000); }
+  },
+  setPass() {
+    const a = $('bios-pw1').value, b = $('bios-pw2').value;
+    if (!a) return msg(L('Escribe una contraseña.', 'Type a password.'));
+    if (a !== b) return msg(L('Las contraseñas no coinciden.', 'Passwords do not match.'));
+    const c = getCfg(); c.pass = hash(a); putCfg(c); log('Administrator password set'); show('security');
+    msg(L('Contraseña establecida.', 'Password set.'));
+  },
+  removePass() { const c = getCfg(); delete c.pass; putCfg(c); log('Administrator password removed'); show('security'); msg(L('Contraseña eliminada.', 'Password removed.')); },
+  clearLog() { wr(K_LOG, []); show('log'); },
+
+  /* ----- Ajustes > davidOS Update ----- */
+  install() {
+    if (installed()) return;
+    dialog({ title: 'ADVERTENCIA.EXE [16-BIT]',
+      msg: L('A continuación, se actualizará la BIOS, si hay errores, desactualízala, ¿Quieres continuar?',
+             'Next, the BIOS will be updated. If there are errors, roll it back. Do you want to continue?'),
+      yes: L('Sí', 'Yes'), no: L('Nop :P', 'Nope :P'),
+      onYes: () => runFlash('install'),
+      onNo: () => { if (window.showToast) showToast(L('😅 Vale, la BIOS se queda como está', '😅 OK, the BIOS stays as it is')); } });
+  },
+  uninstall() {
+    if (!installed()) return;
+    dialog({ title: 'BIOS_UPDATE.EXE [16-BIT]',
+      msg: L('Se desinstalará BIOS Update 2.0 y se restaurará la BIOS 3.0.1. ¿Quieres continuar?',
+             'BIOS Update 2.0 will be uninstalled and BIOS 3.0.1 restored. Do you want to continue?'),
+      yes: L('Sí', 'Yes'), no: 'No', onYes: () => runFlash('uninstall') });
+  },
+  check() {
+    const s = $('upd-status'); if (!s) return;
+    s.textContent = L('Buscando actualizaciones...', 'Checking for updates...');
+    setTimeout(() => { const s2 = $('upd-status'); if (s2) s2.textContent = updStatus(); }, 1400);
+  }
+};
+window.__biosUpd = API;
+
+/* ---------- diálogo 16 bits ---------- */
+function iconSVG() {
+  let r = '';
+  for (let y = 1; y <= 14; y++) {
+    const h = Math.floor(y / 2), l = 7 - h, rr = 8 + h;
+    r += '<rect x="' + l + '" y="' + y + '" width="' + (rr - l + 1) + '" height="1" fill="#000"/>';
+    if (y > 1 && y < 14) r += '<rect x="' + (l + 1) + '" y="' + y + '" width="' + (rr - l - 1) + '" height="1" fill="#ffff55"/>';
+  }
+  r += '<rect x="7" y="5" width="2" height="5" fill="#000"/><rect x="7" y="11" width="2" height="2" fill="#000"/>';
+  return '<svg viewBox="0 0 16 16" width="52" height="52" shape-rendering="crispEdges">' + r + '</svg>';
+}
+function dialog(o) {
+  let d = $('bu16'); if (!d) { d = document.createElement('div'); d.id = 'bu16'; document.body.appendChild(d); }
+  d.innerHTML = '<div class="bu16-win" role="alertdialog" aria-modal="true"><div class="bu16-title"><span>' + o.title + '</span><span>X</span></div>' +
+    '<div class="bu16-body">' + iconSVG() + '<div class="bu16-msg">' + o.msg + '</div></div>' +
+    '<div class="bu16-btns"><button class="bu16-btn def" id="bu16-yes">' + o.yes + '</button><button class="bu16-btn" id="bu16-no">' + o.no + '</button></div></div>';
+  d.classList.add('on'); beep(true, 440, 0.15);
+  const kh = e => { if (e.key === 'Escape') { e.stopPropagation(); close(); o.onNo && o.onNo(); } };
+  const close = () => { d.classList.remove('on'); document.removeEventListener('keydown', kh, true); };
+  $('bu16-yes').onclick = () => { close(); o.onYes && o.onYes(); };
+  $('bu16-no').onclick = () => { close(); o.onNo && o.onNo(); };
+  document.addEventListener('keydown', kh, true);
+  $('bu16-yes').focus();
+}
+
+/* ---------- flasheo ---------- */
+function doInstall() {
+  wr(K_INST, { v: '2.0', date: Date.now() });
+  if (!rd(K_CFG)) putCfg(Object.assign({}, DEF, { boot: DEF.boot.slice() }));
+  syncCfg(getCfg()); patchI18N(true, true); document.body.classList.add('bios2'); log('BIOS Update 2.0 installed');
+}
+function doUninstall() {
+  rm(K_INST); rm(K_CFG); rm(K_LOG);
+  restoreCfg(); patchI18N(false, true); document.body.classList.remove('bios2');
+  document.querySelectorAll('.bios-new').forEach(e => e.remove()); pending = null; locked = false;
+}
+function rerenderSettings() { const b = $('body-settings'); if (b && window.getAppContent) b.innerHTML = getAppContent('settings'); }
+function runFlash(mode) {
+  const inst = mode === 'install';
+  let el = $('bu16-flash'); if (!el) { el = document.createElement('div'); el.id = 'bu16-flash'; document.body.appendChild(el); }
+  const steps = inst ? [
+    [0, 'Reading BIOS_UPDATE_2.0.CAP ... OK'], [8, 'Verifying package signature (RSA-2048) ... OK'],
+    [18, 'Backing up current BIOS (v3.0.1) ... OK'], [30, 'Erasing flash block 0x0000-0x3FFF ...'],
+    [45, 'Writing flash block 0x0000-0x3FFF ...'], [62, 'Writing modules: OVERCLOCK.MOD HWMON.MOD EVTLOG.MOD ...'],
+    [80, 'Writing security module SECURE.MOD ...'], [92, 'Verifying flash checksum ... OK'], [100, 'Update complete.']
+  ] : [
+    [0, 'Reading BIOS_BACKUP_3.0.1.ROM ... OK'], [12, 'Verifying backup checksum ... OK'],
+    [28, 'Erasing flash block 0x0000-0x3FFF ...'], [50, 'Restoring flash block 0x0000-0x3FFF ...'],
+    [72, 'Removing extended modules ...'], [90, 'Verifying flash checksum ... OK'], [100, 'Rollback complete.']
+  ];
+  el.innerHTML = '<div class="fl-head">davidOS FLASH UTILITY v2.0 - (C) 2026 David Corp.</div>' +
+    '<div>Package : ' + (inst ? 'BIOS_UPDATE_2.0.CAP' : 'BIOS_BACKUP_3.0.1.ROM') + '</div>' +
+    '<div>Target  : davidOS UEFI ' + (inst ? 'v3.0.1 -> v3.2.0' : 'v3.2.0 -> v3.0.1') + '</div><br>' +
+    '<div class="fl-bar" id="fl-bar"></div><br><div class="fl-log" id="fl-log"></div>' +
+    '<div class="fl-warn" id="fl-warn">!! ' + L('NO APAGUES NI REINICIES EL SISTEMA', 'DO NOT POWER OFF OR RESTART') + ' !!</div>';
+  el.classList.add('on');
+  const logEl = $('fl-log'), barEl = $('fl-bar');
+  let p = 0, shown = 0;
+  const draw = () => { const n = Math.round(p * 30 / 100); barEl.textContent = '[' + '█'.repeat(n) + '░'.repeat(30 - n) + '] ' + Math.floor(p) + '%'; };
+  draw();
+  const iv = setInterval(() => {
+    p = Math.min(100, p + 1 + Math.random() * 2.4);
+    while (shown < steps.length && steps[shown][0] <= p) {
+      const d = document.createElement('div'); d.textContent = '> ' + steps[shown][1]; logEl.appendChild(d); shown++;
+    }
+    draw();
+    if (p >= 100) { clearInterval(iv); finish(); }
+  }, 110);
+  function finish() {
+    if (inst) doInstall(); else doUninstall();
+    beep(true, 1200, 0.12);
+    const w = $('fl-warn'); w.className = 'fl-ok';
+    w.innerHTML = (inst ? L('BIOS Update 2.0 instalada correctamente.', 'BIOS Update 2.0 installed successfully.')
+                        : L('BIOS Update 2.0 desinstalada. BIOS 3.0.1 restaurada.', 'BIOS Update 2.0 uninstalled. BIOS 3.0.1 restored.')) +
+      '<br>' + L('Reinicia para aplicar los cambios (F2 / Supr para entrar a la BIOS).', 'Restart to apply the changes (F2 / Del to enter the BIOS).') +
+      '<div class="bu16-btns" style="justify-content:flex-start;padding:16px 0 0"><button class="bu16-btn def" id="fl-rb">' + L('Reiniciar ahora', 'Restart now') +
+      '</button><button class="bu16-btn" id="fl-lt">' + L('Más tarde', 'Later') + '</button></div>';
+    $('fl-rb').onclick = () => { el.classList.remove('on'); if (window.powerAction) powerAction('restart'); else location.reload(); };
+    $('fl-lt').onclick = () => { el.classList.remove('on'); window.__biosUpdPending = true; rerenderSettings();
+      if (window.showNotification) showNotification(inst ? L('🧠 BIOS Update 2.0 instalada. Reinicia para aplicarla.', '🧠 BIOS Update 2.0 installed. Restart to apply it.')
+                                                         : L('🧠 BIOS Update 2.0 desinstalada.', '🧠 BIOS Update 2.0 uninstalled.')); };
+    $('fl-rb').focus();
+  }
+}
+
+/* ---------- Ajustes > davidOS Update ---------- */
+const updStatus = () => installed() ? L('Tu sistema está al día.', 'Your system is up to date.') : L('Hay 1 actualización disponible.', '1 update is available.');
+function updPage() {
+  const inst = installed(), info = rd(K_INST) || {}, loc = (window.__locale ? window.__locale() : undefined);
+  const feats = [
+    L('⚡ Overclock de CPU/RAM, Turbo Boost, XMP y perfiles de ventilador', '⚡ CPU/RAM overclock, Turbo Boost, XMP and fan profiles'),
+    L('🌡️ Monitor de hardware en tiempo real', '🌡️ Real-time hardware monitor'),
+    L('💾 Orden de arranque editable, Fast Boot y POST detallado', '💾 Editable boot order, Fast Boot and detailed POST'),
+    L('🔐 Contraseña de administrador y Secure Boot configurable', '🔐 Administrator password and configurable Secure Boot'),
+    L('📜 Registro de eventos de la BIOS', '📜 BIOS event log'),
+    L('⌨️ Navegación con teclado (↑↓, F9, F10, Esc)', '⌨️ Keyboard navigation (↑↓, F9, F10, Esc)')
+  ];
+  return '<div><b style="font-size:15px;">🔄 davidOS Update</b>' +
+    '<p id="upd-status" style="font-size:12px;opacity:.75;margin:6px 0 10px;">' + updStatus() + '</p>' +
+    '<button class="app-btn" style="background:rgba(255,255,255,0.1);" onclick="__biosUpd.check()">🔎 ' + L('Buscar actualizaciones', 'Check for updates') + '</button></div>' +
+    '<hr style="border-color:#333;">' +
+    '<div style="border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:12px;background:rgba(255,255,255,.04);">' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;"><b>🧠 BIOS Update 2.0</b>' +
+    '<span style="font-size:11px;padding:2px 8px;border-radius:9px;background:' + (inst ? '#27c93f' : '#ffbd2e') + ';color:#000;">' + (inst ? L('Instalada', 'Installed') : L('Disponible', 'Available')) + '</span></div>' +
+    '<p style="font-size:11px;opacity:.6;margin:4px 0 8px;">davidOS UEFI v3.0.1 → v3.2.0 · 1.4 MB' + (inst && info.date ? ' · ' + L('Instalada el ', 'Installed on ') + new Date(info.date).toLocaleDateString(loc) : '') + '</p>' +
+    '<ul style="font-size:12px;opacity:.85;margin:0 0 12px 16px;line-height:1.6;">' + feats.map(f => '<li>' + f + '</li>').join('') + '</ul>' +
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
+    (inst ? '<button class="app-btn" style="background:rgba(255,95,86,0.55);" onclick="__biosUpd.uninstall()">🗑️ ' + L('Desinstalar', 'Uninstall') + '</button>'
+          : '<button class="app-btn" onclick="__biosUpd.install()">⬇️ ' + L('Instalar', 'Install') + '</button>') +
+    (window.__biosUpdPending ? '<button class="app-btn" style="background:rgba(255,255,255,0.1);" onclick="powerAction(\'restart\')">🔄 ' + L('Reiniciar para aplicar', 'Restart to apply') + '</button>' : '') +
+    '</div>' +
+    (window.__biosUpdPending ? '<p style="font-size:11px;opacity:.7;margin-top:8px;">' + L('Reinicia y pulsa F2 / Supr durante el arranque para ver la BIOS.', 'Restart and press F2 / Del during boot to see the BIOS.') + '</p>' : '') +
+    '</div>';
+}
+const prevGet = window.getAppContent;
+window.getAppContent = function (id) {
+  if (id !== 'settings') return prevGet.apply(this, arguments);
+  const tab = window.__settingsTab || 'general', on = tab === 'update';
+  const btn = '<button class="app-btn" style="justify-content:flex-start;text-align:left;' + (on ? '' : 'background:rgba(255,255,255,0.06);') +
+    '" onclick="window.__setSettingsTab(\'update\')">🔄 davidOS Update' +
+    (installed() ? '' : ' <span style="background:#ff5f56;color:#fff;border-radius:9px;padding:0 6px;font-size:10px;margin-left:6px;">1</span>') + '</button>';
+  let html = prevGet.apply(this, arguments);
+  html = html.replace(/(__setSettingsTab\('system'\)[^>]*>[\s\S]*?<\/button>)/, '$1' + btn);
+  if (!on) return html;
+  const marker = '<div style="flex:1; overflow-y:auto;', at = html.indexOf(marker);
+  if (at < 0) return html;
+  return html.slice(0, at) + '<div style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:15px; padding-left:4px;">' + updPage() + '</div></div></div>';
+};
+
+/* ---------- estado inicial ---------- */
+if (installed()) { syncCfg(getCfg()); patchI18N(true, false); document.body.classList.add('bios2'); }
+console.log('%c BIOS Update 2.0 (davidOS Update) cargado ', 'background:#0000aa;color:#fff;padding:3px 8px;');
+})();
+</script>
+
 </body>
 </html>
