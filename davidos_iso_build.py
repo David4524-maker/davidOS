@@ -38,7 +38,7 @@ from pathlib import Path
 # ----------------------------------------------------------------------------
 #  Configuración
 # ----------------------------------------------------------------------------
-HTML_CANDIDATES = ("index_davidos.html", "davidos.html", "index.html")
+HTML_CANDIDATES = ("index_davidos.html", "davidOS.html", "index.html")
 ISO_NAME        = "davidos.iso"
 VOLUME_LABEL    = "DAVIDOS_WEB"
 VOLUME_SET      = "davidOS Web Edition"
