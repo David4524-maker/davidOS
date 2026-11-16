@@ -31,7 +31,7 @@ from pathlib import Path
 #  Configuración
 # ────────────────────────────────────────────────────────────────────────────
 ALPINE_INDEX      = "https://dl-cdn.alpinelinux.org/alpine/latest-stable/releases/x86_64/"
-HTML_CANDIDATES   = ("index_davidos.html", "davidos.html", "index.html")
+HTML_CANDIDATES   = ("index_davidos.html", "davidOS.html", "index.html")
 OUT_ISO_NAME      = "davidOS-kiosk.iso"
 APKOVL_NAME       = "alpine.apkovl.tar.gz"
 RAM_RECOMMENDED   = 2048   # MB
